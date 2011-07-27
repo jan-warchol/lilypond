@@ -1998,7 +1998,7 @@
 	(beam-width . ,ly:stem-tremolo::calc-width) ; staff-space
 	(slope . ,ly:stem-tremolo::calc-slope)
 	(stencil . ,ly:stem-tremolo::print)
-	(style . ,ly:stem-tremolo::calc-style)
+	(shape . ,ly:stem-tremolo::calc-shape)
 	(X-extent . ,ly:stem-tremolo::width)
 	(X-offset . ,(ly:make-simple-closure
 		      `(,+

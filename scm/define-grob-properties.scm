@@ -743,6 +743,9 @@ value @w{@code{-1}} means left aligned, @code{0}@tie{}centered, and
 values may also be specified.")
      (self-alignment-Y ,number? "Like @code{self-alignment-X} but for
 the Y@tie{}axis.")
+     (shape ,symbol? "This setting determines what shape a grob
+has.  Valid choices depend on the @code{stencil} callback reading
+this property.")
      (shorten-pair ,number-pair? "The lengths to shorten a
 text-spanner on both sides, for example a pedal bracket.  Positive
 values shorten the text-spanner, while negative values lengthen it.")
