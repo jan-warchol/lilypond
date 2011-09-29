@@ -28,7 +28,8 @@ class Stem_tremolo
 public:
 
   DECLARE_GROB_INTERFACE ();
-  DECLARE_SCHEME_CALLBACK (calc_slope, (SCM));
+  DECLARE_SCHEME_CALLBACK (calc_default_slope, (SCM));
+  DECLARE_SCHEME_CALLBACK (calc_constant_slope, (SCM));
   DECLARE_SCHEME_CALLBACK (calc_width, (SCM));
   DECLARE_SCHEME_CALLBACK (calc_y_offset, (SCM));
   DECLARE_SCHEME_CALLBACK (pure_calc_y_offset, (SCM, SCM, SCM));

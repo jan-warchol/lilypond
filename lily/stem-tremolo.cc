@@ -29,9 +29,9 @@
 #include "stem.hh"
 #include "warn.hh"
 
-MAKE_SCHEME_CALLBACK (Stem_tremolo, calc_slope, 1)
+MAKE_SCHEME_CALLBACK (Stem_tremolo, calc_default_slope, 1)
 SCM
-Stem_tremolo::calc_slope (SCM smob)
+Stem_tremolo::calc_default_slope (SCM smob)
 {
   Grob *me = unsmob_grob (smob);
   Grob *stem = unsmob_grob (me->get_object ("stem"));
@@ -54,10 +54,28 @@ Stem_tremolo::calc_slope (SCM smob)
       return scm_from_double (dx ? dy / dx : 0);
     }
   else
-    /* down stems with flags should have more sloped trems (helps avoid
-       flag/stem collisions without making the stem very long) */
+    /* downstems with flags should have more sloped trems (helps avoid
+       flag/slash collisions without making the stem very long) */
     return scm_from_double ((Stem::duration_log (stem) >= 3 && get_grob_direction (stem) == DOWN)
                             ? 0.40 : 0.25);
+}
+
+MAKE_SCHEME_CALLBACK (Stem_tremolo, calc_constant_slope, 1)
+SCM
+Stem_tremolo::calc_constant_slope (SCM smob)
+{
+  /* This function returns constant slash slope in all cases
+  except downstems with flags - they should have more sloped tremolos
+  to help avoid flag/slash collisions without making the stem very long) */
+
+  Grob *me = unsmob_grob (smob);
+  Grob *stem = unsmob_grob (me->get_object ("stem"));
+  Spanner *beam = Stem::get_beam (stem);
+
+  return scm_from_double ((!beam
+                           && Stem::duration_log (stem) >= 3
+                           && get_grob_direction (stem) == DOWN)
+                          ? 0.40 : 0.25);
 }
 
 MAKE_SCHEME_CALLBACK (Stem_tremolo, calc_width, 1)
