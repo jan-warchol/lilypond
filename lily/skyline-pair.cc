@@ -76,8 +76,8 @@ Skyline_pair::print () const
 void
 Skyline_pair::print_points () const
 {
-  skylines_[UP].print ();
-  skylines_[DOWN].print ();
+  skylines_[UP].print_points ();
+  skylines_[DOWN].print_points ();
 }
 
 bool

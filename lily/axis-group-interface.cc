@@ -671,30 +671,68 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
               dir = UP;
             }
 
-          Box b (elements[i]->extent (x_common, X_AXIS),
-                 elements[i]->extent (y_common, Y_AXIS));
           SCM horizon_padding_scm = elements[i]->get_property ("outside-staff-horizontal-padding");
           Real horizon_padding = robust_scm2double (horizon_padding_scm, 0.0);
+          Skyline other;
+          Box b;
+          bool do_add = false;
+          bool before_last_affected_position = false;
+          bool uses_boxes = false;
+          Skyline_pair pair;
 
-          if (b[X_AXIS][LEFT] - 2 * horizon_padding < last_affected_position[dir])
+          if (Skyline_pair::unsmob (elements[i]->get_property ("vertical-skylines")))
+            {
+              pair = Skyline_pair (*Skyline_pair::unsmob (elements[i]->get_property ("vertical-skylines")));
+              pair.shift (elements[i]->relative_coordinate (x_common, X_AXIS));
+              pair.raise (elements[i]->relative_coordinate (y_common, Y_AXIS));
+              other = Skyline (pair[-dir]);
+              before_last_affected_position = other.left () - 2 * horizon_padding < last_affected_position[dir];
+              do_add = !other.is_empty ();
+            }
+          else
+            {
+              uses_boxes = true;
+              b = Box (elements[i]->extent (x_common, X_AXIS),
+                       elements[i]->extent (y_common, Y_AXIS));
+
+              before_last_affected_position = b[X_AXIS][LEFT] - 2 * horizon_padding < last_affected_position[dir];
+              do_add = !b[X_AXIS].is_empty () && !b[Y_AXIS].is_empty ();
+            }
+          
+          if (before_last_affected_position)
             continue;
 
-          if (!b[X_AXIS].is_empty () && !b[Y_AXIS].is_empty ())
+          if (do_add)
             {
               boxes.clear ();
-              boxes.push_back (b);
-              Skyline other = Skyline (boxes, horizon_padding, X_AXIS, -dir);
+              if (uses_boxes)
+                {
+                  boxes.push_back (b);
+                  other = Skyline (boxes, horizon_padding, X_AXIS, -dir);
+                }
+
               Real padding = robust_scm2double (elements[i]->get_property ("outside-staff-padding"), 0.5);
               Real dist = (*skylines)[dir].distance (other) + padding;
 
               if (dist > 0)
                 {
-                  b.translate (Offset (0, dir * dist));
+                  if (uses_boxes)
+                    b.translate (Offset (0, dir * dist));
                   elements[i]->translate_axis (dir * dist, Y_AXIS);
                 }
-              skylines->insert (b, 0, X_AXIS);
+              if (uses_boxes)
+                skylines->insert (b, 0, X_AXIS);
+              else
+                {
+                  pair.raise (dir * dist);
+                  skylines->merge (pair);
+                }
               elements[i]->set_property ("outside-staff-priority", SCM_BOOL_F);
-              last_affected_position[dir] = b[X_AXIS][RIGHT];
+              if (uses_boxes)
+                last_affected_position[dir] = b[X_AXIS][RIGHT];
+              else
+                last_affected_position[dir] = other.right ();
+              other.clear ();
             }
 
           /*
@@ -867,7 +905,6 @@ ADD_INTERFACE (Axis_group_interface,
                "staff-grouper "
                "staff-staff-spacing "
                "system-Y-offset "
-               "vertical-skylines "
                "X-common "
                "Y-common "
               );

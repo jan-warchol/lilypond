@@ -117,7 +117,7 @@
 		      cid?
 		      w-x-y-named-glyphs)
 
-  (define (glyph-spec w x y g)
+  (define (glyph-spec w h x y g) ; h not used
     (let ((prefix (if (string? g) "/" "")))
       (ly:format "~4f ~4f ~4f ~a~a"
 		 w x y

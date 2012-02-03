@@ -83,6 +83,8 @@ public:
   void set_minimum_height (Real height);
   void clear ();
   bool is_empty () const;
+  Real left () const;
+  Real right () const;
 
   DECLARE_SCHEME_CALLBACK (get_touching_point, (SCM, SCM, SCM));
   DECLARE_SCHEME_CALLBACK (get_distance, (SCM, SCM, SCM));

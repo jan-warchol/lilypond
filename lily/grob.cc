@@ -814,6 +814,7 @@ ADD_INTERFACE (Grob,
                "staff-symbol "
                "stencil "
                "transparent "
+               "vertical-skylines "
                "whiteout "
               );
 

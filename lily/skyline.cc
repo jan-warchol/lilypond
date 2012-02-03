@@ -640,6 +640,28 @@ Skyline::to_points (Axis horizon_axis) const
   return out;
 }
 
+Real
+Skyline::left () const
+{
+  Building b = buildings_.front ();
+  return b.end_;
+}
+
+Real
+Skyline::right () const
+{
+  if (buildings_.size () == 1)
+    return -infinity_f;
+
+  Real out = 0.0;
+  for (list<Building>::const_iterator i (buildings_.begin ());
+       i != buildings_.end (); i++)
+    if (i->end_ < infinity_f)
+      out = i->end_;
+
+  return out;
+}
+
 bool
 Skyline::is_empty () const
 {

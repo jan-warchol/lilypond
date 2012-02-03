@@ -224,7 +224,20 @@ Pango_font::pango_item_string_stencil (PangoGlyphItem const *glyph_item) const
       else
         char_id = scm_from_locale_string (glyph_name);
 
-      *tail = scm_cons (scm_list_4 (scm_from_double (ggeo.width * scale_),
+      PangoRectangle logical_sub_rect;
+      PangoRectangle ink_sub_rect;
+
+      pango_glyph_string_extents_range (pgs, i, i + 1, pa->font, &ink_sub_rect, &logical_sub_rect);
+      Box b_sub (Interval (PANGO_LBEARING (logical_sub_rect),
+                           PANGO_RBEARING (logical_sub_rect)),
+                 Interval (-PANGO_DESCENT (ink_sub_rect),
+                           PANGO_ASCENT (ink_sub_rect)));
+
+      b_sub.scale (scale_);
+
+      *tail = scm_cons (scm_list_5 (scm_from_double (b_sub[X_AXIS][RIGHT] - b_sub[X_AXIS][LEFT]),
+                                    scm_cons (scm_from_double (b_sub[Y_AXIS][DOWN]),
+                                              scm_from_double (b_sub[Y_AXIS][UP])),
                                     scm_from_double (ggeo.x_offset * scale_),
                                     scm_from_double (- ggeo.y_offset * scale_),
                                     char_id),

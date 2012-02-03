@@ -36,4 +36,6 @@ public:
   Box (Interval ix, Interval iy);
 };
 
+DECLARE_UNSMOB (Box, box);
+
 #endif
