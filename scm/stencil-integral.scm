@@ -29,7 +29,7 @@
 ;; [ y ]
 ;; [ 1 ]
 
-(define box-cache '())
+(define post-processing-box-cache '())
 
 (define curve-quantization 10)
 
@@ -172,18 +172,24 @@
                        (/ (abs (car thicks)) 2)
                        (/ (abs (cdr thicks)) 2)))))
 
-(define (group-tokens-into-commands tokens out temp)
+(define (group-tokens-into-commands tokens out temp convert-number)
   (cond
     ((null? tokens)
      (filter (lambda (x) (not (null? x))) (append out (list (reverse temp)))))
-    ((not (string->number (car tokens)))
+    ((not ((if convert-number string->number number?) (car tokens)))
      (group-tokens-into-commands (cdr tokens)
                                  (append out (list (reverse temp)))
-                                 (list (car tokens))))
+                                 (list (car tokens))
+                                 convert-number))
     (else
       (group-tokens-into-commands (cdr tokens)
                                   out
-                                  (cons (string->number (car tokens)) temp)))))
+                                  (cons ((if convert-number
+                                             string->number
+                                             values)
+                                         (car tokens))
+                                        temp)
+                                  convert-number))))
 
 (define command-to-token-alist
   '((moveto . "M")
@@ -193,9 +199,6 @@
     (curveto . "C")
     (rcurveto . "c")
     (closepath . "z")))
-
-; a bit kludgy, as we go from number to string and back again
-; doesn't seem to slow things down too much
 
 (define (get-path-from-quoted-material l)
   (cond
@@ -217,11 +220,14 @@
       (flatten-list (filter values (list (get-coords-from-quoted-material (car l))
                                          (get-coords-from-quoted-material (cdr l))))))))
 
+; a bit kludgy, as we go from number to string and back again
+; doesn't seem to slow things down too much
+
 (define (transform-path-into-command-tokens path)
   (map (lambda (x)
          (if (assoc-get x command-to-token-alist #f)
              (assoc-get x command-to-token-alist)
-             (number->string x)))
+             x))
        ; this is really ugly...
        ; probably will fail in certain contexts...
        (get-path-from-quoted-material path)))
@@ -429,8 +435,8 @@
       (not (and (= (car l) (caddr l)) (= (cadr l) (cadddr l))))
       #t))
 
-(define (parse-d-tokens-into-absolute-lines-and-curves d-l)
-  (let* ((commands (group-tokens-into-commands d-l '() '()))
+(define (parse-d-tokens-into-absolute-lines-and-curves d-l convert-number)
+  (let* ((commands (group-tokens-into-commands d-l '() '() convert-number))
          (commands (reverse (reduce append '() (map expand-command commands))))
          (commands (all-commands-to-absolute commands
                                              '()
@@ -449,7 +455,7 @@
 
 (define (parse-path-into-absolute-lines-and-curves path)
   (let* ((d-l (transform-path-into-command-tokens path)))
-    (parse-d-tokens-into-absolute-lines-and-curves d-l)))
+    (parse-d-tokens-into-absolute-lines-and-curves d-l #f)))
 
 (define (parse-d-into-absolute-lines-and-curves d)
   (let* ((d (regexp-substitute/global #f "[\n]+" d 'pre " " 'post))
@@ -458,7 +464,7 @@
                              '()
                              (reverse (map (lambda (y) (string-split y #\space))
                                       (numbers-and-letters d)))))))
-    (parse-d-tokens-into-absolute-lines-and-curves d-l)))
+    (parse-d-tokens-into-absolute-lines-and-curves d-l #t)))
 
 (define (set-assoc-cache-to-null-and-return-null name-style name)
   (set! box-cache (assoc-set! box-cache
@@ -496,7 +502,7 @@
 (define (make-curves-for-glyph-and-cache d font name-style name)
   (let* ((sten (ly:font-get-glyph font name))
          (ex (ly:stencil-extent sten X))
-         (ey (ly:stencil-extent sten Y))
+         (ey (ly:stencil-extent sten Y)) (dummy (format #t "EX EY N ~a ~a ~a ~a\n" name-style name ey ex))
          (alc (parse-d-into-absolute-lines-and-curves d))
          ; min-max returned as '((minx maxx) (miny maxy))
          (mm (map (lambda (x)
@@ -527,34 +533,25 @@
 			      "([[:space:]]+)?"
 			      "/>")))
 
-;;; end code dup, begin logic dup
-
-(define (extract-glyph-boxes font name-style all-glyphs name)
-  (if (assoc-get (string-append name-style name) box-cache #f)
-      (assoc-get (string-append name-style name) box-cache)
-      (let* ((new-name (regexp-quote name))
-             (regexp (regexp-exec (glyph-element-regexp new-name) all-glyphs))
-             (glyph (match:substring regexp))
-             (d-attr (regexp-exec glyph-path-regexp glyph))
-             (d-attr? (regexp-match? d-attr))
-             (d-attr-value (if d-attr? (match:substring d-attr 1) "")))
-        (if (not (equal? d-attr-value ""))
-            (make-curves-for-glyph-and-cache d-attr-value font name-style name)
-            (set-assoc-cache-to-null-and-return-null name-style name)))))
-
-(define (svg-defs svg-font)
-  (let ((start (string-contains svg-font "<defs>"))
-	(end (string-contains svg-font "</defs>")))
-    (substring svg-font (+ start 7) (- end 1))))
-
-(define (cache-boxes font name-style svg-font glyph)
-  (let ((all-glyphs (svg-defs (cached-file-contents svg-font))))
-    (extract-glyph-boxes font name-style all-glyphs glyph)))
+(define (get-gylph-from-font-cache font name-style glyph)
+  (let* ((sten (ly:font-get-glyph font glyph))
+               (ex (ly:stencil-extent sten X))
+               (ey (ly:stencil-extent sten Y))
+               (path-info (hashq-ref (hashq-ref box-hash
+                                                (string->symbol name-style))
+                          (string->symbol glyph))))
+          (map (lambda (x)
+                 (lines-and-curves-to-extent
+                   x
+                   (assoc-get 'mmx path-info)
+                   (assoc-get 'mmy path-info)
+                   ex
+                   ey))
+               (assoc-get 'paths path-info))))
 
 (define (make-named-glyph-boxes trans font glyph)
   (let* ((name-style (font-name-style font))
          (font-file (ly:find-file (string-append name-style ".svg"))))
-
     (if font-file
         (flatten-list (map (lambda (x)
                              (apply
@@ -562,10 +559,7 @@
                                    make-draw-line-boxes
                                    make-draw-bezier-boxes)
                                (append `(,trans 0) x)))
-                           (cache-boxes font
-                                        name-style
-                                        font-file
-                                        glyph)))
+                           (get-gylph-from-font-cache font name-style glyph)))
         (begin
           (ly:warning (_ "cannot find SVG font ~S") font-file)
           '()))))

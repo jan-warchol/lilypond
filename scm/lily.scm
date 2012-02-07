@@ -289,7 +289,6 @@ messages into errors.")
 (if (memq (ly:get-option 'backend) music-string-to-path-backends)
     (ly:set-option 'music-strings-to-paths #t))
 
-
 (define-public (ly:load x)
   (let* ((file-name (%search-load-path x)))
     (ly:debug "[~A" file-name)
@@ -440,6 +439,8 @@ messages into errors.")
           init-scheme-files-tail))
 
 (for-each ly:load init-scheme-files)
+(if (ly:find-file "font-cache.scm")
+  (primitive-load-path (ly:find-file "font-cache.scm")))
 
 (define-public r5rs-primary-predicates
   `((,boolean? . "boolean")
