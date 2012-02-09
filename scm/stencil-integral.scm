@@ -606,7 +606,7 @@
            (th (cadddr s)))
        (make-partial-ellipse-boxes t x-rad y-rad 0.0 360.0 th #f #t)))
     ((eq? (car s)
-          'ellipse)
+          'partial-ellipse)
      (let ((x-rad (cadr s))
            (y-rad (caddr s))
            (start (cadddr s))
