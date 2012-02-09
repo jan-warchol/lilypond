@@ -683,13 +683,16 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
           if (Skyline_pair::unsmob (elements[i]->get_property ("vertical-skylines")))
             {
               pair = Skyline_pair (*Skyline_pair::unsmob (elements[i]->get_property ("vertical-skylines")));
-              Interval xex = elements[i]->extent (x_common, X_AXIS);
-              Interval yex = elements[i]->extent (y_common, Y_AXIS);
-              pair.shift (xex[LEFT] - pair[DOWN].left ());
-              pair.raise (yex[DOWN] - pair[DOWN].max_height ());
-              other = Skyline (pair[-dir]);
+              do_add = !pair.is_empty ();
+              if (do_add)
+                {
+                  Interval xex = elements[i]->extent (x_common, X_AXIS);
+                  Interval yex = elements[i]->extent (y_common, Y_AXIS);
+                  pair.shift (xex[LEFT] - pair[DOWN].left ());
+                  pair.raise (yex[DOWN] - pair[DOWN].max_height ());
+                  other = Skyline (pair[-dir]);
+                }
               before_last_affected_position = other.left () - 2 * horizon_padding < last_affected_position[dir];
-              do_add = !other.is_empty ();
             }
           else
             {
