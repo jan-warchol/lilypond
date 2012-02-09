@@ -817,16 +817,14 @@ Grob::vertical_skylines_from_element_stencils (SCM smob)
   extract_grob_set (me, "elements", elts);
   Grob *refp = common_refpoint_of_array (elts, me, X_AXIS);
   vector<Real> x_pos;
-  bool first = true;
-  Real diff = 0.0;
+  Real diff = infinity_f;
   for (vsize i = 0; i < elts.size (); i++)
     {
       x_pos.push_back (elts[i]->relative_coordinate (refp, X_AXIS));
-      if (first)
-        diff = x_pos[0];
-      first = false;
-      x_pos[i] -= diff;
+      diff = min (diff, x_pos[i]);
     }
+  for (vsize i = 0; i < elts.size (); i++)
+    x_pos[i] -= diff;
   Skyline_pair res;
   for (vsize i = 0; i < elts.size (); i++)
     {

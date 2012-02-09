@@ -718,15 +718,14 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
                 {
                   if (uses_boxes)
                     b.translate (Offset (0, dir * dist));
+                  else
+                    pair.raise (dir * dist);
                   elements[i]->translate_axis (dir * dist, Y_AXIS);
                 }
               if (uses_boxes)
                 skylines->insert (b, 0, X_AXIS);
               else
-                {
-                  pair.raise (dir * dist);
-                  skylines->merge (pair);
-                }
+                skylines->merge (pair);
               elements[i]->set_property ("outside-staff-priority", SCM_BOOL_F);
               if (uses_boxes)
                 last_affected_position[dir] = b[X_AXIS][RIGHT];
