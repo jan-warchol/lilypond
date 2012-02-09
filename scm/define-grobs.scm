@@ -1665,6 +1665,7 @@
 	(stencil . ,ly:piano-pedal-bracket::print)
 	(style . line)
 	(thickness .  1.0)
+	(vertical-skylines . ,ly:grob::vertical-skylines-from-stencil)
 	(meta . ((class . Spanner)
 		 (interfaces . (line-interface
 				piano-pedal-bracket-interface
@@ -1822,6 +1823,7 @@
 	(padding . 0.0) ;; padding relative to SostenutoPedalLineSpanner
 	(self-alignment-X . ,CENTER)
 	(stencil . ,ly:text-interface::print)
+	(vertical-skylines . ,ly:grob::vertical-skylines-from-stencil)
 	(X-offset . ,ly:self-alignment-interface::x-aligned-on-self)
 	(meta . ((class . Item)
 		 (interfaces . (font-interface
@@ -2071,6 +2073,7 @@
 	(padding . 0.0)  ;; padding relative to SustainPedalLineSpanner
 	(self-alignment-X . ,CENTER)
 	(stencil . ,ly:sustain-pedal::print)
+	(vertical-skylines . ,ly:grob::vertical-skylines-from-stencil)
 	(X-offset . ,ly:self-alignment-interface::x-aligned-on-self)
 	(meta . ((class . Item)
 		 (interfaces . (font-interface
@@ -2463,6 +2466,7 @@
 	(padding . 0.0)  ;; padding relative to UnaCordaPedalLineSpanner
 	(self-alignment-X . ,CENTER)
 	(stencil . ,ly:text-interface::print)
+	(vertical-skylines . ,ly:grob::vertical-skylines-from-stencil)
 	(X-offset . ,ly:self-alignment-interface::x-aligned-on-self)
 	(meta . ((class . Item)
 		 (interfaces . (font-interface
