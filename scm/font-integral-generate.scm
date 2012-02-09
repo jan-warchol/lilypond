@@ -94,7 +94,7 @@
                     (ly:otf-glyph-list font))))
   (format #t "(define boxes-for-~a (make-hash-table ~a))\n" font-name (length info))
   (for-each (lambda (x) (format #t "(hashq-set! boxes-for-~a '~a '~a)\n" font-name (car x) (cdr x))) info)
-  (format #t "(hashq-set! box-hash '~a boxes-for-~a)" font-name font-name)))
+  (format #t "(hashq-set! box-hash '~a boxes-for-~a)\n" font-name font-name)))
 
 (define font-list
   '("emmentaler-11"
