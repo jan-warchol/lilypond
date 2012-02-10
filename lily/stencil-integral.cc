@@ -283,7 +283,7 @@ make_partial_ellipse_boxes (Transform_matrix trans, SCM expr)
   Offset ep (real (eunit) * x_rad, imag (eunit) * y_rad);
   //////////////////////
   vector<Offset> points;
-  for (vsize i = 0; i < 1 + CURVE_QUANTIZATION; i++)
+  for (vsize i = 0; i < 1 + ELLIPSE_QUANTIZATION; i++)
     {
       Real ang = linear_map (start, end, 0, ELLIPSE_QUANTIZATION, i);
       complex<Real> coord = polar (1.0, ang);
@@ -292,7 +292,7 @@ make_partial_ellipse_boxes (Transform_matrix trans, SCM expr)
       points.push_back (Transform_matrix::multiply_point (trans, pt));
     }
   Translate_scale_rotate tsr = Transform_matrix::to_translate_scale_rotate (trans);
-  for (vsize i = 0; i < CURVE_QUANTIZATION; i++)
+  for (vsize i = 0; i < ELLIPSE_QUANTIZATION; i++)
     {
       Box b;
       b.add_point (points[i]);
@@ -758,7 +758,7 @@ stencil_traverser (Transform_matrix trans, SCM expr)
     }
   else if (scm_car (expr) == ly_symbol2scm ("rotate-stencil"))
     {
-      Real ang = robust_scm2double (scm_caadr (expr), 0.0);
+      Real ang = robust_scm2double (scm_caadr (expr), 0.0) * M_PI / 180.0;
       Real x = robust_scm2double (scm_car (scm_cadadr (expr)), 0.0);
       Real y = robust_scm2double (scm_cdr (scm_cadadr (expr)), 0.0);
       trans = Transform_matrix::multiply_matrix (trans, make_transform_matrix (1.0,0.0,0.0,1.0,x,y));
