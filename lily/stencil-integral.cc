@@ -815,23 +815,25 @@ Grob::vertical_skylines_from_element_stencils (SCM smob)
 {
   Grob *me = unsmob_grob (smob);
   extract_grob_set (me, "elements", elts);
-  Grob *refp = common_refpoint_of_array (elts, me, X_AXIS);
   vector<Real> x_pos;
-  Real diff = infinity_f;
+  vector<Real> y_pos;
+  Grob *x_common = common_refpoint_of_array (elts, me, X_AXIS);
+  Grob *y_common = common_refpoint_of_array (elts, me, Y_AXIS);
   for (vsize i = 0; i < elts.size (); i++)
     {
-      x_pos.push_back (elts[i]->relative_coordinate (refp, X_AXIS));
-      diff = min (diff, x_pos[i]);
+      x_pos.push_back (elts[i]->relative_coordinate (x_common, X_AXIS));
+      y_pos.push_back (elts[i]->relative_coordinate (y_common, Y_AXIS));
     }
-  for (vsize i = 0; i < elts.size (); i++)
-    x_pos[i] -= diff;
+  Real my_x = me->relative_coordinate (x_common, X_AXIS);
+  Real my_y = me->relative_coordinate (y_common, Y_AXIS);
   Skyline_pair res;
   for (vsize i = 0; i < elts.size (); i++)
     {
       Skyline_pair *skyp = Skyline_pair::unsmob (elts[i]->get_property ("vertical-skylines"));
       if (skyp)
         {
-          skyp->shift (x_pos[i]);
+          skyp->shift (x_pos[i] - my_x);
+          skyp->raise (y_pos[i] - my_y);
           res.merge (*skyp);
         }
     }

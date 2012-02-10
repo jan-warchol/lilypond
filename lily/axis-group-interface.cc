@@ -603,7 +603,7 @@ pure_staff_priority_less (Grob *const &g1, Grob *const &g2)
 
   return priority_1 < priority_2;
 }
-
+#include <valgrind/valgrind.h>
 static void
 add_boxes (Grob *me, Grob *x_common, Grob *y_common, vector<Box> *const boxes, Skyline_pair *skylines)
 {
@@ -618,7 +618,8 @@ add_boxes (Grob *me, Grob *x_common, Grob *y_common, vector<Box> *const boxes, S
   else if (Grob_array *elements = unsmob_grob_array (me->get_object ("elements")))
     {
       for (vsize i = 0; i < elements->size (); i++)
-        add_boxes (elements->grob (i), x_common, y_common, boxes, skylines);
+        if (elements->grob (i)->get_property ("outside-staff-priority") != SCM_BOOL_T)
+          add_boxes (elements->grob (i), x_common, y_common, boxes, skylines);
     }
   else if (!scm_is_number (me->get_property ("outside-staff-priority"))
            && !to_boolean (me->get_property ("cross-staff")))
@@ -688,8 +689,9 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
                 {
                   Interval xex = elements[i]->extent (x_common, X_AXIS);
                   Interval yex = elements[i]->extent (y_common, Y_AXIS);
-                  pair.shift (xex[LEFT] - pair[DOWN].left ());
-                  pair.raise (yex[DOWN] - pair[DOWN].max_height ());
+                  Interval ht = robust_scm2interval (elements[i]->get_property ("Y-extent"), Interval(0,0));
+                  pair.shift (elements[i]->relative_coordinate (x_common, X_AXIS));
+                  pair.raise (elements[i]->relative_coordinate (y_common, Y_AXIS));
                   other = Skyline (pair[-dir]);
                 }
               before_last_affected_position = other.left () - 2 * horizon_padding < last_affected_position[dir];
@@ -731,7 +733,7 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
                 skylines->insert (b, 0, X_AXIS);
               else
                 skylines->merge (pair);
-              elements[i]->set_property ("outside-staff-priority", SCM_BOOL_F);
+              elements[i]->set_property ("outside-staff-priority", SCM_BOOL_T);
               if (uses_boxes)
                 last_affected_position[dir] = b[X_AXIS][RIGHT];
               else
@@ -789,7 +791,8 @@ Axis_group_interface::skyline_spacing (Grob *me, vector<Grob *> elements)
   Skyline_pair skylines;
   for (i = 0; i < elements.size ()
        && !scm_is_number (elements[i]->get_property ("outside-staff-priority")); i++)
-    if (!(to_boolean (elements[i]->get_property ("cross-staff")) || has_outside_staff_parent (elements[i])))
+    if ((!(to_boolean (elements[i]->get_property ("cross-staff")) || has_outside_staff_parent (elements[i])))
+        && (elements[i]->get_property ("outside-staff-priority") != SCM_BOOL_T))
       add_boxes (elements[i], x_common, y_common, &boxes, &skylines);
 
   SCM padding_scm = me->get_property ("skyline-horizontal-padding");
