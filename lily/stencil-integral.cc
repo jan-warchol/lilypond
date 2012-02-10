@@ -801,6 +801,11 @@ Grob::vertical_skylines_from_stencil (SCM smob)
       vector<Box> bxs = stencil_dispatcher (data[i].tm_, data[i].expr_);
       boxes.insert (boxes.end (), bxs.begin (), bxs.end ());
     }
+  if (!boxes.size ())
+    {
+      // we use the bounding box
+      boxes.push_back (Box (s->extent (X_AXIS), s->extent (Y_AXIS)));
+    }
   return Skyline_pair (boxes, 0.0, X_AXIS).smobbed_copy ();
 }
 
