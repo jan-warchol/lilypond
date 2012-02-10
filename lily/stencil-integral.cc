@@ -706,7 +706,13 @@ stencil_dispatcher (Transform_matrix trans, SCM expr)
     return make_glyph_string_boxes (trans, scm_cdr (expr));
   else
     {
-      warning ("Stencil expression not supported by the veritcal skylines.");
+      #if 0
+        warning ("Stencil expression not supported by the veritcal skylines.");
+      #endif
+      /*
+        We don't issue a warning here, as we assume that stencil-expression.cc
+        is doing stencil-checking correctly.
+      */
       return vector<Box> ();
     }
 }
