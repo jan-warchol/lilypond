@@ -398,7 +398,6 @@ SCM
 all_commands_to_absolute_and_group (SCM expr)
 {
   SCM out = SCM_EOL;
-  SCM *tail = &out;
   Offset start (0, 0);
   Offset current (0, 0);
   bool first = true;
@@ -425,12 +424,11 @@ all_commands_to_absolute_and_group (SCM expr)
         {
           Real x = robust_scm2double (scm_cadr (expr), 0.0);
           Real y = robust_scm2double (scm_caddr (expr), 0.0);
-          *tail = scm_cons (scm_list_4 (scm_from_double (current[X_AXIS]),
-                                        scm_from_double (current[Y_AXIS]),
-                                        scm_from_double (x),
-                                        scm_from_double (y)),
-                            SCM_EOL);
-          tail = SCM_CDRLOC (*tail);
+          out = scm_cons (scm_list_4 (scm_from_double (current[X_AXIS]),
+                                      scm_from_double (current[Y_AXIS]),
+                                      scm_from_double (x),
+                                      scm_from_double (y)),
+                          out);
           current = Offset (x, y);
           expr = scm_cdddr (expr);
         }
@@ -438,12 +436,11 @@ all_commands_to_absolute_and_group (SCM expr)
         {
           Real x = robust_scm2double (scm_cadr (expr), 0.0);
           Real y = robust_scm2double (scm_caddr (expr), 0.0);
-          *tail = scm_cons (scm_list_4 (scm_from_double (current[X_AXIS]),
-                                        scm_from_double (current[Y_AXIS]),
-                                        scm_from_double (x + current[X_AXIS]),
-                                        scm_from_double (y + current[Y_AXIS])),
-                            SCM_EOL);
-          tail = SCM_CDRLOC (*tail);
+          out = scm_cons (scm_list_4 (scm_from_double (current[X_AXIS]),
+                                      scm_from_double (current[Y_AXIS]),
+                                      scm_from_double (x + current[X_AXIS]),
+                                      scm_from_double (y + current[Y_AXIS])),
+                          out);
           current = (Offset (x, y) + current);
           expr = scm_cdddr (expr);
         }
@@ -461,17 +458,16 @@ all_commands_to_absolute_and_group (SCM expr)
           expr = scm_cdr (expr);
           Real y3 = robust_scm2double (scm_car (expr), 0.0);
           expr = scm_cdr (expr);
-          *tail = scm_cons (scm_list_n (scm_from_double (current[X_AXIS]),
-                                        scm_from_double (current[Y_AXIS]),
-                                        scm_from_double (x1),
-                                        scm_from_double (y1),
-                                        scm_from_double (x2),
-                                        scm_from_double (y2),
-                                        scm_from_double (x3),
-                                        scm_from_double (y3),
-                                        SCM_UNDEFINED),
-                            SCM_EOL);
-          tail = SCM_CDRLOC (*tail);
+          out = scm_cons (scm_list_n (scm_from_double (current[X_AXIS]),
+                                      scm_from_double (current[Y_AXIS]),
+                                      scm_from_double (x1),
+                                      scm_from_double (y1),
+                                      scm_from_double (x2),
+                                      scm_from_double (y2),
+                                      scm_from_double (x3),
+                                      scm_from_double (y3),
+                                      SCM_UNDEFINED),
+                            out);
           current = Offset (x3, y3);
         }
       else if (scm_car (expr) == ly_symbol2scm ("rcurveto"))
@@ -488,29 +484,27 @@ all_commands_to_absolute_and_group (SCM expr)
           expr = scm_cdr (expr);
           Real y3 = robust_scm2double (scm_car (expr), 0.0);
           expr = scm_cdr (expr);
-          *tail = scm_cons (scm_list_n (scm_from_double (current[X_AXIS]),
-                                        scm_from_double (current[Y_AXIS]),
-                                        scm_from_double (x1 + current[X_AXIS]),
-                                        scm_from_double (y1 + current[Y_AXIS]),
-                                        scm_from_double (x2 + current[X_AXIS]),
-                                        scm_from_double (y2 + current[Y_AXIS]),
-                                        scm_from_double (x3 + current[X_AXIS]),
-                                        scm_from_double (y3 + current[Y_AXIS]),
-                                        SCM_UNDEFINED),
-                            SCM_EOL);
-          tail = SCM_CDRLOC (*tail);
+          out = scm_cons (scm_list_n (scm_from_double (current[X_AXIS]),
+                                      scm_from_double (current[Y_AXIS]),
+                                      scm_from_double (x1 + current[X_AXIS]),
+                                      scm_from_double (y1 + current[Y_AXIS]),
+                                      scm_from_double (x2 + current[X_AXIS]),
+                                      scm_from_double (y2 + current[Y_AXIS]),
+                                      scm_from_double (x3 + current[X_AXIS]),
+                                      scm_from_double (y3 + current[Y_AXIS]),
+                                      SCM_UNDEFINED),
+                          out);
           current = (Offset (x3, y3) + current);
         }
       else if (scm_car (expr) == ly_symbol2scm ("closepath"))
         {
           if ((current[X_AXIS] != start[X_AXIS]) || (current[Y_AXIS] != start[Y_AXIS]))
             {
-              *tail = scm_cons (scm_list_4 (scm_from_double (current[X_AXIS]),
-                                            scm_from_double (current[Y_AXIS]),
-                                            scm_from_double (start[X_AXIS]),
-                                            scm_from_double (start[Y_AXIS])),
-                                SCM_EOL);
-              tail = SCM_CDRLOC (*tail);
+              out = scm_cons (scm_list_4 (scm_from_double (current[X_AXIS]),
+                                          scm_from_double (current[Y_AXIS]),
+                                          scm_from_double (start[X_AXIS]),
+                                          scm_from_double (start[Y_AXIS])),
+                              out);
               current = start;
             }
           expr = scm_cdr (expr);
@@ -522,7 +516,7 @@ all_commands_to_absolute_and_group (SCM expr)
         }
       first = false;
     }
-  return out;
+  return scm_reverse_x (out, SCM_EOL);
 }
 
 vector<Box>
@@ -554,20 +548,15 @@ make_polygon_boxes (Transform_matrix trans, SCM expr)
   //////////////////////
   bool first = true;
   SCM l = SCM_EOL;
-  SCM *tail = &l;
   for (SCM s = coords; scm_is_pair (s); s = scm_cddr (s))
     {
-      *tail = scm_cons (first ? ly_symbol2scm ("moveto") : ly_symbol2scm ("lineto"), SCM_EOL);
-      tail = SCM_CDRLOC (*tail);
-      *tail = scm_cons (scm_car (s), SCM_EOL);
-      tail = SCM_CDRLOC (*tail);
-      *tail = scm_cons (scm_cadr (s), SCM_EOL);
-      tail = SCM_CDRLOC (*tail);
+      l = scm_cons (first ? ly_symbol2scm ("moveto") : ly_symbol2scm ("lineto"), l);
+      l = scm_cons (scm_car (s), l);
+      l = scm_cons (scm_cadr (s), l);
       first = false;
     }
-  *tail = scm_cons (ly_symbol2scm ("closepath"), SCM_EOL);
-  tail = SCM_CDRLOC (*tail);
-  return make_path_boxes (trans, scm_cons (blot_diameter, l));
+  l = scm_cons (ly_symbol2scm ("closepath"), l);
+  return make_path_boxes (trans, scm_cons (blot_diameter, scm_reverse_x (l, SCM_EOL)));
 }
 
 vector<Box>
