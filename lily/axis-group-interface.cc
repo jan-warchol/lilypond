@@ -799,6 +799,15 @@ Axis_group_interface::skyline_spacing (Grob *me, vector<Grob *> elements)
       if (to_boolean (elements[i]->get_property ("cross-staff")))
         continue;
 
+      /*
+        because this loop results in the looking up of extents, it may trigger
+        the calling of this function a second time before the first one finishes
+        to execute.  thus, the outside-staff-priority may be set to false.  that
+        is why this check is necessary.
+      */
+      if (!scm_is_number (elements[i]->get_property ("outside-staff-priority")))
+        continue;
+
       SCM priority = elements[i]->get_property ("outside-staff-priority");
       vector<Grob *> current_elts;
       current_elts.push_back (elements[i]);
