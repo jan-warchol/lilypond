@@ -687,9 +687,6 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
               do_add = !pair.is_empty ();
               if (do_add)
                 {
-                  Interval xex = elements[i]->extent (x_common, X_AXIS);
-                  Interval yex = elements[i]->extent (y_common, Y_AXIS);
-                  Interval ht = robust_scm2interval (elements[i]->get_property ("Y-extent"), Interval(0,0));
                   pair.shift (elements[i]->relative_coordinate (x_common, X_AXIS));
                   pair.raise (elements[i]->relative_coordinate (y_common, Y_AXIS));
                   other = Skyline (pair[-dir]);
