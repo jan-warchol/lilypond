@@ -643,21 +643,23 @@ Skyline::to_points (Axis horizon_axis) const
 Real
 Skyline::left () const
 {
-  Building b = buildings_.front ();
-  return b.end_;
+  Real out = infinity_f;
+  for (list<Building>::const_iterator i (buildings_.begin ());
+       i != buildings_.end (); i++)
+    if (abs (i->end_) != infinity_f)
+      out = min (out, i->end_);
+
+  return out;
 }
 
 Real
 Skyline::right () const
 {
-  if (buildings_.size () == 1)
-    return -infinity_f;
-
-  Real out = 0.0;
+  Real out = -infinity_f;
   for (list<Building>::const_iterator i (buildings_.begin ());
        i != buildings_.end (); i++)
-    if (i->end_ < infinity_f)
-      out = i->end_;
+    if (abs (i->end_) != infinity_f)
+      out = max (out, i->end_);
 
   return out;
 }

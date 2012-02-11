@@ -59,6 +59,18 @@ Skyline_pair::insert (Box const &b, Real padding, Axis a)
   skylines_[DOWN].insert (b, padding, a);
 }
 
+Real
+Skyline_pair::left ()
+{
+  return min (skylines_[UP].left (), skylines_[DOWN].left ());
+}
+
+Real
+Skyline_pair::right ()
+{
+  return max (skylines_[UP].right (), skylines_[DOWN].right ());
+}
+
 void
 Skyline_pair::merge (Skyline_pair const &other)
 {

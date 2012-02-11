@@ -34,6 +34,8 @@ public:
   Skyline_pair (Box const &, Real horizon_padding, Axis a);
   void raise (Real);
   void shift (Real);
+  Real left ();
+  Real right ();
   void insert (Box const &, Real horizon_padding, Axis);
   void merge (Skyline_pair const &other);
   Skyline &operator [] (Direction d);

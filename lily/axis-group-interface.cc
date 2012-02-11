@@ -689,9 +689,8 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
                 {
                   pair.shift (elements[i]->relative_coordinate (x_common, X_AXIS));
                   pair.raise (elements[i]->relative_coordinate (y_common, Y_AXIS));
-                  other = Skyline (pair[-dir]);
                 }
-              before_last_affected_position = other.left () - 2 * horizon_padding < last_affected_position[dir];
+              before_last_affected_position = pair[-dir].left () - 2 * horizon_padding < last_affected_position[dir];
             }
           else
             {
@@ -716,7 +715,7 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
                 }
 
               Real padding = robust_scm2double (elements[i]->get_property ("outside-staff-padding"), 0.5);
-              Real dist = (*skylines)[dir].distance (other) + padding;
+              Real dist = (*skylines)[dir].distance (uses_boxes ? other : pair[-dir]) + padding;
 
               if (dist > 0)
                 {
@@ -734,7 +733,7 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
               if (uses_boxes)
                 last_affected_position[dir] = b[X_AXIS][RIGHT];
               else
-                last_affected_position[dir] = other.right ();
+                last_affected_position[dir] = pair.right ();
               other.clear ();
             }
 
