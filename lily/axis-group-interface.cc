@@ -603,23 +603,26 @@ pure_staff_priority_less (Grob *const &g1, Grob *const &g2)
 
   return priority_1 < priority_2;
 }
-#include <valgrind/valgrind.h>
+
 static void
 add_boxes (Grob *me, Grob *x_common, Grob *y_common, vector<Box> *const boxes, Skyline_pair *skylines)
 {
   /* if a child has skylines, use them instead of the extent box */
   if (Skyline_pair *pair = Skyline_pair::unsmob (me->get_property ("vertical-skylines")))
     {
-      Skyline_pair s = *pair;
-      s.shift (me->relative_coordinate (x_common, X_AXIS));
-      s.raise (me->relative_coordinate (y_common, Y_AXIS));
-      skylines->merge (s);
+      if (!scm_is_number (me->get_property ("outside-staff-priority"))
+          && !to_boolean (me->get_property ("cross-staff")))
+        {
+          Skyline_pair s = *pair;
+          s.shift (me->relative_coordinate (x_common, X_AXIS));
+          s.raise (me->relative_coordinate (y_common, Y_AXIS));
+          skylines->merge (s);
+        }
     }
   else if (Grob_array *elements = unsmob_grob_array (me->get_object ("elements")))
     {
       for (vsize i = 0; i < elements->size (); i++)
-        if (elements->grob (i)->get_property ("outside-staff-priority") != SCM_BOOL_F)
-          add_boxes (elements->grob (i), x_common, y_common, boxes, skylines);
+        add_boxes (elements->grob (i), x_common, y_common, boxes, skylines);
     }
   else if (!scm_is_number (me->get_property ("outside-staff-priority"))
            && !to_boolean (me->get_property ("cross-staff")))
@@ -705,6 +708,23 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
           if (before_last_affected_position)
             continue;
 
+          /*
+            Finding extents may have trigged another skyline lookup, which will have
+            done the shifting.  In this case, we simply add the boxes.
+          */
+          if (!scm_is_number (elements[i]->get_property ("outside-staff-priority")))
+            {
+              add_boxes (elements[i], x_common, y_common, &boxes, skylines);
+              if (boxes.size ())
+                {
+                  SCM padding_scm = elements[i]->get_property ("skyline-horizontal-padding");
+                  Real padding = robust_scm2double (padding_scm, 0.1);
+                  skylines->merge (Skyline_pair (boxes, padding, X_AXIS));
+                }
+              elements.erase (elements.begin () + i);
+              continue;
+            }
+
           if (do_add)
             {
               boxes.clear ();
@@ -748,10 +768,11 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
 bool
 Axis_group_interface::has_outside_staff_parent (Grob *me)
 {
-  return (me
-          ? (scm_is_number (me->get_property ("outside-staff-priority"))
-             || has_outside_staff_parent (me->get_parent (Y_AXIS)))
-          : false);
+  if (!me->get_parent (Y_AXIS))
+    return false;
+
+  return scm_is_number (me->get_parent (Y_AXIS)->get_property ("outside-staff-priority"))
+         || has_outside_staff_parent (me->get_parent (Y_AXIS));
 }
 
 // TODO: it is tricky to correctly handle skyline placement of cross-staff grobs.
@@ -766,6 +787,19 @@ Axis_group_interface::has_outside_staff_parent (Grob *me)
 Skyline_pair
 Axis_group_interface::skyline_spacing (Grob *me, vector<Grob *> elements)
 {
+  /*
+    As a sanity check, we make sure that no grob with an outside staff priority
+    has a Y-parent that also has an outside staff priority, which would result
+    in two movings.
+  */
+  for (vsize i = 0; i < elements.size (); i++)
+    if (scm_is_number (elements[i]->get_property ("outside-staff-priority"))
+        && has_outside_staff_parent (elements[i]))
+      {
+        elements[i]->warning ("Cannot set outside-staff-priority for element and elements' Y parent.");
+        elements[i]->set_property ("outside-staff-priority", SCM_BOOL_F);
+      }
+
   /* For grobs with an outside-staff-priority, the sorting function might
      call extent and cause suicide. This breaks the contract that is required
      for the STL sort function. To avoid this, we make sure that any suicides
@@ -787,8 +821,7 @@ Axis_group_interface::skyline_spacing (Grob *me, vector<Grob *> elements)
   Skyline_pair skylines;
   for (i = 0; i < elements.size ()
        && !scm_is_number (elements[i]->get_property ("outside-staff-priority")); i++)
-    if ((!(to_boolean (elements[i]->get_property ("cross-staff")) || has_outside_staff_parent (elements[i])))
-        && (elements[i]->get_property ("outside-staff-priority") != SCM_BOOL_F))
+    if (!(to_boolean (elements[i]->get_property ("cross-staff")) || has_outside_staff_parent (elements[i])))
       add_boxes (elements[i], x_common, y_common, &boxes, &skylines);
 
   SCM padding_scm = me->get_property ("skyline-horizontal-padding");
@@ -797,15 +830,6 @@ Axis_group_interface::skyline_spacing (Grob *me, vector<Grob *> elements)
   for (; i < elements.size (); i++)
     {
       if (to_boolean (elements[i]->get_property ("cross-staff")))
-        continue;
-
-      /*
-        because this loop results in the looking up of extents, it may trigger
-        the calling of this function a second time before the first one finishes
-        to execute.  thus, the outside-staff-priority may be set to false.  that
-        is why this check is necessary.
-      */
-      if (!scm_is_number (elements[i]->get_property ("outside-staff-priority")))
         continue;
 
       SCM priority = elements[i]->get_property ("outside-staff-priority");

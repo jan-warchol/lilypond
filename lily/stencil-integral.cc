@@ -755,6 +755,7 @@ stencil_traverser (PangoMatrix trans, SCM expr)
   warning ("Stencil expression not supported by the veritcal skylines.");
   return vector<Transform_matrix_and_expression> ();
 }
+
 MAKE_SCHEME_CALLBACK (Grob, vertical_skylines_from_stencil, 1);
 SCM
 Grob::vertical_skylines_from_stencil (SCM smob)
