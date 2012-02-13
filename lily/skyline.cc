@@ -463,6 +463,30 @@ Skyline::merge (Skyline const &other)
   internal_merge_skyline (&other_bld, &my_bld, &buildings_);
 }
 
+/*
+  Strips all old sloped material, adds new.
+*/
+
+void
+Skyline::rebuild_skyline_padding (Real horizon_padding, Axis horizon_axis, Direction sky)
+{
+  vector<Offset> ps (to_points (horizon_axis));
+  list<Box> boxes;
+
+  for (vsize i = 0; i < ps.size () - 1; i++)
+    if (ps[i][other_axis (horizon_axis)] == ps[i + 1][other_axis (horizon_axis)])
+      {
+        Box b;
+        b.add_point (ps[i]);
+        b.add_point (ps[i + 1]);
+        boxes.push_front (b);
+      }
+  clear ();
+  sky_ = sky;
+
+  buildings_ = internal_build_skyline (&boxes, horizon_padding, horizon_axis, sky);
+}
+
 void
 Skyline::insert (Box const &b, Real horizon_padding, Axis a)
 {

@@ -776,7 +776,6 @@
 	(font-encoding . fetaText)
 	(font-series . bold)
 	(font-shape . italic)
-	(outside-staff-priority . 250)
 	(positioning-done . ,ly:script-interface::calc-positioning-done)
 	(right-padding . 0.5)
 	(self-alignment-X . ,CENTER)

@@ -717,11 +717,7 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
             {
               add_boxes (elements[i], x_common, y_common, &boxes, skylines);
               if (boxes.size ())
-                {
-                  SCM padding_scm = elements[i]->get_property ("skyline-horizontal-padding");
-                  Real padding = robust_scm2double (padding_scm, 0.1);
-                  skylines->merge (Skyline_pair (boxes, padding, X_AXIS));
-                }
+                skylines->merge (Skyline_pair (boxes, 0.0, X_AXIS));
               boxes.clear ();
               elements.erase (elements.begin () + i);
               continue;
@@ -758,16 +754,14 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
                 last_affected_position[dir] = pair.right ();
               other.clear ();
             }
+          // if a grob previously had an outside staff parent but no longer does,
+          // it is safe now to add it to the skyline
           for (vsize j = 0; j < riders->size (); j++)
             if (!Axis_group_interface::has_outside_staff_parent (riders->at (j)))
               {
                 add_boxes (riders->at (j), x_common, y_common, &boxes, skylines);
                 if (boxes.size ())
-                  {
-                    SCM padding_scm = riders->at (j)->get_property ("skyline-horizontal-padding");
-                    Real padding = robust_scm2double (padding_scm, 0.1);
-                    skylines->merge (Skyline_pair (boxes, padding, X_AXIS));
-                  }
+                  skylines->merge (Skyline_pair (boxes, 0.0, X_AXIS));
                 boxes.clear ();
               }
           /*
@@ -844,7 +838,7 @@ Axis_group_interface::skyline_spacing (Grob *me, vector<Grob *> elements)
 
   SCM padding_scm = me->get_property ("skyline-horizontal-padding");
   Real padding = robust_scm2double (padding_scm, 0.1);
-  skylines.merge (Skyline_pair (boxes, padding, X_AXIS));
+  skylines.merge (Skyline_pair (boxes, 0.0, X_AXIS)); // use padding later
   for (; i < elements.size (); i++)
     {
       if (to_boolean (elements[i]->get_property ("cross-staff")))
@@ -867,10 +861,13 @@ Axis_group_interface::skyline_spacing (Grob *me, vector<Grob *> elements)
           riders.erase (riders.begin () + j);
     }
 
-  if (riders.size ())
-    me->programming_error ("Vertical skylines will not be high enough.");
+  for (vsize j = 0; j < riders.size (); j++)
+    if (Skyline_pair::unsmob (riders[j]->get_property ("vertical-skylines"))
+        || !riders[j]->extent (y_common, Y_AXIS).is_empty ())
+      riders[j]->programming_error ("Vertical skylines will not be high enough.");
 
   skylines.shift (-me->relative_coordinate (x_common, X_AXIS));
+  skylines.rebuild_skyline_padding (padding, X_AXIS);
   return skylines;
 }
 

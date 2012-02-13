@@ -79,6 +79,13 @@ Skyline_pair::merge (Skyline_pair const &other)
 }
 
 void
+Skyline_pair::rebuild_skyline_padding (Real horizon_padding, Axis horizon_axis)
+{
+  skylines_[UP].rebuild_skyline_padding (horizon_padding, horizon_axis, UP);
+  skylines_[DOWN].rebuild_skyline_padding (horizon_padding, horizon_axis, DOWN);
+}
+
+void
 Skyline_pair::print () const
 {
   skylines_[UP].print ();

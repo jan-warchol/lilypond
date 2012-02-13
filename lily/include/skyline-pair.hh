@@ -38,6 +38,7 @@ public:
   Real right ();
   void insert (Box const &, Real horizon_padding, Axis);
   void merge (Skyline_pair const &other);
+  void rebuild_skyline_padding (Real horizon_padding, Axis horizon_axis);
   Skyline &operator [] (Direction d);
   Skyline const &operator [] (Direction d) const;
   bool is_empty () const;

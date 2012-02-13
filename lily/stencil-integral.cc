@@ -804,9 +804,14 @@ Grob::vertical_skylines_from_element_stencils (SCM smob)
       Skyline_pair *skyp = Skyline_pair::unsmob (elts[i]->get_property ("vertical-skylines"));
       if (skyp)
         {
-          skyp->shift (x_pos[i] - my_x);
-          skyp->raise (y_pos[i] - my_y);
-          res.merge (*skyp);
+          /*
+            Here, copying is essential.  Otherwise, the skyline pair will
+            get doubly shifted!
+          */
+          Skyline_pair copy = Skyline_pair (*skyp);
+          copy.shift (x_pos[i] - my_x);
+          copy.raise (y_pos[i] - my_y);
+          res.merge (copy);
         }
     }
   return res.smobbed_copy ();

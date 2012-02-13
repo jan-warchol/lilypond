@@ -85,6 +85,7 @@ public:
   bool is_empty () const;
   Real left () const;
   Real right () const;
+  void rebuild_skyline_padding (Real horizon_padding, Axis horizon_axis, Direction sky);
 
   DECLARE_SCHEME_CALLBACK (get_touching_point, (SCM, SCM, SCM));
   DECLARE_SCHEME_CALLBACK (get_distance, (SCM, SCM, SCM));
