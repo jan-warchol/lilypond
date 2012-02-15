@@ -266,7 +266,7 @@ setup_paths (char const *argv0_ptr)
   dirs.push_back (lilypond_datadir + "/fonts/otf/");
   dirs.push_back (lilypond_datadir + "/fonts/type1/");
   dirs.push_back (lilypond_datadir + "/fonts/svg/");
-  dirs.push_back (lilypond_datadir + "/fonts/scm/");
+  dirs.push_back (lilypond_datadir + "/fonts/");
 
   for (vsize i = 0; i < dirs.size (); i++)
     global_path.prepend (dirs[i]);

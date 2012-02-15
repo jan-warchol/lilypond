@@ -198,7 +198,6 @@ $(tree-share-prefix)/lilypond-force: GNUmakefile $(outdir)/VERSION
 	mkdir -p $(tree-share-prefix)/fonts/otf
 	mkdir -p $(tree-share-prefix)/fonts/tfm
 	mkdir -p $(tree-share-prefix)/fonts/type1
-	mkdir -p $(tree-share-prefix)/fonts/scm
 	mkdir -p $(tree-share-prefix)/fonts/svg
 	mkdir -p $(tree-share-prefix)/fonts/map
 	mkdir -p $(tree-share-prefix)/fonts/enc
@@ -238,7 +237,7 @@ $(tree-share-prefix)/mf-link-tree: $(tree-share-prefix)/lilypond-force
 	-rm -f $(tree-share-prefix)/fonts/otf/* &&  \
 	rm -f $(tree-share-prefix)/fonts/svg/* &&  \
 	rm -f $(tree-share-prefix)/fonts/fonts.conf &&  \
-	rm -f $(tree-share-prefix)/fonts/scm/* &&  \
+	rm -f $(tree-share-prefix)/fonts/font-cache.scm &&  \
 	rm -f $(tree-share-prefix)/fonts/tfm/* &&  \
 	rm -f $(tree-share-prefix)/fonts/type1/* &&  \
 		cd $(tree-share-prefix)/fonts/otf && \
@@ -247,8 +246,8 @@ $(tree-share-prefix)/mf-link-tree: $(tree-share-prefix)/lilypond-force
 		ln -s ../../../../../mf/$(outconfbase)/fonts.conf .
 	-cd $(tree-share-prefix)/fonts/svg && \
 		ln -s ../../../../../../mf/$(outconfbase)/*.svg .
-	-cd $(tree-share-prefix)/fonts/scm && \
-		ln -s ../../../../../../mf/$(outconfbase)/*.scm .
+	-cd $(tree-share-prefix)/fonts && \
+		ln -s ../../../../../mf/$(outconfbase)/font-cache.scm .
 	-cd $(tree-share-prefix)/fonts/svg && \
 		ln -s ../../../../../../mf/$(outconfbase)/*.woff .
 	-cd $(tree-share-prefix)/fonts/tfm && \
