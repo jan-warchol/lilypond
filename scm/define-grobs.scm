@@ -1259,6 +1259,7 @@
 	(padding . 0.07)
 	(springs-and-rods . ,ly:lyric-hyphen::set-spacing-rods)
 	(stencil . ,ly:lyric-hyphen::print)
+	(vertical-skylines . ,ly:grob::vertical-skylines-from-stencil)
 	(thickness . 1.3)
 	(Y-extent . (0 . 0))
 	(meta . ((class . Spanner)
