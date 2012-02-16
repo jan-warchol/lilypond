@@ -532,7 +532,7 @@ make_polygon_boxes (PangoMatrix trans, SCM expr)
       first = false;
     }
   l = scm_cons (ly_symbol2scm ("closepath"), l);
-  return make_path_boxes (trans, scm_cons (blot_diameter, scm_reverse_x (l, SCM_EOL)));
+  return internal_make_path_boxes (trans, scm_cons (blot_diameter, scm_reverse_x (l, SCM_EOL)));
 }
 
 vector<Box>
