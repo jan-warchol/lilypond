@@ -140,6 +140,7 @@ get_number_list (SCM l)
       SCM res = get_number_list (scm_car (l));
       if (res == SCM_BOOL_F)
         return get_number_list (scm_cdr (l));
+      return res;
     }
   return SCM_BOOL_F;
 }
@@ -490,12 +491,12 @@ all_commands_to_absolute_and_group (SCM expr)
 }
 
 vector<Box>
-make_path_boxes (PangoMatrix trans, SCM expr)
+internal_make_path_boxes (PangoMatrix trans, SCM expr)
 {
   vector<Box> boxes;
   SCM blot = scm_car (expr);
   expr = scm_cdr (expr);
-  SCM path = all_commands_to_absolute_and_group (get_path_list (scm_car (expr)));
+  SCM path = all_commands_to_absolute_and_group (expr);
   // note that expr has more stuff that we don't need after this - simply ignore it
   //////////////////////
   for (SCM s = path; scm_is_pair (s); s = scm_cdr (s))
@@ -508,6 +509,11 @@ make_path_boxes (PangoMatrix trans, SCM expr)
   return boxes;
 }
 
+vector<Box>
+make_path_boxes (PangoMatrix trans, SCM expr)
+{
+  return internal_make_path_boxes (trans, scm_cons (scm_car (expr), get_path_list (scm_cdr (expr))));
+}
 vector<Box>
 make_polygon_boxes (PangoMatrix trans, SCM expr)
 {

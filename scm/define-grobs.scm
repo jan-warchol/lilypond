@@ -396,6 +396,7 @@
 	(quantized-positions . ,ly:beam::set-stem-lengths)
 
 	(shorten . ,ly:beam::calc-stem-shorten)
+	(vertical-skylines . ,ly:grob::vertical-skylines-from-stencil)
 	(stencil . ,ly:beam::print)
 
 	(meta . ((class . Spanner)
@@ -904,6 +905,7 @@
 	(X-extent . ,ly:flag::width)
 	(X-offset . ,ly:flag::calc-x-offset)
 	(Y-offset . ,ly:flag::calc-y-offset)
+	(vertical-skylines . ,ly:grob::vertical-skylines-from-stencil)
 	(meta . ((class . Item)
 		 (interfaces . (flag-interface
                                 font-interface))))))
