@@ -753,6 +753,7 @@
 	(slur-padding . 0.3)
 	(staff-padding . 0.1)
 	(vertical-skylines . ,ly:grob::vertical-skylines-from-element-stencils)
+	(use-skylines . #t)
 	(X-extent . ,ly:axis-group-interface::width)
 	(Y-extent . ,ly:axis-group-interface::height)
 	(Y-offset . ,ly:side-position-interface::y-aligned-side)

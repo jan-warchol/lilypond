@@ -33,6 +33,7 @@ using namespace std;
 #include "misc.hh"
 #include "note-head.hh"
 #include "pointer-group-interface.hh"
+#include "skyline-pair.hh"
 #include "staff-symbol-referencer.hh"
 #include "staff-symbol.hh"
 #include "stem.hh"
@@ -172,23 +173,35 @@ Side_position_interface::skyline_side_position (Grob *me, Axis a,
   Grob *staff_symbol = Staff_symbol_referencer::get_staff_symbol (me);
   Direction dir = get_grob_direction (me);
 
-  Box off;
-  for (Axis ax = X_AXIS; ax < NO_AXES; incr (ax))
-    {
-      if (ax == a)
-        off[ax] = me->get_parent (ax)->maybe_pure_coordinate (common[ax], ax, pure, start, end)
-                  + me->maybe_pure_extent (me, ax, pure, start, end);
-      else
-        off[ax] = me->maybe_pure_extent (common[ax], ax, pure, start, end);
-    }
-
-  if (off[X_AXIS].is_empty () || off[Y_AXIS].is_empty ())
-    return scm_from_double (0.0);
-
+  Skyline my_dim;
   Real skyline_padding = 0.1;
+  if (me->get_property_data ("vertical-skylines") != SCM_EOL
+      && a == Y_AXIS
+      && !pure)
+    {
+      Skyline_pair copy = Skyline_pair (*Skyline_pair::unsmob (me->get_property ("vertical-skylines")));
+      copy.shift (me->relative_coordinate (common[X_AXIS], X_AXIS));
+      copy.raise (me->get_parent (X_AXIS)->relative_coordinate (common[Y_AXIS], Y_AXIS));
+      my_dim = Skyline (copy[-dir]);
+      my_dim.rebuild_skyline_padding (skyline_padding, X_AXIS, -dir);
+    }
+  else
+    {
+      Box off;
+      for (Axis ax = X_AXIS; ax < NO_AXES; incr (ax))
+        {
+          if (ax == a)
+            off[ax] = me->get_parent (ax)->maybe_pure_coordinate (common[ax], ax, pure, start, end)
+                      + me->maybe_pure_extent (me, ax, pure, start, end);
+          else
+            off[ax] = me->maybe_pure_extent (common[ax], ax, pure, start, end);
+        }
 
-  Skyline my_dim (off, skyline_padding, other_axis (a), -dir);
+      if (off[X_AXIS].is_empty () || off[Y_AXIS].is_empty ())
+        return scm_from_double (0.0);    
 
+      my_dim = Skyline (off, skyline_padding, other_axis (a), -dir);
+    }
   bool include_staff
     = staff_symbol
       && a == Y_AXIS
@@ -327,7 +340,7 @@ Side_position_interface::aligned_side (Grob *me, Axis a, bool pure, int start, i
   Direction dir = get_grob_direction (me);
   bool skyline = to_boolean (me->get_property ("use-skylines"));
 
-  Real o = scm_to_double (skyline
+  Real o = scm_to_double (skyline && !pure
                           ? skyline_side_position (me, a, pure, start, end, current_off)
                           : general_side_position (me, a, true, true, pure, start, end, current_off));
 

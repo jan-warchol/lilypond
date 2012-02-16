@@ -613,7 +613,7 @@ add_boxes (Grob *me, Grob *x_common, Grob *y_common, vector<Box> *const boxes, S
       if (!scm_is_number (me->get_property ("outside-staff-priority"))
           && !to_boolean (me->get_property ("cross-staff")))
         {
-          Skyline_pair s = *pair;
+          Skyline_pair s = Skyline_pair (*pair);
           s.shift (me->relative_coordinate (x_common, X_AXIS));
           s.raise (me->relative_coordinate (y_common, Y_AXIS));
           skylines->merge (s);
