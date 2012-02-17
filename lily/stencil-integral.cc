@@ -190,15 +190,20 @@ make_draw_line_boxes (PangoMatrix trans, SCM expr)
           pango_matrix_transform_point (&trans, &inter[X_AXIS], &inter[Y_AXIS]);
           points[d].push_back (inter);
         }
-      for (vsize i = 0; i < points[d].size () - 1; i++)
-        {
-          Box b;
-          b.add_point (points[d][i]);
-          b.add_point (points[d][i + 1]);
-          boxes.push_back (b);
-        }
     }
   while (flip (&d) != DOWN);
+
+  for (vsize i = 0; i < points[DOWN].size () - 1; i++)
+    {
+      Box b;
+      do
+        {
+          b.add_point (points[d][i]);
+          b.add_point (points[d][i + 1]);
+        }
+      while (flip (&d) != DOWN);
+      boxes.push_back (b);
+    }
 
   if (thick > 0.0)
     {
@@ -265,24 +270,30 @@ make_partial_ellipse_boxes (PangoMatrix trans, SCM expr, Real quantization)
           pango_matrix_transform_point (&trans, &inter[X_AXIS], &inter[Y_AXIS]);
           points[d].push_back (inter);
         }
-      for (vsize i = 0; i < quantization; i++)
-        {
-          Box b;
-          b.add_point (points[d][i]);
-          b.add_point (points[d][i + 1]);
-          boxes.push_back (b);
-        }
-      if (connect || fill)
-        {
-          vector<Box> db = make_draw_line_boxes (trans, scm_list_5(scm_from_double (th),
-                                                                   scm_from_double (sp[X_AXIS]),
-                                                                   scm_from_double (sp[Y_AXIS]),
-                                                                   scm_from_double (ep[X_AXIS]),
-                                                                   scm_from_double (ep[Y_AXIS])));
-          boxes.insert (boxes.end (), db.begin (), db.end ());
-        }
     }
   while (flip (&d) != DOWN);
+
+  for (vsize i = 0; i < points[DOWN].size () - 1; i++)
+    {
+      Box b;
+      do
+        {
+          b.add_point (points[d][i]);
+          b.add_point (points[d][i + 1]);
+        }
+      while (flip (&d) != DOWN);
+      boxes.push_back (b);
+    }
+
+  if (connect || fill)
+    {
+      vector<Box> db = make_draw_line_boxes (trans, scm_list_5(scm_from_double (th),
+                                                               scm_from_double (sp[X_AXIS]),
+                                                               scm_from_double (sp[Y_AXIS]),
+                                                               scm_from_double (ep[X_AXIS]),
+                                                               scm_from_double (ep[Y_AXIS])));
+      boxes.insert (boxes.end (), db.begin (), db.end ());
+    }
 
   if (th > 0.0)
     {
@@ -420,15 +431,20 @@ make_draw_bezier_boxes (PangoMatrix trans, SCM expr)
       Offset last = get_point_in_y_direction (curve.control_[3], curve.slope_at_point (1.0), th / 2, d);
       pango_matrix_transform_point (&trans, &last[X_AXIS], &last[Y_AXIS]);
       points[d].push_back (last);
-      for (vsize i = 0; i < points[d].size () - 1; i++)
-        {
-          Box b;
-          b.add_point (points[d][i]);
-          b.add_point (points[d][i + 1]);
-          boxes.push_back (b);
-        }
     }
   while (flip (&d) != DOWN);
+
+  for (vsize i = 0; i < points[DOWN].size () - 1; i++)
+    {
+      Box b;
+      do
+        {
+          b.add_point (points[d][i]);
+          b.add_point (points[d][i + 1]);
+        }
+      while (flip (&d) != DOWN);
+      boxes.push_back (b);
+    }
 
   // beg line cap
   if (th >= 0)
