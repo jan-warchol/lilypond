@@ -681,11 +681,8 @@ Skyline::left () const
 Real
 Skyline::right () const
 {
-  list<Building> rev (buildings_);
-  rev.reverse ();
-
-  for (list<Building>::const_iterator i = rev.begin ();
-       i != rev.end (); i++)
+  for (list<Building>::const_reverse_iterator i (buildings_.rbegin ());
+       i != buildings_.rend (); ++i)
     if (i->end_ < infinity_f)
       return i->end_;
 
