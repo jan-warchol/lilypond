@@ -40,6 +40,7 @@ when this transforms a point (x,y), the point is written as matrix:
 #include "font-metric.hh"
 #include "grob.hh"
 #include "interval.hh"
+#include "misc.hh"
 #include "offset.hh"
 #include "pointer-group-interface.hh"
 #include "lily-guile.hh"
@@ -53,22 +54,7 @@ Real CURVE_QUANTIZATION =  10;
 
 Real ELLIPSE_QUANTIZATION = 20;
 
-
-struct Translate_scale_rotate {
-  Offset translate_;
-  Offset scale_;
-  Real rotate_;
-};
-
-Translate_scale_rotate
-make_translate_scale_rotate (Offset translate, Offset scale, Real rotate)
-{
-  Translate_scale_rotate out;
-  out.translate_ = translate;
-  out.scale_ = scale;
-  out.rotate_ = rotate;
-  return out;
-}
+vector<Box> create_path_cap (PangoMatrix trans, Offset pt, Real rad, Real slope, Direction d);
 
 struct Transform_matrix_and_expression {
   PangoMatrix tm_;
@@ -95,23 +81,6 @@ make_transform_matrix (Real p0, Real p1, Real p2, Real p3, Real p4, Real p5)
   out.x0 = p4;
   out.y0 = p5;
   return out;
-}
-
-/*
-   Turns a transform matrix into a translate, scale, and rotate.
-   The order is important (rotate first, then scale, then translate).
-*/
-
-Translate_scale_rotate
-to_translate_scale_rotate (PangoMatrix x)
-{
-  Real rotate = atan2 (-x.yx, x.xx);
-  bool use_sin = cos (rotate) == 0.0;
-
-  return make_translate_scale_rotate (Offset (x.x0, x.y0),
-                                      Offset (use_sin ? -x.yx / sin (rotate) : x.xx / cos (rotate),
-                                              use_sin ? x.xy / sin (rotate) : x.yy / cos (rotate)),
-                                      rotate);
 }
 
 //// UTILITY FUNCTIONS
@@ -173,6 +142,16 @@ get_path_list (SCM l)
   return SCM_BOOL_F;
 }
 
+Real
+perpendicular_slope (Real s)
+{
+  if (s == 0.0)
+    return infinity_f;
+  if (s == infinity_f)
+    return 0.0;
+  return -1.0 / s;
+}
+
 //// END UTILITY FUNCTIONS
 
 /*
@@ -197,29 +176,55 @@ make_draw_line_boxes (PangoMatrix trans, SCM expr)
   Real x1 = robust_scm2double (scm_car (expr), 0.0);
   expr = scm_cdr (expr);
   Real y1 = robust_scm2double (scm_car (expr), 0.0);
+  Real slope = x1 == x0 ? infinity_f : (y1 - y0) / (x1 - x0);
   //////////////////////
-  vector<Offset> points;
-  for (vsize i = 0; i < 1 + CURVE_QUANTIZATION; i++)
+  Drul_array<vector<Offset> > points;
+  Direction d = DOWN;
+  do
     {
-      Offset pt (linear_map (x0, x1, 0, CURVE_QUANTIZATION, i),
-                 linear_map (y0, y1, 0, CURVE_QUANTIZATION, i));
-      pango_matrix_transform_point (&trans, &pt[X_AXIS], &pt[Y_AXIS]);
-      points.push_back (pt);
+      for (vsize i = 0; i < 1 + CURVE_QUANTIZATION; i++)
+        {
+          Offset pt (linear_map (x0, x1, 0, CURVE_QUANTIZATION, i),
+                     linear_map (y0, y1, 0, CURVE_QUANTIZATION, i));
+          Offset inter = get_point_in_y_direction (pt, perpendicular_slope (slope), thick / 2, d);
+          pango_matrix_transform_point (&trans, &inter[X_AXIS], &inter[Y_AXIS]);
+          points[d].push_back (inter);
+        }
+      for (vsize i = 0; i < points[d].size () - 1; i++)
+        {
+          Box b;
+          b.add_point (points[d][i]);
+          b.add_point (points[d][i + 1]);
+          boxes.push_back (b);
+        }
     }
-  Translate_scale_rotate tsr = to_translate_scale_rotate (trans);
-  for (vsize i = 0; i < CURVE_QUANTIZATION; i++)
+  while (flip (&d) != DOWN);
+
+  if (thick > 0.0)
     {
-      Box b;
-      b.add_point (points[i]);
-      b.add_point (points[i + 1]);
-      b.widen (abs (thick * tsr.scale_[X_AXIS]) / 2, abs (thick * tsr.scale_[Y_AXIS]) / 2);
-      boxes.push_back (b);
+      // beg line cap
+      vector<Box> beg_cap = create_path_cap (trans,
+                                             Offset (x0, y0),
+                                             thick / 2,
+                                             perpendicular_slope (slope),
+                                             Direction (sign (slope)));
+
+      boxes.insert (boxes.end (), beg_cap.begin (), beg_cap.end ());
+
+      // end line cap
+      vector<Box> end_cap = create_path_cap (trans,
+                                             Offset (x1, y1),
+                                             thick / 2,
+                                             perpendicular_slope (slope),
+                                             Direction (sign (-slope)));
+      boxes.insert (boxes.end (), end_cap.begin (), end_cap.end ());
     }
+
   return boxes;
 }
 
 vector<Box>
-make_partial_ellipse_boxes (PangoMatrix trans, SCM expr)
+make_partial_ellipse_boxes (PangoMatrix trans, SCM expr, Real quantization)
 {
   vector<Box> boxes;
   Real x_rad = robust_scm2double (scm_car (expr), 0.0);
@@ -245,35 +250,75 @@ make_partial_ellipse_boxes (PangoMatrix trans, SCM expr)
   Offset sp (real (sunit) * x_rad, imag (sunit) * y_rad);
   Offset ep (real (eunit) * x_rad, imag (eunit) * y_rad);
   //////////////////////
-  vector<Offset> points;
-  for (vsize i = 0; i < 1 + ELLIPSE_QUANTIZATION; i++)
+  Drul_array<vector<Offset> > points;
+  Direction d = DOWN;
+  do
     {
-      Real ang = linear_map (start, end, 0, ELLIPSE_QUANTIZATION, i);
-      complex<Real> coord = polar (1.0, ang);
+      for (vsize i = 0; i < 1 + quantization; i++)
+        {
+          Real ang = linear_map (start, end, 0, quantization, i);
+          complex<Real> coord = polar (1.0, ang);
+          Offset pt (real (coord) * x_rad,
+                     imag (coord) * y_rad);
+          Real slope = pt[Y_AXIS] / pt[X_AXIS];
+          Offset inter = get_point_in_y_direction (pt, perpendicular_slope (slope), th / 2, d);
+          pango_matrix_transform_point (&trans, &inter[X_AXIS], &inter[Y_AXIS]);
+          points[d].push_back (inter);
+        }
+      for (vsize i = 0; i < quantization; i++)
+        {
+          Box b;
+          b.add_point (points[d][i]);
+          b.add_point (points[d][i + 1]);
+          boxes.push_back (b);
+        }
+      if (connect || fill)
+        {
+          vector<Box> db = make_draw_line_boxes (trans, scm_list_5(scm_from_double (th),
+                                                                   scm_from_double (sp[X_AXIS]),
+                                                                   scm_from_double (sp[Y_AXIS]),
+                                                                   scm_from_double (ep[X_AXIS]),
+                                                                   scm_from_double (ep[Y_AXIS])));
+          boxes.insert (boxes.end (), db.begin (), db.end ());
+        }
+    }
+  while (flip (&d) != DOWN);
+
+  if (th > 0.0)
+    {
+      // beg line cap
+      complex<Real> coord = polar (1.0, start);
       Offset pt (real (coord) * x_rad,
                  imag (coord) * y_rad);
-      pango_matrix_transform_point (&trans, &pt[X_AXIS], &pt[Y_AXIS]);
-      points.push_back (pt);
-    }
-  Translate_scale_rotate tsr = to_translate_scale_rotate (trans);
-  for (vsize i = 0; i < ELLIPSE_QUANTIZATION; i++)
-    {
-      Box b;
-      b.add_point (points[i]);
-      b.add_point (points[i + 1]);
-      b.widen (abs (th * tsr.scale_[X_AXIS]) / 2, abs (th * tsr.scale_[Y_AXIS]) / 2);
-      boxes.push_back (b);
-    }
-  if (connect || fill)
-    {
-      vector<Box> db = make_draw_line_boxes (trans, scm_list_5(scm_from_double (th),
-                                                               scm_from_double (sp[X_AXIS]),
-                                                               scm_from_double (sp[Y_AXIS]),
-                                                               scm_from_double (ep[X_AXIS]),
-                                                               scm_from_double (ep[Y_AXIS])));
-      boxes.insert (boxes.end (), db.begin (), db.end ());
+      Real slope = pt[Y_AXIS] / pt[X_AXIS];
+      vector<Box> beg_cap = create_path_cap (trans,
+                                             pt,
+                                             th / 2,
+                                             perpendicular_slope (slope),
+                                             Direction (sign (slope)));
+
+      boxes.insert (boxes.end (), beg_cap.begin (), beg_cap.end ());
+
+      // end line cap
+      coord = polar (1.0, start);
+      pt = Offset (real (coord) * x_rad,
+                   imag (coord) * y_rad);
+      slope = pt[Y_AXIS] / pt[X_AXIS];
+      vector<Box> end_cap = create_path_cap (trans,
+                                             pt,
+                                             th / 2,
+                                             perpendicular_slope (slope),
+                                             Direction (sign (-slope)));
+
+      boxes.insert (boxes.end (), end_cap.begin (), end_cap.end ());
     }
   return boxes;
+}
+
+vector<Box>
+make_partial_ellipse_boxes (PangoMatrix trans, SCM expr)
+{
+  return make_partial_ellipse_boxes (trans, expr, ELLIPSE_QUANTIZATION);
 }
 
 vector<Box>
@@ -292,16 +337,42 @@ make_round_filled_box_boxes (PangoMatrix trans, SCM expr)
   //////////////////////
   vector<Offset> points;
   Box b;
-  Offset p0 = Offset (-left, -bottom);
-  Offset p1 = Offset (right, top);
+  Offset p0 = Offset (-left - (th / 2), -bottom - (th / 2));
+  Offset p1 = Offset (right + (th / 2), top + (th / 2));
   pango_matrix_transform_point (&trans, &p0[X_AXIS], &p0[Y_AXIS]);
   pango_matrix_transform_point (&trans, &p1[X_AXIS], &p1[Y_AXIS]);
   b.add_point (p0);
   b.add_point (p1);
-  Translate_scale_rotate tsr = to_translate_scale_rotate (trans);
-  b.widen (abs (th * tsr.scale_[X_AXIS]) / 2, abs (th * tsr.scale_[Y_AXIS]) / 2);
   boxes.push_back (b);
   return boxes;
+}
+
+vector<Box>
+create_path_cap (PangoMatrix trans, Offset pt, Real rad, Real slope, Direction d)
+{
+  Real angle = atan (slope) * 180 / M_PI;
+  Real other = angle > 180 ? angle - 180 : angle + 180;
+  if (angle < other)
+    {
+      Real holder = other;
+      other = angle;
+      angle = holder;
+    }
+  other = (slope >= 0 && d == DOWN) || (slope < 0 && d == UP)
+          ? other + 360.0
+          : other;
+  PangoMatrix new_trans (trans);
+  pango_matrix_translate (&new_trans, pt[X_AXIS], pt[Y_AXIS]);
+  return make_partial_ellipse_boxes (new_trans,
+                                     scm_list_n (scm_from_double (rad),
+                                                 scm_from_double (rad),
+                                                 scm_from_double (angle),
+                                                 scm_from_double (other),
+                                                 scm_from_double (0.0),
+                                                 SCM_BOOL_F,
+                                                 SCM_BOOL_F,
+                                                 SCM_UNDEFINED),
+                                     3);
 }
 
 vector<Box>
@@ -331,25 +402,65 @@ make_draw_bezier_boxes (PangoMatrix trans, SCM expr)
   curve.control_[1] = Offset (x1, y1);
   curve.control_[2] = Offset (x2, y2);
   curve.control_[3] = Offset (x3, y3);
-  pango_matrix_transform_point (&trans, &curve.control_[0][X_AXIS], &curve.control_[0][Y_AXIS]);
-  pango_matrix_transform_point (&trans, &curve.control_[1][X_AXIS], &curve.control_[1][Y_AXIS]);
-  pango_matrix_transform_point (&trans, &curve.control_[2][X_AXIS], &curve.control_[2][Y_AXIS]);
-  pango_matrix_transform_point (&trans, &curve.control_[3][X_AXIS], &curve.control_[3][Y_AXIS]);
   //////////////////////
-  vector<Offset> points;
-  points.push_back (curve.control_[0]);
-  for (vsize i = 1; i < CURVE_QUANTIZATION; i++)
-    points.push_back (curve.curve_point ((i * 1.0) / CURVE_QUANTIZATION));
-  points.push_back (curve.control_[3]);
-  Translate_scale_rotate tsr = to_translate_scale_rotate (trans);
-  for (vsize i = 0; i < CURVE_QUANTIZATION; i++)
+  Drul_array<vector<Offset> > points;
+  Direction d = DOWN;
+  do
     {
-      Box b;
-      b.add_point (points[i]);
-      b.add_point (points[i + 1]);
-      b.widen (abs (th * tsr.scale_[X_AXIS]) / 2, abs (th * tsr.scale_[Y_AXIS]) / 2);
-      boxes.push_back (b);
+      Offset first = get_point_in_y_direction (curve.control_[0], perpendicular_slope (curve.slope_at_point (0.0)), th / 2, d);
+      pango_matrix_transform_point (&trans, &first[X_AXIS], &first[Y_AXIS]);
+      points[d].push_back (first);
+      for (vsize i = 1; i < CURVE_QUANTIZATION; i++)
+        {
+          Real pt = (i * 1.0) / CURVE_QUANTIZATION;
+          Offset inter = get_point_in_y_direction (curve.curve_point (pt), perpendicular_slope (curve.slope_at_point (pt)), th / 2, d);
+          pango_matrix_transform_point (&trans, &inter[X_AXIS], &inter[Y_AXIS]);
+          points[d].push_back (inter);
+        }
+      Offset last = get_point_in_y_direction (curve.control_[3], curve.slope_at_point (1.0), th / 2, d);
+      pango_matrix_transform_point (&trans, &last[X_AXIS], &last[Y_AXIS]);
+      points[d].push_back (last);
+      for (vsize i = 0; i < points[d].size () - 1; i++)
+        {
+          Box b;
+          b.add_point (points[d][i]);
+          b.add_point (points[d][i + 1]);
+          boxes.push_back (b);
+        }
     }
+  while (flip (&d) != DOWN);
+
+  // beg line cap
+  if (th >= 0)
+    {
+      Real slope = curve.slope_at_point (0.0);
+      d = Direction (sign (slope == 0.0 || abs (slope) == infinity_f
+                           ? curve.slope_at_point (0.0001)
+                           : slope));
+
+      vector<Box> beg_cap = create_path_cap (trans,
+                                             curve.control_[0],
+                                             th / 2,
+                                             perpendicular_slope (curve.slope_at_point (0.0)),
+                                             d);
+
+      boxes.insert (boxes.end (), beg_cap.begin (), beg_cap.end ());
+
+      // end line cap
+      slope = curve.slope_at_point (1.0);
+      d = Direction (sign (slope == 0.0 || abs (slope) == infinity_f
+                           ? curve.slope_at_point (0.9999)
+                           : slope));
+
+      vector<Box> end_cap = create_path_cap (trans,
+                                             curve.control_[3],
+                                             th / 2,
+                                             perpendicular_slope (curve.slope_at_point (1.0)),
+                                             d);
+
+      boxes.insert (boxes.end (), end_cap.begin (), end_cap.end ());
+    }
+
   return boxes;
 }
 
