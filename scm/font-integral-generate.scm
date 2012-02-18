@@ -15,10 +15,7 @@
 ;;;; You should have received a copy of the GNU General Public License
 ;;;; along with LilyPond.  If not, see <http://www.gnu.org/licenses/>.
 
-(map ly:load '("stencil-integral.scm"
-               "stencil.scm"))
-
-(use-modules (ice-9 regex))
+(define font-integral-alist '())
 
 (define pre-defined-box-data
 '((".notdef" . ((paths . ()) (mmx . (0 . 0)) (mmy . (0 . 0))))
@@ -87,29 +84,12 @@
                         glyph)
           (ly:error (_ "cannot find SVG font ~S") font-file)))))
 
-(define (box-data-for-font font-name)
-  (let* ((font (ly:system-font-load font-name))
-         (info (map (lambda (glyph)
-                      (cons glyph (make-named-glyph-boxes font glyph)))
-                    (ly:otf-glyph-list font))))
-  (format #t "(define boxes-for-~a (make-hash-table ~a))\n" font-name (length info))
-  (for-each (lambda (x) (format #t "(hashq-set! boxes-for-~a '~a '~a)\n" font-name (car x) (cdr x))) info)
-  (format #t "(hashq-set! box-hash '~a boxes-for-~a)\n" font-name font-name)))
-
-(define font-list
-  '("emmentaler-11"
-    "emmentaler-13"
-    "emmentaler-14"
-    "emmentaler-16"
-    "emmentaler-18"
-    "emmentaler-20"
-    "emmentaler-23"
-    "emmentaler-26"
-    "emmentaler-brace"))
-
-(format #t "(define box-hash (make-hash-table ~a))\n" (length font-list))
-
-(for-each
-  (lambda (x)
-    (box-data-for-font x))
-  font-list)
+(define (box-data-for-glyph font glyph)
+  (let* ((name-style (font-name-style font))
+         (key (string->symbol (string-append glyph "@" name-style)))
+         (cached-result (assoc-get key font-integral-alist #f)))
+    (if cached-result
+        cached-result
+        (let* ((entry (make-named-glyph-boxes font glyph)))
+          (set! font-integral-alist (assoc-set! font-integral-alist key entry))
+          entry))))

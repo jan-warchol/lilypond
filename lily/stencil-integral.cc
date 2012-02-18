@@ -666,14 +666,14 @@ vector<Box>
 make_named_glyph_boxes (PangoMatrix trans, SCM expr)
 {
   vector<Box> boxes;
-  Font_metric *fm = unsmob_metrics (scm_car (expr));
+  SCM fm_scm = scm_car (expr);
+  Font_metric *fm = unsmob_metrics (fm_scm);
   expr = scm_cdr (expr);
   SCM glyph = scm_car (expr);
   //////////////////////
   string font_name = String_convert::to_lower (fm->font_name ());
-  SCM box_table = ly_lily_module_constant ("box-hash");
-  SCM font_list = scm_hashq_ref (box_table, ly_symbol2scm (font_name.c_str ()), SCM_EOL);
-  SCM glyph_info = scm_hashq_ref (font_list, scm_string_to_symbol (glyph), SCM_EOL);
+  SCM box_lookup_function = ly_lily_module_constant ("box-data-for-glyph");
+  SCM glyph_info = scm_call_2 (box_lookup_function, fm_scm, glyph);
   Stencil m = fm->find_by_name (ly_scm2string (glyph));
   // mmx and mmy give the bounding box for the original stencil
   Interval mmx = robust_scm2interval (ly_assoc_get (ly_symbol2scm ("mmx"), glyph_info, SCM_EOL), Interval (0,0));

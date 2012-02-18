@@ -383,6 +383,7 @@ messages into errors.")
     "chord-entry.scm"
     "stencil.scm"
     "stencil-integral.scm"
+    "font-integral-generate.scm"
     "define-markup-commands.scm"
     "markup.scm"
     "modal-transforms.scm"
@@ -439,8 +440,6 @@ messages into errors.")
           init-scheme-files-tail))
 
 (for-each ly:load init-scheme-files)
-(if (ly:find-file "font-cache.scm")
-  (primitive-load-path (ly:find-file "font-cache.scm")))
 
 (define-public r5rs-primary-predicates
   `((,boolean? . "boolean")

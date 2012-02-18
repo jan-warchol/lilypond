@@ -197,8 +197,7 @@ export MFINPUTS := .:$(MFINPUTS)
 default: $(PFB_FILES) $(ALL_GEN_FILES) \
 	 $(outdir)/emmentaler-20.otf \
 	 tree-regen \
-	 $(outdir)/fonts.conf \
-	 $(outdir)/font-cache.scm
+	 $(outdir)/fonts.conf
 
 .PHONY: tree-regen
 
@@ -226,9 +225,6 @@ local-clean:
 
 $(outdir)/fonts.conf:
 	echo '<fontconfig><dir>'$(shell cd $(outdir); pwd)'</dir></fontconfig>' > $@
-
-$(outdir)/font-cache.scm: $(LILYPOND_BINARY)
-	$(LILYPOND_BINARY) --verbose $(top-src-dir)/ly/generate-font-integrals > $@
 
 $(NCSB_OTFS): $(NCSB_SOURCE_FILES) \
 	      $(auxscript-dir)/pfx2ttf.fontforge
