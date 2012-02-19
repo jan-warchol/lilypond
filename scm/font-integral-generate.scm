@@ -95,23 +95,21 @@
           (set! font-integral-alist (assoc-set! font-integral-alist key entry))
           entry))))
 
-(define (grob::make-vertical-skylines-cache-name grob)
-  (let* ((sten (ly:grob-property grob 'stencil))
-         (ylen (interval-length (ly:stencil-extent sten Y)))
-         (font (ly:grob-default-font grob))
-         (name-style (font-name-style font))
-         (glyph (ly:grob-property grob 'glyph-name)))
+(define (make-vertical-skylines-cache-name sten font glyph)
+  (let* ((ylen (interval-length (ly:stencil-extent sten Y)))
+         (name-style (font-name-style font)))
     (string->symbol (string-append (number->string ylen)
                                    "@"
                                    glyph
                                    "@"
                                    name-style))))
 
-(define (probe-vertical-skylines-cache grob)
-  (let* ((key (ly:grob-property grob 'vertical-skylines-cache-name)))
-    (assoc-get key vertical-skylines-cache #f)))
+(define (grob::make-vertical-skylines-cache-name grob)
+  (let* ((sten (ly:grob-property grob 'stencil))
+         (font (ly:grob-default-font grob))
+         (glyph (ly:grob-property grob 'glyph-name)))
+    (make-vertical-skylines-cache-name sten font glyph)))
 
-(define (write-to-vertical-skylines-cache grob entry)
-  (let* ((key (ly:grob-property grob 'vertical-skylines-cache-name)))
-    (set! vertical-skylines-cache
-          (assoc-set! vertical-skylines-cache key entry))))
+(define (write-to-vertical-skylines-cache entry key)
+  (set! vertical-skylines-cache
+        (assoc-set! vertical-skylines-cache key entry)))

@@ -737,8 +737,9 @@ Beam::internal_print (SCM grob, bool return_stencil)
           b.translate_axis (weighted_average, Y_AXIS);
           the_beam.add_stencil (b);
         }
-      else
+      else if ((i == 0) || (i == segments.size () - 1))
         {
+          // above, we save time by only making boxes for the upper and lower beams
           bxs = Lookup::beam_boxes (local_slope, segments[i].horizontal_.length (), beam_thickness);
           for (vsize j = 0; j < bxs.size (); j++)
             bxs[j].translate (Offset (segments[i].horizontal_[LEFT], weighted_average));

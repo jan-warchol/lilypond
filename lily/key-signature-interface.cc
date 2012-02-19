@@ -64,7 +64,7 @@ Key_signature_interface::internal_print (SCM smob, bool return_stencil)
   Real inter = Staff_symbol_referencer::staff_space (me) / 2.0;
 
   Stencil mol;
-  vector<Box> boxes;
+  Skyline_pair vertical_skylines;
 
   SCM c0s = me->get_property ("c0-position");
 
@@ -79,6 +79,8 @@ Key_signature_interface::internal_print (SCM smob, bool return_stencil)
   int last_pos = -1000;
   SCM last_glyph_name = SCM_BOOL_F;
   SCM padding_pairs = me->get_property ("padding-pairs");
+  SCM make_vs_cache_name = ly_lily_module_constant ("make-vertical-skylines-cache-name");
+  SCM vertical_skylines_cache = ly_lily_module_constant ("vertical-skylines-cache");
 
   Font_metric *fm = Font_interface::get_default_font (me);
   SCM alist = me->get_property ("glyph-name-alist");
@@ -110,17 +112,17 @@ Key_signature_interface::internal_print (SCM smob, bool return_stencil)
           SCM proc = ly_lily_module_constant ("key-signature-interface::alteration-position");
 
           int pos = scm_to_int (scm_call_3 (proc, what, scm_cdar (s), c0s));
-          acc.translate_axis (pos * inter, Y_AXIS);
+          Real padding = robust_scm2double (me->get_property ("padding"),
+                                            0.0);
 
           /*
             The natural sign (unlike flat & sharp)
             has vertical edges on both sides. A little padding is
             needed to prevent collisions.
           */
-          Real padding = robust_scm2double (me->get_property ("padding"),
-                                            0.0);
           SCM handle = scm_assoc (scm_cons (glyph_name_scm, last_glyph_name),
                                   padding_pairs);
+
           if (scm_is_pair (handle))
             padding = robust_scm2double (scm_cdr (handle), 0.0);
           else if (glyph_name == "accidentals.natural"
@@ -128,10 +130,36 @@ Key_signature_interface::internal_print (SCM smob, bool return_stencil)
                    && last_pos > pos - 6)
             padding += 0.3;
 
+          if (!return_stencil)
+            {
+              SCM key = scm_call_3 (make_vs_cache_name,
+                                    acc.smobbed_copy (),
+                                    fm->self_scm (),
+                                    ly_string2scm (glyph_name));
+              Skyline_pair ret;
+              if (Skyline_pair *vsk =
+                    Skyline_pair::unsmob
+                      (ly_assoc_get (key,
+                                     vertical_skylines_cache,
+                                     SCM_BOOL_F)))
+                {
+                  // code dup from stencil-integral - we've already calculated this.  just need to shift it...
+                  ret = Skyline_pair (*vsk);
+                }
+              else
+                {
+                  Skyline_pair *skyp = Skyline_pair::unsmob (Stencil::vertical_skylines_from_stencil (acc.smobbed_copy ()));
+                  SCM write_to_skyline_cache = ly_lily_module_constant ("write-to-vertical-skylines-cache");
+                  (void) scm_call_2 (write_to_skyline_cache, skyp->smobbed_copy (), key);
+                  ret = Skyline_pair (*skyp);
+                }
+              vertical_skylines.shift (acc.extent (X_AXIS).length () + padding);
+              ret.raise (pos * inter);
+              vertical_skylines.merge (ret);
+            }
+          acc.translate_axis (pos * inter, Y_AXIS);
+
           mol.add_at_edge (X_AXIS, LEFT, acc, padding);
-          Box b = Box (acc.extent_box ());
-          b.translate (Offset (mol.extent (X_AXIS)[LEFT] - padding, 0.0));
-          boxes.push_back (b);
 
           last_pos = pos;
           last_glyph_name = glyph_name_scm;
@@ -146,10 +174,12 @@ Key_signature_interface::internal_print (SCM smob, bool return_stencil)
     }
   else
     {
-      Skyline_pair out (boxes, 0.0, X_AXIS);
-      if (!out.is_empty ())
-        out.shift (-out.left ());
-      return out.smobbed_copy ();
+      if (!vertical_skylines.is_empty ())
+        {
+          vertical_skylines.shift
+            (-vertical_skylines.left ());
+        }
+      return vertical_skylines.smobbed_copy ();
     }
 }
 

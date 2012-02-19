@@ -85,6 +85,7 @@ public:
   Box extent_box () const;
   bool is_empty () const;
   Stencil in_color (Real r, Real g, Real b) const;
+  static SCM vertical_skylines_from_stencil (SCM);
 };
 
 DECLARE_UNSMOB (Stencil, stencil);
