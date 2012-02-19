@@ -83,6 +83,54 @@ Lookup::beam (Real slope, Real width, Real thick, Real blot)
   return Stencil (b, expr);
 }
 
+vector<Box>
+Lookup::line_boxes (Real x0, Real y0, Real x1, Real y1)
+{
+  vector<Box> out;
+  for (int i = 0; i < 10; i++)
+    {
+      Box b;
+      b.add_point (Offset (x0 + ((x1 - x0) * i / 10.0), y0 + ((y1 - y0) * i / 10.0)));
+      b.add_point (Offset (x0 + ((x1 - x0) * (i + 1.0) / 10.0), y0 + ((y1 - y0) * (i + 1.0) / 10.0)));
+      out.push_back (b);
+    }
+  return out;
+}
+
+vector<Box>
+Lookup::beam_boxes (Real slope, Real width, Real thick)
+{
+  Box b;
+  Offset porig;
+  Offset p0;
+  Offset p1;
+  vector<Box> boxes;
+
+  porig = Offset (0, thick / 2);
+  p0 = porig;
+
+  p1 = Offset (0, -thick / 2);
+  vector<Box> bxs = line_boxes (p0[X_AXIS], p0[Y_AXIS], p1[X_AXIS], p1[Y_AXIS]);
+  boxes.insert (boxes.end (), bxs.begin (), bxs.end ());
+
+  p0 = p1;
+  p1 = Offset (width, width * slope - thick / 2);
+  bxs = line_boxes (p0[X_AXIS], p0[Y_AXIS], p1[X_AXIS], p1[Y_AXIS]);
+  boxes.insert (boxes.end (), bxs.begin (), bxs.end ());
+
+  p0 = p1;
+  p1 = Offset (width, width * slope + thick / 2);
+  bxs = line_boxes (p0[X_AXIS], p0[Y_AXIS], p1[X_AXIS], p1[Y_AXIS]);
+  boxes.insert (boxes.end (), bxs.begin (), bxs.end ());
+
+  p0 = p1;
+  p1 = porig;
+  bxs = line_boxes (p0[X_AXIS], p0[Y_AXIS], p1[X_AXIS], p1[Y_AXIS]);
+  boxes.insert (boxes.end (), bxs.begin (), bxs.end ());
+
+  return boxes;
+}
+
 Stencil
 Lookup::rotated_box (Real slope, Real width, Real thick, Real blot)
 {
