@@ -25,13 +25,17 @@
 #include "item.hh"
 #include "lookup.hh"
 #include "output-def.hh"
+#include "skyline-pair.hh"
 #include "staff-symbol-referencer.hh"
 #include "rational.hh"
 
 struct Key_signature_interface
 {
   DECLARE_SCHEME_CALLBACK (print, (SCM));
+  DECLARE_SCHEME_CALLBACK (vertical_skylines, (SCM));
   DECLARE_GROB_INTERFACE ();
+
+  static SCM internal_print (SCM, bool);
 };
 
 /*
@@ -42,11 +46,25 @@ MAKE_SCHEME_CALLBACK (Key_signature_interface, print, 1);
 SCM
 Key_signature_interface::print (SCM smob)
 {
+  return internal_print (smob, true);
+}
+
+MAKE_SCHEME_CALLBACK (Key_signature_interface, vertical_skylines, 1);
+SCM
+Key_signature_interface::vertical_skylines (SCM smob)
+{
+  return internal_print (smob, false);
+}
+
+SCM
+Key_signature_interface::internal_print (SCM smob, bool return_stencil)
+{
   Item *me = dynamic_cast<Item *> (unsmob_grob (smob));
 
   Real inter = Staff_symbol_referencer::staff_space (me) / 2.0;
 
   Stencil mol;
+  vector<Box> boxes;
 
   SCM c0s = me->get_property ("c0-position");
 
@@ -110,6 +128,9 @@ Key_signature_interface::print (SCM smob)
                    && last_pos > pos - 6)
             padding += 0.3;
 
+          Box b = Box (acc.extent_box ());
+          b.translate (Offset (mol.extent (X_AXIS)[LEFT] - padding, 0.0));
+          boxes.push_back (b);
           mol.add_at_edge (X_AXIS, LEFT, acc, padding);
 
           last_pos = pos;
@@ -119,7 +140,14 @@ Key_signature_interface::print (SCM smob)
 
   mol.align_to (X_AXIS, LEFT);
 
-  return mol.smobbed_copy ();
+  if (return_stencil)
+    return mol.smobbed_copy ();
+  else
+    {
+      Skyline_pair out (boxes, 0.0, X_AXIS);
+      out.shift (-out.left ());
+      return out.smobbed_copy ();
+    }
 }
 
 ADD_INTERFACE (Key_signature_interface,
