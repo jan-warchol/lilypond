@@ -128,24 +128,27 @@ Key_signature_interface::internal_print (SCM smob, bool return_stencil)
                    && last_pos > pos - 6)
             padding += 0.3;
 
+          mol.add_at_edge (X_AXIS, LEFT, acc, padding);
           Box b = Box (acc.extent_box ());
           b.translate (Offset (mol.extent (X_AXIS)[LEFT] - padding, 0.0));
           boxes.push_back (b);
-          mol.add_at_edge (X_AXIS, LEFT, acc, padding);
 
           last_pos = pos;
           last_glyph_name = glyph_name_scm;
         }
     }
 
-  mol.align_to (X_AXIS, LEFT);
 
   if (return_stencil)
-    return mol.smobbed_copy ();
+    {
+      mol.align_to (X_AXIS, LEFT);
+      return mol.smobbed_copy ();
+    }
   else
     {
       Skyline_pair out (boxes, 0.0, X_AXIS);
-      out.shift (-out.left ());
+      if (!out.is_empty ())
+        out.shift (-out.left ());
       return out.smobbed_copy ();
     }
 }
