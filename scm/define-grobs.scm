@@ -396,7 +396,7 @@
 	(quantized-positions . ,ly:beam::set-stem-lengths)
 
 	(shorten . ,ly:beam::calc-stem-shorten)
-	(vertical-skylines . ,ly:grob::vertical-skylines-from-stencil)
+	(vertical-skylines . ,ly:beam::vertical-skylines)
 	(stencil . ,ly:beam::print)
 
 	(meta . ((class . Spanner)
@@ -783,7 +783,7 @@
 	(self-alignment-X . ,CENTER)
 	(self-alignment-Y . ,CENTER)
 	(stencil . ,ly:text-interface::print)
-	(vertical-skylines . ,ly:grob::vertical-skylines-from-stencil)
+	(vertical-skylines . ,ly:grob::simple-vertical-skylines-from-stencil)
 	(X-offset . ,ly:self-alignment-interface::x-aligned-on-self)
 	(Y-offset . ,ly:self-alignment-interface::y-aligned-on-self)
 	(meta . ((class . Item)
@@ -901,6 +901,7 @@
 
     (Flag
      . (
+	(glyph-name . ,ly:flag::glyph-name)
 	(stencil . ,ly:flag::print)
 	(X-extent . ,ly:flag::width)
 	(X-offset . ,ly:flag::calc-x-offset)
@@ -1652,7 +1653,7 @@
 	(springs-and-rods . ,ly:spanner::set-spacing-rods)
 	(stencil . ,ly:slur::print)
 	(thickness . 1.1)
-	(vertical-skylines . ,ly:grob::vertical-skylines-from-stencil)
+	(vertical-skylines . ,ly:slur::vertical-skylines)
 	(Y-extent . ,ly:slur::height)
 	(meta . ((class . Spanner)
 		 (interfaces . (slur-interface))))))
@@ -1813,7 +1814,7 @@
 	(springs-and-rods . ,ly:spanner::set-spacing-rods)
 	(stencil . ,ly:slur::print)
 	(thickness . 1.2)
-	(vertical-skylines . ,ly:grob::vertical-skylines-from-stencil)
+	(vertical-skylines . ,ly:slur::vertical-skylines)
 	(Y-extent . ,ly:slur::height)
 	(meta . ((class . Spanner)
 		 (interfaces . (slur-interface))))))

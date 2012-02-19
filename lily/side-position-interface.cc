@@ -198,7 +198,7 @@ Side_position_interface::skyline_side_position (Grob *me, Axis a,
         }
 
       if (off[X_AXIS].is_empty () || off[Y_AXIS].is_empty ())
-        return scm_from_double (0.0);    
+        return scm_from_double (0.0);
 
       my_dim = Skyline (off, skyline_padding, other_axis (a), -dir);
     }

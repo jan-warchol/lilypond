@@ -16,6 +16,7 @@
 ;;;; along with LilyPond.  If not, see <http://www.gnu.org/licenses/>.
 
 (define font-integral-alist '())
+(define vertical-skylines-cache '())
 
 (define pre-defined-box-data
 '((".notdef" . ((paths . ()) (mmx . (0 . 0)) (mmy . (0 . 0))))
@@ -93,3 +94,24 @@
         (let* ((entry (make-named-glyph-boxes font glyph)))
           (set! font-integral-alist (assoc-set! font-integral-alist key entry))
           entry))))
+
+(define (grob::make-vertical-skylines-cache-name grob)
+  (let* ((sten (ly:grob-property grob 'stencil))
+         (ylen (interval-length (ly:stencil-extent sten Y)))
+         (font (ly:grob-default-font grob))
+         (name-style (font-name-style font))
+         (glyph (ly:grob-property grob 'glyph-name)))
+    (string->symbol (string-append (number->string ylen)
+                                   "@"
+                                   glyph
+                                   "@"
+                                   name-style))))
+
+(define (probe-vertical-skylines-cache grob)
+  (let* ((key (ly:grob-property grob 'vertical-skylines-cache-name)))
+    (assoc-get key vertical-skylines-cache #f)))
+
+(define (write-to-vertical-skylines-cache grob entry)
+  (let* ((key (ly:grob-property grob 'vertical-skylines-cache-name)))
+    (set! vertical-skylines-cache
+          (assoc-set! vertical-skylines-cache key entry))))

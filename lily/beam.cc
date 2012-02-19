@@ -53,6 +53,7 @@
 #include "output-def.hh"
 #include "pointer-group-interface.hh"
 #include "rhythmic-head.hh"
+#include "skyline-pair.hh"
 #include "spanner.hh"
 #include "staff-symbol.hh"
 #include "staff-symbol-referencer.hh"
@@ -604,6 +605,25 @@ Beam::get_beam_segments (Grob *me)
     }
 
   return segments;
+}
+
+MAKE_SCHEME_CALLBACK (Beam, vertical_skylines, 1);
+SCM
+Beam::vertical_skylines (SCM grob)
+{
+  Spanner *me = unsmob_spanner (grob);
+  Real slen = me->spanner_length ();
+  Drul_array<Real> qp = robust_scm2drul (me->get_property ("quantized-positions"), Drul_array<Real> (0.0,0.0));
+  Real qplen = qp[RIGHT] - qp[LEFT];
+  vector<Box> boxes;
+  for (int i = 0; i < 11; i++)
+    {
+      Box b;
+      b.add_point (Offset (slen * i / 10, qp[LEFT] + (qplen * i / 10)));
+      b.add_point (Offset(slen * (i+1) / 10, qp[LEFT] + (qplen * (i+1) / 10)));
+      boxes.push_back (b);
+    }
+  return Skyline_pair (boxes, 0.0, X_AXIS).smobbed_copy ();
 }
 
 MAKE_SCHEME_CALLBACK (Beam, print, 1);

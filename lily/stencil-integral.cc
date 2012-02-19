@@ -889,14 +889,35 @@ stencil_traverser (PangoMatrix trans, SCM expr)
   return vector<Transform_matrix_and_expression> ();
 }
 
+MAKE_SCHEME_CALLBACK (Grob, simple_vertical_skylines_from_stencil, 1);
+SCM
+Grob::simple_vertical_skylines_from_stencil (SCM smob)
+{
+  Grob *me = unsmob_grob (smob);
+  Stencil *s = unsmob_stencil (me->get_property ("stencil"));
+  vector<Box> boxes;
+  boxes.push_back (Box (s->extent (X_AXIS), s->extent (Y_AXIS)));
+  return Skyline_pair (boxes, 0.0, X_AXIS).smobbed_copy ();
+}
+
 MAKE_SCHEME_CALLBACK (Grob, vertical_skylines_from_stencil, 1);
 SCM
 Grob::vertical_skylines_from_stencil (SCM smob)
 {
   Grob *me = unsmob_grob (smob);
   Stencil *s = unsmob_stencil (me->get_property ("stencil"));
+  SCM probe_skyline_cache = ly_lily_module_constant ("probe-vertical-skylines-cache");
+  if (Skyline_pair *vsk = Skyline_pair::unsmob (scm_call_1 (probe_skyline_cache, smob)))
+    {
+      // lucky day - we've already calculated this.  just need to shift it...
+      Skyline_pair ret (*vsk);
+      ret.shift (s->extent (X_AXIS)[LEFT] - ret.left ());
+      ret.raise (s->extent (Y_AXIS)[UP] - ret[UP].max_height ());
+      return ret.smobbed_copy ();
+    }
   if (!s)
     return Skyline_pair ().smobbed_copy ();
+
   vector<Transform_matrix_and_expression> data =
     stencil_traverser (make_transform_matrix (1.0,0.0,0.0,1.0,0.0,0.0),
                        s->expr ());
@@ -911,7 +932,13 @@ Grob::vertical_skylines_from_stencil (SCM smob)
       // we use the bounding box
       boxes.push_back (Box (s->extent (X_AXIS), s->extent (Y_AXIS)));
     }
-  return Skyline_pair (boxes, 0.0, X_AXIS).smobbed_copy ();
+  SCM out  = Skyline_pair (boxes, 0.0, X_AXIS).smobbed_copy ();
+  if (scm_is_symbol (me->get_property ("vertical-skylines-cache-name")))
+    {
+      SCM write_to_skyline_cache = ly_lily_module_constant ("write-to-vertical-skylines-cache");
+      (void) scm_call_2 (write_to_skyline_cache, smob, out);
+    }
+  return out;
 }
 
 MAKE_SCHEME_CALLBACK (Grob, vertical_skylines_from_element_stencils, 1);

@@ -31,6 +31,7 @@
 #include "main.hh"              // DEBUG_SLUR_SCORING
 #include "note-column.hh"
 #include "output-def.hh"
+#include "skyline-pair.hh"
 #include "spanner.hh"
 #include "staff-symbol-referencer.hh"
 #include "stem.hh"
@@ -371,6 +372,29 @@ Slur::outside_slur_callback (SCM grob, SCM offset_scm)
   Real avoidance_offset = do_shift ? curve.minmax (X_AXIS, max (xext[LEFT], curve.control_[0][X_AXIS] + EPS), min (xext[RIGHT], curve.control_[3][X_AXIS] - EPS), dir) - yext[-dir] : 0.0;
 
   return scm_from_double (offset + avoidance_offset);
+}
+
+MAKE_SCHEME_CALLBACK (Slur, vertical_skylines, 1);
+SCM
+Slur::vertical_skylines (SCM smob)
+{
+  Grob *me = unsmob_grob (smob);
+  vector<Box> boxes;
+
+  if (!me)
+    return Skyline_pair (boxes, 0.0, X_AXIS).smobbed_copy ();
+
+  Bezier curve = Slur::get_curve (me);
+  vsize box_count = robust_scm2vsize (me->get_property ("skyline-quantizing"), 10);
+  for (vsize i = 0; i < box_count; i++)
+    {
+      Box b;
+      b.add_point (curve.curve_point (i * 1.0 / box_count));
+      b.add_point (curve.curve_point ((i + 1) * 1.0 / box_count));
+      boxes.push_back (b);
+    }
+
+  return Skyline_pair (boxes, 0.0, X_AXIS).smobbed_copy ();
 }
 
 /*
