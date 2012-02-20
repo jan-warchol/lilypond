@@ -43,9 +43,6 @@ struct Lookup
   static Stencil horizontal_line (Interval w, Real th);
   static Stencil triangle (Interval iv, Real thick, Real protrude);
   static Stencil points_to_line_stencil (Real thick, vector<Offset> const &points);
-
-  static vector<Box> line_boxes (Real, Real, Real, Real);
-  static vector<Box> beam_boxes (Real, Real, Real);
 };
 
 #endif // LOOKUP_HH

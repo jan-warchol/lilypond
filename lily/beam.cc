@@ -53,7 +53,6 @@
 #include "output-def.hh"
 #include "pointer-group-interface.hh"
 #include "rhythmic-head.hh"
-#include "skyline-pair.hh"
 #include "spanner.hh"
 #include "staff-symbol.hh"
 #include "staff-symbol-referencer.hh"
@@ -611,19 +610,6 @@ MAKE_SCHEME_CALLBACK (Beam, print, 1);
 SCM
 Beam::print (SCM grob)
 {
-  return internal_print (grob, true);
-}
-
-MAKE_SCHEME_CALLBACK (Beam, vertical_skylines, 1);
-SCM
-Beam::vertical_skylines (SCM grob)
-{
-  return internal_print (grob, false);
-}
-
-SCM
-Beam::internal_print (SCM grob, bool return_stencil)
-{
   Spanner *me = unsmob_spanner (grob);
   /*
     TODO - mild code dup for all the commonx calls.
@@ -671,7 +657,6 @@ Beam::internal_print (SCM grob, bool return_stencil)
   Interval placements = robust_scm2interval (me->get_property ("normalized-endpoints"), Interval (0.0, 0.0));
 
   Stencil the_beam;
-  vector<Box> boxes;
   int extreme = (segments[0].vertical_count_ == 0
                  ? segments[0].vertical_count_
                  : segments.back ().vertical_count_);
@@ -689,7 +674,9 @@ Beam::internal_print (SCM grob, bool return_stencil)
                         * placements.length ()
                         / span.length ());
 
+      Stencil b = Lookup::beam (local_slope, segments[i].horizontal_.length (), beam_thickness, blot);
 
+      b.translate_axis (segments[i].horizontal_[LEFT], X_AXIS);
       Real multiplier = feather_dir ? placements[LEFT] : 1.0;
 
       Interval weights (1 - multiplier, multiplier);
@@ -728,24 +715,9 @@ Beam::internal_print (SCM grob, bool return_stencil)
       if (segments[0].vertical_count_ < 0 && feather_dir)
         weighted_average += beam_dy * (segments.size () - 1) * factor;
 
-      Stencil b;
-      vector<Box> bxs;
-      if (return_stencil)
-        {
-          b = Lookup::beam (local_slope, segments[i].horizontal_.length (), beam_thickness, blot);
-          b.translate_axis (segments[i].horizontal_[LEFT], X_AXIS);
-          b.translate_axis (weighted_average, Y_AXIS);
-          the_beam.add_stencil (b);
-        }
-      else if ((i == 0) || (i == segments.size () - 1))
-        {
-          // above, we save time by only making boxes for the upper and lower beams
-          bxs = Lookup::beam_boxes (local_slope, segments[i].horizontal_.length (), beam_thickness);
-          for (vsize j = 0; j < bxs.size (); j++)
-            bxs[j].translate (Offset (segments[i].horizontal_[LEFT], weighted_average));
-          boxes.insert (boxes.end (), bxs.begin (), bxs.end ());
-        }
+      b.translate_axis (weighted_average, Y_AXIS);
 
+      the_beam.add_stencil (b);
 
     }
 
@@ -779,17 +751,8 @@ Beam::internal_print (SCM grob, bool return_stencil)
     }
 #endif
 
-  if (return_stencil)
-    {
-      the_beam.translate_axis (-me->relative_coordinate (commonx, X_AXIS), X_AXIS);
-      return the_beam.smobbed_copy ();
-    }
-  else
-    {
-      for (vsize i = 0; i < boxes.size (); i++)
-        boxes[i].translate (Offset (-me->relative_coordinate (commonx, X_AXIS), 0.0));
-      return Skyline_pair (boxes, 0.0, X_AXIS).smobbed_copy ();
-    }
+  the_beam.translate_axis (-me->relative_coordinate (commonx, X_AXIS), X_AXIS);
+  return the_beam.smobbed_copy ();
 }
 
 Direction

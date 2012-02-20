@@ -25,17 +25,13 @@
 #include "item.hh"
 #include "lookup.hh"
 #include "output-def.hh"
-#include "skyline-pair.hh"
 #include "staff-symbol-referencer.hh"
 #include "rational.hh"
 
 struct Key_signature_interface
 {
   DECLARE_SCHEME_CALLBACK (print, (SCM));
-  DECLARE_SCHEME_CALLBACK (vertical_skylines, (SCM));
   DECLARE_GROB_INTERFACE ();
-
-  static SCM internal_print (SCM, bool);
 };
 
 /*
@@ -46,25 +42,11 @@ MAKE_SCHEME_CALLBACK (Key_signature_interface, print, 1);
 SCM
 Key_signature_interface::print (SCM smob)
 {
-  return internal_print (smob, true);
-}
-
-MAKE_SCHEME_CALLBACK (Key_signature_interface, vertical_skylines, 1);
-SCM
-Key_signature_interface::vertical_skylines (SCM smob)
-{
-  return internal_print (smob, false);
-}
-
-SCM
-Key_signature_interface::internal_print (SCM smob, bool return_stencil)
-{
   Item *me = dynamic_cast<Item *> (unsmob_grob (smob));
 
   Real inter = Staff_symbol_referencer::staff_space (me) / 2.0;
 
   Stencil mol;
-  Skyline_pair vertical_skylines;
 
   SCM c0s = me->get_property ("c0-position");
 
@@ -79,8 +61,6 @@ Key_signature_interface::internal_print (SCM smob, bool return_stencil)
   int last_pos = -1000;
   SCM last_glyph_name = SCM_BOOL_F;
   SCM padding_pairs = me->get_property ("padding-pairs");
-  SCM make_vs_cache_name = ly_lily_module_constant ("make-vertical-skylines-cache-name");
-  SCM vertical_skylines_cache = ly_lily_module_constant ("vertical-skylines-cache");
 
   Font_metric *fm = Font_interface::get_default_font (me);
   SCM alist = me->get_property ("glyph-name-alist");
@@ -112,52 +92,23 @@ Key_signature_interface::internal_print (SCM smob, bool return_stencil)
           SCM proc = ly_lily_module_constant ("key-signature-interface::alteration-position");
 
           int pos = scm_to_int (scm_call_3 (proc, what, scm_cdar (s), c0s));
-          Real padding = robust_scm2double (me->get_property ("padding"),
-                                            0.0);
+          acc.translate_axis (pos * inter, Y_AXIS);
 
           /*
             The natural sign (unlike flat & sharp)
             has vertical edges on both sides. A little padding is
             needed to prevent collisions.
           */
+          Real padding = robust_scm2double (me->get_property ("padding"),
+                                            0.0);
           SCM handle = scm_assoc (scm_cons (glyph_name_scm, last_glyph_name),
                                   padding_pairs);
-
           if (scm_is_pair (handle))
             padding = robust_scm2double (scm_cdr (handle), 0.0);
           else if (glyph_name == "accidentals.natural"
                    && last_pos < pos + 2
                    && last_pos > pos - 6)
             padding += 0.3;
-
-          if (!return_stencil)
-            {
-              SCM key = scm_call_3 (make_vs_cache_name,
-                                    acc.smobbed_copy (),
-                                    fm->self_scm (),
-                                    ly_string2scm (glyph_name));
-              Skyline_pair ret;
-              if (Skyline_pair *vsk =
-                    Skyline_pair::unsmob
-                      (ly_assoc_get (key,
-                                     vertical_skylines_cache,
-                                     SCM_BOOL_F)))
-                {
-                  // code dup from stencil-integral - we've already calculated this.  just need to shift it...
-                  ret = Skyline_pair (*vsk);
-                }
-              else
-                {
-                  Skyline_pair *skyp = Skyline_pair::unsmob (Stencil::vertical_skylines_from_stencil (acc.smobbed_copy ()));
-                  SCM write_to_skyline_cache = ly_lily_module_constant ("write-to-vertical-skylines-cache");
-                  (void) scm_call_2 (write_to_skyline_cache, skyp->smobbed_copy (), key);
-                  ret = Skyline_pair (*skyp);
-                }
-              vertical_skylines.shift (acc.extent (X_AXIS).length () + padding);
-              ret.raise (pos * inter);
-              vertical_skylines.merge (ret);
-            }
-          acc.translate_axis (pos * inter, Y_AXIS);
 
           mol.add_at_edge (X_AXIS, LEFT, acc, padding);
 
@@ -166,21 +117,9 @@ Key_signature_interface::internal_print (SCM smob, bool return_stencil)
         }
     }
 
+  mol.align_to (X_AXIS, LEFT);
 
-  if (return_stencil)
-    {
-      mol.align_to (X_AXIS, LEFT);
-      return mol.smobbed_copy ();
-    }
-  else
-    {
-      if (!vertical_skylines.is_empty ())
-        {
-          vertical_skylines.shift
-            (-vertical_skylines.left ());
-        }
-      return vertical_skylines.smobbed_copy ();
-    }
+  return mol.smobbed_copy ();
 }
 
 ADD_INTERFACE (Key_signature_interface,
