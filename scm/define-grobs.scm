@@ -399,7 +399,7 @@
 	(quantized-positions . ,ly:beam::set-stem-lengths)
 
 	(shorten . ,ly:beam::calc-stem-shorten)
-	(vertical-skylines . ,ly:beam::vertical-skylines)
+	(vertical-skylines . ,ly:grob::vertical-skylines-from-stencil)
 	(stencil . ,ly:beam::print)
 
 	(meta . ((class . Spanner)
@@ -1121,7 +1121,7 @@
 			(right-edge . (extra-space . 0.5))
 			(first-note . (fixed-space . 2.5))))
 	(stencil . ,ly:key-signature-interface::print)
-	(vertical-skylines . ,ly:key-signature-interface::vertical-skylines)
+	(vertical-skylines . ,ly:grob::vertical-skylines-from-stencil)
 	(extra-spacing-width . (0.0 . 1.0))
 	(extra-spacing-height . ,pure-from-neighbor-interface::extra-spacing-height-including-staff)
 	(Y-offset . ,ly:staff-symbol-referencer::callback)
@@ -1152,7 +1152,7 @@
 	(stencil . ,ly:key-signature-interface::print)
 	(extra-spacing-width . (0.0 . 1.0))
 	(extra-spacing-height . ,pure-from-neighbor-interface::extra-spacing-height-including-staff)
-	(vertical-skylines . ,ly:key-signature-interface::vertical-skylines)
+	(vertical-skylines . ,ly:grob::vertical-skylines-from-stencil)
 	(Y-offset . ,ly:staff-symbol-referencer::callback)
 	(meta . ((class . Item)
                  (object-callbacks . ((pure-Y-common . ,ly:axis-group-interface::calc-pure-y-common)
