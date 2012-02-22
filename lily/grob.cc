@@ -812,6 +812,7 @@ ADD_INTERFACE (Grob,
                "outside-staff-priority "
                "pure-Y-offset-in-progress "
                "rotation "
+               "skyline-horizontal-padding "
                "springs-and-rods "
                "staff-symbol "
                "stencil "

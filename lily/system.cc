@@ -1010,5 +1010,4 @@ ADD_INTERFACE (System,
                "in-note-stencil "
                "labels "
                "pure-Y-extent "
-               "skyline-horizontal-padding "
               );
