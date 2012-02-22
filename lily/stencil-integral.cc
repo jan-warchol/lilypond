@@ -47,6 +47,7 @@ when this transforms a point (x,y), the point is written as matrix:
 #include "real.hh"
 #include "stencil.hh"
 #include "string-convert.hh"
+#include "skyline.hh"
 #include "skyline-pair.hh"
 using namespace std;
 
@@ -54,7 +55,7 @@ Real CURVE_QUANTIZATION =  10;
 
 Real ELLIPSE_QUANTIZATION = 20;
 
-vector<Box> create_path_cap (PangoMatrix trans, Offset pt, Real rad, Real slope, Direction d);
+void create_path_cap (vector<Box> &boxes, vector<Skyline_pair> &skypairs, PangoMatrix trans, Offset pt, Real rad, Real slope, Direction d);
 
 struct Transform_matrix_and_expression {
   PangoMatrix tm_;
@@ -163,10 +164,9 @@ perpendicular_slope (Real s)
   and boxes
 */
 
-vector<Box>
-make_draw_line_boxes (PangoMatrix trans, SCM expr)
+void
+make_draw_line_boxes (vector<Box> &boxes, vector<Skyline_pair> &skypairs, PangoMatrix trans, SCM expr)
 {
-  vector<Box> boxes;
   Real thick = robust_scm2double (scm_car (expr), 0.0);
   expr = scm_cdr (expr);
   Real x0 = robust_scm2double (scm_car (expr), 0.0);
@@ -178,60 +178,57 @@ make_draw_line_boxes (PangoMatrix trans, SCM expr)
   Real y1 = robust_scm2double (scm_car (expr), 0.0);
   Real slope = x1 == x0 ? infinity_f : (y1 - y0) / (x1 - x0);
   //////////////////////
-  Drul_array<vector<Offset> > points;
+  if (x1 < x0)
+    {
+      swap (x0, x1);
+      swap (y0, y1);
+    }
+  Offset left (x0, y0);
+  Offset right (x1, y1);
   Direction d = DOWN;
   do
     {
-      for (vsize i = 0; i < 1 + CURVE_QUANTIZATION; i++)
+      Offset inter_l = get_point_in_y_direction (left, perpendicular_slope (slope), thick / 2, d);
+      Offset inter_r = get_point_in_y_direction (right, perpendicular_slope (slope), thick / 2, d);
+      pango_matrix_transform_point (&trans, &inter_l[X_AXIS], &inter_l[Y_AXIS]);
+      pango_matrix_transform_point (&trans, &inter_r[X_AXIS], &inter_r[Y_AXIS]);
+      if ((inter_l[X_AXIS] == inter_r[X_AXIS]) || (inter_l[Y_AXIS] == inter_r[Y_AXIS]))
         {
-          Offset pt (linear_map (x0, x1, 0, CURVE_QUANTIZATION, i),
-                     linear_map (y0, y1, 0, CURVE_QUANTIZATION, i));
-          Offset inter = get_point_in_y_direction (pt, perpendicular_slope (slope), thick / 2, d);
-          pango_matrix_transform_point (&trans, &inter[X_AXIS], &inter[Y_AXIS]);
-          points[d].push_back (inter);
+          Box b;
+          b.add_point (inter_l);
+          b.add_point (inter_r);
+          boxes.push_back (b);
         }
+      else
+        skypairs.push_back (Skyline_pair (Building (inter_l[X_AXIS], inter_l[Y_AXIS], inter_r[Y_AXIS], inter_r[X_AXIS]), inter_l[X_AXIS], X_AXIS));
     }
   while (flip (&d) != DOWN);
-
-  for (vsize i = 0; i < points[DOWN].size () - 1; i++)
-    {
-      Box b;
-      do
-        {
-          b.add_point (points[d][i]);
-          b.add_point (points[d][i + 1]);
-        }
-      while (flip (&d) != DOWN);
-      boxes.push_back (b);
-    }
 
   if (thick > 0.0)
     {
       // beg line cap
-      vector<Box> beg_cap = create_path_cap (trans,
-                                             Offset (x0, y0),
-                                             thick / 2,
-                                             perpendicular_slope (slope),
-                                             Direction (sign (slope)));
-
-      boxes.insert (boxes.end (), beg_cap.begin (), beg_cap.end ());
+      create_path_cap (boxes,
+                       skypairs,
+                       trans,
+                       Offset (x0, y0),
+                       thick / 2,
+                       perpendicular_slope (slope),
+                       Direction (sign (slope)));
 
       // end line cap
-      vector<Box> end_cap = create_path_cap (trans,
-                                             Offset (x1, y1),
-                                             thick / 2,
-                                             perpendicular_slope (slope),
-                                             Direction (sign (-slope)));
-      boxes.insert (boxes.end (), end_cap.begin (), end_cap.end ());
+      create_path_cap (boxes,
+                       skypairs,
+                       trans,
+                       Offset (x1, y1),
+                       thick / 2,
+                       perpendicular_slope (slope),
+                       Direction (sign (-slope)));
     }
-
-  return boxes;
 }
 
-vector<Box>
-make_partial_ellipse_boxes (PangoMatrix trans, SCM expr, Real quantization)
+void
+make_partial_ellipse_boxes (vector<Box> &boxes, vector<Skyline_pair> &skypairs, PangoMatrix trans, SCM expr, Real quantization)
 {
-  vector<Box> boxes;
   Real x_rad = robust_scm2double (scm_car (expr), 0.0);
   expr = scm_cdr (expr);
   Real y_rad = robust_scm2double (scm_car (expr), 0.0);
@@ -287,12 +284,11 @@ make_partial_ellipse_boxes (PangoMatrix trans, SCM expr, Real quantization)
 
   if (connect || fill)
     {
-      vector<Box> db = make_draw_line_boxes (trans, scm_list_5(scm_from_double (th),
-                                                               scm_from_double (sp[X_AXIS]),
-                                                               scm_from_double (sp[Y_AXIS]),
-                                                               scm_from_double (ep[X_AXIS]),
-                                                               scm_from_double (ep[Y_AXIS])));
-      boxes.insert (boxes.end (), db.begin (), db.end ());
+      make_draw_line_boxes (boxes, skypairs, trans, scm_list_5(scm_from_double (th),
+                                                     scm_from_double (sp[X_AXIS]),
+                                                     scm_from_double (sp[Y_AXIS]),
+                                                     scm_from_double (ep[X_AXIS]),
+                                                     scm_from_double (ep[Y_AXIS])));
     }
 
   if (th > 0.0)
@@ -302,40 +298,38 @@ make_partial_ellipse_boxes (PangoMatrix trans, SCM expr, Real quantization)
       Offset pt (real (coord) * x_rad,
                  imag (coord) * y_rad);
       Real slope = pt[Y_AXIS] / pt[X_AXIS];
-      vector<Box> beg_cap = create_path_cap (trans,
-                                             pt,
-                                             th / 2,
-                                             perpendicular_slope (slope),
-                                             Direction (sign (slope)));
-
-      boxes.insert (boxes.end (), beg_cap.begin (), beg_cap.end ());
+      create_path_cap (boxes,
+                       skypairs,
+                       trans,
+                       pt,
+                       th / 2,
+                       perpendicular_slope (slope),
+                       Direction (sign (slope)));
 
       // end line cap
       coord = polar (1.0, start);
       pt = Offset (real (coord) * x_rad,
                    imag (coord) * y_rad);
       slope = pt[Y_AXIS] / pt[X_AXIS];
-      vector<Box> end_cap = create_path_cap (trans,
-                                             pt,
-                                             th / 2,
-                                             perpendicular_slope (slope),
-                                             Direction (sign (-slope)));
-
-      boxes.insert (boxes.end (), end_cap.begin (), end_cap.end ());
+      create_path_cap (boxes,
+                       skypairs,
+                       trans,
+                       pt,
+                       th / 2,
+                       perpendicular_slope (slope),
+                       Direction (sign (-slope)));
     }
-  return boxes;
 }
 
-vector<Box>
-make_partial_ellipse_boxes (PangoMatrix trans, SCM expr)
+void
+make_partial_ellipse_boxes (vector<Box> &boxes, vector<Skyline_pair> &skypairs, PangoMatrix trans, SCM expr)
 {
-  return make_partial_ellipse_boxes (trans, expr, ELLIPSE_QUANTIZATION);
+  make_partial_ellipse_boxes (boxes, skypairs, trans, expr, ELLIPSE_QUANTIZATION);
 }
 
-vector<Box>
-make_round_filled_box_boxes (PangoMatrix trans, SCM expr)
+void
+make_round_filled_box_boxes (vector<Box> &boxes, PangoMatrix trans, SCM expr)
 {
-  vector<Box> boxes;
   Real left = robust_scm2double (scm_car (expr), 0.0);
   expr = scm_cdr (expr);
   Real right = robust_scm2double (scm_car (expr), 0.0);
@@ -355,11 +349,10 @@ make_round_filled_box_boxes (PangoMatrix trans, SCM expr)
   b.add_point (p0);
   b.add_point (p1);
   boxes.push_back (b);
-  return boxes;
 }
 
-vector<Box>
-create_path_cap (PangoMatrix trans, Offset pt, Real rad, Real slope, Direction d)
+void
+create_path_cap (vector<Box> &boxes, vector<Skyline_pair> &skypairs, PangoMatrix trans, Offset pt, Real rad, Real slope, Direction d)
 {
   Real angle = atan (slope) * 180 / M_PI;
   Real other = angle > 180 ? angle - 180 : angle + 180;
@@ -374,7 +367,7 @@ create_path_cap (PangoMatrix trans, Offset pt, Real rad, Real slope, Direction d
           : other;
   PangoMatrix new_trans (trans);
   pango_matrix_translate (&new_trans, pt[X_AXIS], pt[Y_AXIS]);
-  return make_partial_ellipse_boxes (new_trans,
+  make_partial_ellipse_boxes (boxes, skypairs, new_trans,
                                      scm_list_n (scm_from_double (rad),
                                                  scm_from_double (rad),
                                                  scm_from_double (angle),
@@ -386,10 +379,9 @@ create_path_cap (PangoMatrix trans, Offset pt, Real rad, Real slope, Direction d
                                      3);
 }
 
-vector<Box>
-make_draw_bezier_boxes (PangoMatrix trans, SCM expr)
+void
+make_draw_bezier_boxes (vector<Box> &boxes, vector<Skyline_pair> &skypairs, PangoMatrix trans, SCM expr)
 {
-  vector<Box> boxes;
   Real th = robust_scm2double (scm_car (expr), 0.0);
   expr = scm_cdr (expr);
   Real x0 = robust_scm2double (scm_car (expr), 0.0);
@@ -454,13 +446,13 @@ make_draw_bezier_boxes (PangoMatrix trans, SCM expr)
                            ? curve.slope_at_point (0.0001)
                            : slope));
 
-      vector<Box> beg_cap = create_path_cap (trans,
-                                             curve.control_[0],
-                                             th / 2,
-                                             perpendicular_slope (curve.slope_at_point (0.0)),
-                                             d);
-
-      boxes.insert (boxes.end (), beg_cap.begin (), beg_cap.end ());
+      create_path_cap (boxes,
+                       skypairs,
+                       trans,
+                       curve.control_[0],
+                       th / 2,
+                       perpendicular_slope (curve.slope_at_point (0.0)),
+                       d);
 
       // end line cap
       slope = curve.slope_at_point (1.0);
@@ -468,16 +460,14 @@ make_draw_bezier_boxes (PangoMatrix trans, SCM expr)
                            ? curve.slope_at_point (0.9999)
                            : slope));
 
-      vector<Box> end_cap = create_path_cap (trans,
-                                             curve.control_[3],
-                                             th / 2,
-                                             perpendicular_slope (curve.slope_at_point (1.0)),
-                                             d);
-
-      boxes.insert (boxes.end (), end_cap.begin (), end_cap.end ());
+      create_path_cap (boxes,
+                       skypairs,
+                       trans,
+                       curve.control_[3],
+                       th / 2,
+                       perpendicular_slope (curve.slope_at_point (1.0)),
+                       d);
     }
-
-  return boxes;
 }
 
 /*
@@ -617,10 +607,9 @@ all_commands_to_absolute_and_group (SCM expr)
   return scm_reverse_x (out, SCM_EOL);
 }
 
-vector<Box>
-internal_make_path_boxes (PangoMatrix trans, SCM expr)
+void
+internal_make_path_boxes (vector<Box> &boxes, vector<Skyline_pair> &skypairs, PangoMatrix trans, SCM expr)
 {
-  vector<Box> boxes;
   SCM blot = scm_car (expr);
   expr = scm_cdr (expr);
   SCM path = all_commands_to_absolute_and_group (expr);
@@ -628,23 +617,21 @@ internal_make_path_boxes (PangoMatrix trans, SCM expr)
   //////////////////////
   for (SCM s = path; scm_is_pair (s); s = scm_cdr (s))
     {
-      vector<Box> bxs = scm_to_int (scm_length (scm_car (s))) == 4
-                        ? make_draw_line_boxes (trans, scm_cons (blot, scm_car (s)))
-                        : make_draw_bezier_boxes (trans, scm_cons (blot, scm_car (s)));
-      boxes.insert (boxes.end (), bxs.begin (), bxs.end ());
+      scm_to_int (scm_length (scm_car (s))) == 4
+                  ? make_draw_line_boxes (boxes, skypairs, trans, scm_cons (blot, scm_car (s)))
+                  : make_draw_bezier_boxes (boxes, skypairs, trans, scm_cons (blot, scm_car (s)));
     }
-  return boxes;
 }
 
-vector<Box>
-make_path_boxes (PangoMatrix trans, SCM expr)
+void
+make_path_boxes (vector<Box> &boxes, vector<Skyline_pair> &skypairs, PangoMatrix trans, SCM expr)
 {
-  return internal_make_path_boxes (trans, scm_cons (scm_car (expr), get_path_list (scm_cdr (expr))));
+  return internal_make_path_boxes (boxes, skypairs, trans, scm_cons (scm_car (expr), get_path_list (scm_cdr (expr))));
 }
-vector<Box>
-make_polygon_boxes (PangoMatrix trans, SCM expr)
+
+void
+make_polygon_boxes (vector<Box> &boxes, vector<Skyline_pair> &skypairs, PangoMatrix trans, SCM expr)
 {
-  vector<Box> boxes;
   SCM coords = get_number_list (scm_car (expr));
   expr = scm_cdr (expr);
   SCM blot_diameter = scm_car (expr);
@@ -659,13 +646,12 @@ make_polygon_boxes (PangoMatrix trans, SCM expr)
       first = false;
     }
   l = scm_cons (ly_symbol2scm ("closepath"), l);
-  return internal_make_path_boxes (trans, scm_cons (blot_diameter, scm_reverse_x (l, SCM_EOL)));
+  internal_make_path_boxes (boxes, skypairs, trans, scm_cons (blot_diameter, scm_reverse_x (l, SCM_EOL)));
 }
 
-vector<Box>
-make_named_glyph_boxes (PangoMatrix trans, SCM expr)
+void
+make_named_glyph_boxes (vector<Box> &boxes, vector<Skyline_pair> &skypairs, PangoMatrix trans, SCM expr)
 {
-  vector<Box> boxes;
   SCM fm_scm = scm_car (expr);
   Font_metric *fm = unsmob_metrics (fm_scm);
   expr = scm_cdr (expr);
@@ -691,18 +677,15 @@ make_named_glyph_boxes (PangoMatrix trans, SCM expr)
        scm_is_pair (s);
        s = scm_cdr (s))
     {
-      vector<Box> bxs = scm_to_int (scm_length (scm_car (s))) == 4
-                        ? make_draw_line_boxes (trans, scm_cons (scm_from_double (0), scm_car (s)))
-                        : make_draw_bezier_boxes (trans, scm_cons (scm_from_double (0), scm_car (s)));
-      boxes.insert (boxes.end (), bxs.begin (), bxs.end ());
+      scm_to_int (scm_length (scm_car (s))) == 4
+                  ? make_draw_line_boxes (boxes, skypairs, trans, scm_cons (scm_from_double (0), scm_car (s)))
+                  : make_draw_bezier_boxes (boxes, skypairs, trans, scm_cons (scm_from_double (0), scm_car (s)));
     }
-  return boxes;
 }
 
-vector<Box>
-make_glyph_string_boxes (PangoMatrix trans, SCM expr)
+void
+make_glyph_string_boxes (vector<Box> &boxes, PangoMatrix trans, SCM expr)
 {
-  vector<Box> boxes;
   expr = scm_cdr (expr); // font-name
   expr = scm_cdr (expr); // size
   expr = scm_cdr (expr); // cid?
@@ -736,7 +719,6 @@ make_glyph_string_boxes (PangoMatrix trans, SCM expr)
       boxes.push_back (b);
       cumulative_x += widths[i];
     }
-  return boxes;
 }
 
 /*
@@ -744,13 +726,13 @@ make_glyph_string_boxes (PangoMatrix trans, SCM expr)
   depending on the stencil name, dispatches it to the appropriate function
 */
 
-vector<Box>
-stencil_dispatcher (PangoMatrix trans, SCM expr)
+void
+stencil_dispatcher (vector<Box> &boxes, vector<Skyline_pair> &skypairs, PangoMatrix trans, SCM expr)
 {
   if (not scm_is_pair (expr))
-    return vector<Box> ();
+    return;
   if (scm_car (expr) == ly_symbol2scm ("draw-line"))
-    return make_draw_line_boxes (trans, scm_cdr (expr));
+    make_draw_line_boxes (boxes, skypairs, trans, scm_cdr (expr));
   else if (scm_car (expr) == ly_symbol2scm ("dashed-line"))
     {
       expr = scm_cdr (expr);
@@ -761,7 +743,7 @@ stencil_dispatcher (PangoMatrix trans, SCM expr)
       SCM x1 = scm_car (expr);
       expr = scm_cdr (expr);
       SCM x2 = scm_car (expr);
-      return make_draw_line_boxes (trans, scm_list_5 (th, scm_from_double (0.0), scm_from_double (0.0), x1, x2));
+      make_draw_line_boxes (boxes, skypairs, trans, scm_list_5 (th, scm_from_double (0.0), scm_from_double (0.0), x1, x2));
     }
   else if (scm_car (expr) == ly_symbol2scm ("circle"))
     {
@@ -769,7 +751,7 @@ stencil_dispatcher (PangoMatrix trans, SCM expr)
       SCM rad = scm_car (expr);
       expr = scm_cdr (expr);
       SCM th = scm_car (expr);
-      return make_partial_ellipse_boxes (trans,
+      make_partial_ellipse_boxes (boxes, skypairs, trans,
                                          scm_list_n (rad,
                                                      rad,
                                                      scm_from_double (0.0),
@@ -787,7 +769,7 @@ stencil_dispatcher (PangoMatrix trans, SCM expr)
       SCM y_rad = scm_car (expr);
       expr = scm_cdr (expr);
       SCM th = scm_car (expr);
-      return make_partial_ellipse_boxes (trans,
+      make_partial_ellipse_boxes (boxes, skypairs, trans,
                                          scm_list_n (x_rad,
                                                      y_rad,
                                                      scm_from_double (0.0),
@@ -798,17 +780,17 @@ stencil_dispatcher (PangoMatrix trans, SCM expr)
                                                      SCM_UNDEFINED));
     }
   else if (scm_car (expr) == ly_symbol2scm ("partial-ellipse"))
-    return make_partial_ellipse_boxes (trans, scm_cdr (expr));
+    make_partial_ellipse_boxes (boxes, skypairs, trans, scm_cdr (expr));
   else if (scm_car (expr) == ly_symbol2scm ("round-filled-box"))
-    return make_round_filled_box_boxes (trans, scm_cdr (expr));
+    make_round_filled_box_boxes (boxes, trans, scm_cdr (expr));
   else if (scm_car (expr) == ly_symbol2scm ("named-glyph"))
-    return make_named_glyph_boxes (trans, scm_cdr (expr));
+    make_named_glyph_boxes (boxes, skypairs, trans, scm_cdr (expr));
   else if (scm_car (expr) == ly_symbol2scm ("polygon"))
-    return make_polygon_boxes (trans, scm_cdr (expr));
+    make_polygon_boxes (boxes, skypairs, trans, scm_cdr (expr));
   else if (scm_car (expr) == ly_symbol2scm ("path"))
-    return make_path_boxes (trans, scm_cdr (expr));
+    make_path_boxes (boxes, skypairs, trans, scm_cdr (expr));
   else if (scm_car (expr) == ly_symbol2scm ("glyph-string"))
-    return make_glyph_string_boxes (trans, scm_cdr (expr));
+    make_glyph_string_boxes (boxes, trans, scm_cdr (expr));
   else
     {
       #if 0
@@ -818,7 +800,6 @@ stencil_dispatcher (PangoMatrix trans, SCM expr)
         We don't issue a warning here, as we assume that stencil-expression.cc
         is doing stencil-checking correctly.
       */
-      return vector<Box> ();
     }
 }
 
@@ -894,6 +875,10 @@ SCM
 Grob::simple_vertical_skylines_from_stencil (SCM smob)
 {
   Grob *me = unsmob_grob (smob);
+  extract_grob_set (me, "elements", elts);
+  if (elts.size ())
+    return vertical_skylines_from_element_stencils (smob);
+
   Stencil *s = unsmob_stencil (me->get_property ("stencil"));
   vector<Box> boxes;
   boxes.push_back (Box (s->extent (X_AXIS), s->extent (Y_AXIS)));
@@ -911,17 +896,20 @@ Stencil::vertical_skylines_from_stencil (SCM sten)
     stencil_traverser (make_transform_matrix (1.0,0.0,0.0,1.0,0.0,0.0),
                        s->expr ());
   vector<Box> boxes;
+  vector<Skyline_pair> skypairs;
   for (vsize i = 0; i < data.size (); i++)
-    {
-      vector<Box> bxs = stencil_dispatcher (data[i].tm_, data[i].expr_);
-      boxes.insert (boxes.end (), bxs.begin (), bxs.end ());
-    }
-  if (!boxes.size ())
-    {
-      // we use the bounding box
-      boxes.push_back (Box (s->extent (X_AXIS), s->extent (Y_AXIS)));
-    }
-  return Skyline_pair (boxes, 0.0, X_AXIS).smobbed_copy ();
+    stencil_dispatcher (boxes, skypairs, data[i].tm_, data[i].expr_);
+
+  // we use the bounding box if there are no boxes
+  if (!boxes.size () && !skypairs.size ())
+    boxes.push_back (Box (s->extent (X_AXIS), s->extent (Y_AXIS)));
+
+  Skyline_pair out (boxes, 0.0, X_AXIS);
+
+  for (vsize i = 0; i < skypairs.size (); i++)
+    out.merge (skypairs[i]);
+
+  return out.smobbed_copy ();
 }
 
 MAKE_SCHEME_CALLBACK (Grob, vertical_skylines_from_stencil, 1);

@@ -182,8 +182,7 @@ Side_position_interface::skyline_side_position (Grob *me, Axis a,
       Skyline_pair copy = Skyline_pair (*Skyline_pair::unsmob (me->get_property ("vertical-skylines")));
       copy.shift (me->relative_coordinate (common[X_AXIS], X_AXIS));
       copy.raise (me->get_parent (X_AXIS)->relative_coordinate (common[Y_AXIS], Y_AXIS));
-      my_dim = Skyline (copy[-dir]);
-      my_dim.rebuild_skyline_padding (skyline_padding, X_AXIS, -dir);
+      my_dim = copy[-dir];
     }
   else
     {

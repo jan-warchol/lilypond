@@ -65,6 +65,7 @@ public:
   Skyline (Skyline const &src);
   Skyline (Skyline const &src, Real horizon_padding, Axis a);
   Skyline (Direction sky);
+  Skyline (Building b, Real start, Axis horizon_axis, Direction sky);
   Skyline (vector<Box> const &bldgs, Real horizon_padding, Axis a, Direction sky);
   Skyline (Box const &b, Real horizon_padding, Axis a, Direction sky);
 
@@ -85,7 +86,6 @@ public:
   bool is_empty () const;
   Real left () const;
   Real right () const;
-  void rebuild_skyline_padding (Real horizon_padding, Axis horizon_axis, Direction sky);
 
   DECLARE_SCHEME_CALLBACK (get_touching_point, (SCM, SCM, SCM));
   DECLARE_SCHEME_CALLBACK (get_distance, (SCM, SCM, SCM));

@@ -656,6 +656,7 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
                            vector<Grob *> elements,
                            Grob *x_common,
                            Grob *y_common,
+                           Real global_horizon_padding,
                            vector<Grob *> *riders)
 {
   vector<Box> boxes;
@@ -729,7 +730,7 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
               if (uses_boxes)
                 {
                   boxes.push_back (b);
-                  other = Skyline (boxes, horizon_padding, X_AXIS, -dir);
+                  other = Skyline (boxes, horizon_padding + global_horizon_padding, X_AXIS, -dir);
                 }
 
               Real padding = robust_scm2double (elements[i]->get_property ("outside-staff-padding"), 0.5);
@@ -855,7 +856,7 @@ Axis_group_interface::skyline_spacing (Grob *me, vector<Grob *> elements)
           ++i;
         }
 
-      add_grobs_of_one_priority (&skylines, current_elts, x_common, y_common, &riders);
+      add_grobs_of_one_priority (&skylines, current_elts, x_common, y_common, padding, &riders);
       for (vsize j = riders.size (); j--;)
         if (!has_outside_staff_parent (riders[j]))
           riders.erase (riders.begin () + j);
@@ -867,7 +868,6 @@ Axis_group_interface::skyline_spacing (Grob *me, vector<Grob *> elements)
       riders[j]->programming_error ("Vertical skylines will not be high enough.");
 
   skylines.shift (-me->relative_coordinate (x_common, X_AXIS));
-  skylines.rebuild_skyline_padding (padding, X_AXIS);
   return skylines;
 }
 

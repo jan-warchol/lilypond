@@ -38,6 +38,11 @@ Skyline_pair::Skyline_pair (Box const &b, Real padding, Axis a)
 {
 }
 
+Skyline_pair::Skyline_pair (Building b, Real start, Axis a)
+  : skylines_ (Skyline (b, start, a, DOWN), Skyline (b, start, a, UP))
+{
+}
+
 void
 Skyline_pair::raise (Real r)
 {
@@ -76,13 +81,6 @@ Skyline_pair::merge (Skyline_pair const &other)
 {
   skylines_[UP].merge (other[UP]);
   skylines_[DOWN].merge (other[DOWN]);
-}
-
-void
-Skyline_pair::rebuild_skyline_padding (Real horizon_padding, Axis horizon_axis)
-{
-  skylines_[UP].rebuild_skyline_padding (horizon_padding, horizon_axis, UP);
-  skylines_[DOWN].rebuild_skyline_padding (horizon_padding, horizon_axis, DOWN);
 }
 
 void
