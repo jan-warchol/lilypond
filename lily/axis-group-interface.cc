@@ -614,7 +614,7 @@ add_interior_skylines (Grob *me, Grob *x_common, Grob *y_common, Skyline_pair *s
     }
   else if (!scm_is_number (me->get_property ("outside-staff-priority"))
       && !to_boolean (me->get_property ("cross-staff")))
-    {        
+    {
       Skyline_pair *maybe_pair = Skyline_pair::unsmob (me->get_property ("vertical-skylines"));
       if (!maybe_pair)
         return;
