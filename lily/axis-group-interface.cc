@@ -816,6 +816,30 @@ Axis_group_interface::skyline_spacing (Grob *me, vector<Grob *> elements)
       riders[j]->programming_error ("Vertical skylines will not be high enough.");
 
   skylines.shift (-me->relative_coordinate (x_common, X_AXIS));
+  Real pad = robust_scm2double (me->get_property ("skyline-horizontal-padding"), 0.0);
+
+  if (pad > 0.0)
+    {
+      Direction d = DOWN;
+      do
+        {
+          vector<Offset> pts = skylines[d].to_points (X_AXIS);
+          for (vsize i = pts.size (); i--;)
+            if (pts[i][Y_AXIS] == -d * infinity_f)
+              pts.erase (pts.begin () + i);
+
+          assert (pts.size () % 2 == 0);
+
+          vector<Drul_array<Offset> > buildings;
+          for (vsize i = 0; i < pts.size (); i++)
+            pts[i][Y_AXIS] *= d;
+          for (vsize i = 0; i < pts.size () / 2; i++)
+            buildings.push_back (Drul_array<Offset> (pts[i * 2], pts[(i * 2) + 1]));
+
+          skylines[d] = Skyline (buildings, pad, X_AXIS, d);
+        }
+      while (flip (&d) != DOWN);
+    }
   return skylines;
 }
 

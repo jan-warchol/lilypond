@@ -33,13 +33,13 @@ Skyline_pair::Skyline_pair (vector<Box> const &boxes, Real padding, Axis a)
 {
 }
 
-Skyline_pair::Skyline_pair (Box const &b, Real padding, Axis a)
-  : skylines_ (Skyline (b, padding, a, DOWN), Skyline (b, padding, a, UP))
+Skyline_pair::Skyline_pair (vector<Drul_array<Offset> > const &buildings, Real padding, Axis a)
+  : skylines_ (Skyline (buildings, padding, a, DOWN), Skyline (buildings, padding, a, UP))
 {
 }
 
-Skyline_pair::Skyline_pair (Building b, Real start, Axis a)
-  : skylines_ (Skyline (b, start, a, DOWN), Skyline (b, start, a, UP))
+Skyline_pair::Skyline_pair (Box const &b, Real padding, Axis a)
+  : skylines_ (Skyline (b, padding, a, DOWN), Skyline (b, padding, a, UP))
 {
 }
 

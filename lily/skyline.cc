@@ -264,6 +264,42 @@ single_skyline (Building b, Real start, Real horizon_padding, list<Building> *co
                                -infinity_f, start - horizon_padding));
 }
 
+/*
+  Given Building 'b' with starting wall location 'start', create a plateau on
+  each side represented by horizontal padding in addition to
+  a sloped roofline of width 'horizon_padding'; put the skyline in 'ret'
+*/
+static void
+single_skyline_with_plateau (Building b, Real start, Real horizon_padding, list<Building> *const ret)
+{
+  bool sloped_neighbours = horizon_padding > 0 && !isinf (start) && !isinf (b.end_);
+  if (!isinf (b.end_))
+    ret->push_front (Building (b.end_ + horizon_padding, -infinity_f,
+                               -infinity_f, infinity_f));
+  if (sloped_neighbours)
+    {
+      Real y = (b.slope_ * b.end_) + b.y_intercept_;
+      Building plateau (b.end_, y, y, b.end_ + horizon_padding);
+      ret->push_front (plateau.sloped_neighbour (b.end_, horizon_padding, RIGHT));
+      ret->push_front (plateau);
+    }
+
+  if (b.end_ > start + EPS)
+    ret->push_front (b);
+
+  if (sloped_neighbours)
+    {
+      Real y = (b.slope_ * start) + b.y_intercept_;
+      Building plateau (start - horizon_padding, y, y, start);
+      ret->push_front (plateau);
+      ret->push_front (plateau.sloped_neighbour (start - horizon_padding, horizon_padding, LEFT));
+    }
+
+  if (!isinf (start))
+    ret->push_front (Building (-infinity_f, -infinity_f,
+                               -infinity_f, start - horizon_padding));
+}
+
 /* remove a non-overlapping set of boxes from BOXES and build a skyline
    out of them */
 static list<Building>
@@ -303,6 +339,56 @@ non_overlapping_skyline (list<Box> *const boxes, Real horizon_padding, Axis hori
   return result;
 }
 
+/* remove a non-overlapping set of boxes from BOXES and build a skyline
+   out of them */
+static list<Building>
+non_overlapping_skyline_from_buildings (list<Drul_array<Offset> > *const buildings, Real horizon_padding, Axis horizon_axis, Direction sky)
+{
+  list<Building> result;
+  Real last_end = -infinity_f;
+  list<Drul_array<Offset> >::iterator i = buildings->begin ();
+  while (i != buildings->end ())
+    {
+      Interval iv ((*i)[LEFT][horizon_axis], (*i)[RIGHT][horizon_axis]);
+
+      if (iv[LEFT] - horizon_padding < last_end)
+        {
+          i++;
+          continue;
+        }
+
+      if (iv[LEFT] - horizon_padding > last_end + EPS)
+        result.push_front (Building (last_end, -infinity_f, -infinity_f, iv[LEFT] - 2 * horizon_padding));
+
+      Building b ((*i)[LEFT][horizon_axis], (*i)[LEFT][other_axis (horizon_axis)], (*i)[RIGHT][other_axis (horizon_axis)], (*i)[RIGHT][horizon_axis]);
+
+      bool sloped_neighbours = horizon_padding > 0 && !isinf (iv.length ());
+      if (sloped_neighbours)
+        {
+          Real y = (*i)[LEFT][other_axis (horizon_axis)];
+          Building plateau (iv[LEFT] - horizon_padding, y, y, iv[LEFT]);
+          result.push_front (plateau.sloped_neighbour (iv[LEFT] - horizon_padding, horizon_padding, LEFT));
+          result.push_front (plateau);
+        }
+      result.push_front (b);
+      if (sloped_neighbours)
+        {
+          Real y = (*i)[RIGHT][other_axis (horizon_axis)];
+          Building plateau (b.end_, y, y, b.end_ + horizon_padding);
+          result.push_front (plateau);
+          result.push_front (plateau.sloped_neighbour (b.end_, horizon_padding, RIGHT));
+        }
+
+      list<Drul_array<Offset> >::iterator j = i++;
+      buildings->erase (j);
+      last_end = result.front ().end_;
+    }
+  if (last_end < infinity_f)
+    result.push_front (Building (last_end, -infinity_f, -infinity_f, infinity_f));
+  result.reverse ();
+  return result;
+}
+
 class LessThanBox
 {
   Axis a_;
@@ -316,6 +402,22 @@ public:
   bool operator () (Box const &b1, Box const &b2)
   {
     return b1[a_][LEFT] < b2[a_][LEFT];
+  }
+};
+
+class LessThanBuilding
+{
+  Axis a_;
+
+public:
+  LessThanBuilding (Axis a)
+  {
+    a_ = a;
+  }
+
+  bool operator () (Drul_array<Offset> const &b1, Drul_array<Offset> const &b2)
+  {
+    return b1[LEFT][a_] < b2[LEFT][a_];
   }
 };
 
@@ -363,6 +465,57 @@ Skyline::internal_build_skyline (list<Box> *boxes, Real horizon_padding, Axis ho
   return list<Building> ();
 }
 
+list<Building>
+Skyline::internal_build_skyline_from_buildings (list<Drul_array<Offset> > *buildings, Real horizon_padding, Axis horizon_axis, Direction sky)
+{
+  vsize size = buildings->size ();
+
+  if (size == 0)
+    {
+      list<Building> result;
+      empty_skyline (&result);
+      return result;
+    }
+  else if (size == 1)
+    {
+      list<Building> result;
+      Building b (buildings->front ()[LEFT][horizon_axis],
+                  buildings->front ()[LEFT][other_axis (horizon_axis)],
+                  buildings->front ()[RIGHT][other_axis (horizon_axis)],
+                  buildings->front ()[RIGHT][horizon_axis]);
+      b.y_intercept_ *= sky_;
+      b.slope_ *= sky_;
+      single_skyline_with_plateau (b,
+                                   buildings->front ()[LEFT][horizon_axis] - horizon_padding,
+                                   horizon_padding, &result);
+      return result;
+    }
+
+  deque<list<Building> > partials;
+  buildings->sort (LessThanBuilding (horizon_axis));
+  
+  while (!buildings->empty ())
+    partials.push_back (non_overlapping_skyline_from_buildings (buildings, horizon_padding, horizon_axis, sky));
+
+  /* we'd like to say while (partials->size () > 1) but that's O (n).
+     Instead, we exit in the middle of the loop */
+  while (!partials.empty ())
+    {
+      list<Building> merged;
+      list<Building> one = partials.front ();
+      partials.pop_front ();
+      if (partials.empty ())
+        return one;
+
+      list<Building> two = partials.front ();
+      partials.pop_front ();
+      internal_merge_skyline (&one, &two, &merged);
+      partials.push_back (merged);
+    }
+  assert (0);
+  return list<Building> ();
+}
+
 Skyline::Skyline ()
 {
   sky_ = UP;
@@ -385,19 +538,6 @@ Skyline::Skyline (Direction sky)
 {
   sky_ = sky;
   empty_skyline (&buildings_);
-}
-
-/*
-  build padded skyline from an existing skyline with padding
-  added to it.
-*/
-
-Skyline::Skyline (Building b, Real start, Axis horizon_axis, Direction sky)
-{
-  b.slope_ *= sky;
-  b.y_intercept_ *= sky;
-  single_skyline (b, start, 0.0, &buildings_);
-  sky_ = sky;
 }
 
 Skyline::Skyline (Skyline const &src, Real horizon_padding, Axis /*a*/)
@@ -450,6 +590,32 @@ Skyline::Skyline (vector<Box> const &boxes, Real horizon_padding, Axis horizon_a
     }
 
   buildings_ = internal_build_skyline (&filtered_boxes, horizon_padding, horizon_axis, sky);
+}
+
+/*
+  build skyline from a set of buildings. If horizon_padding > 0, expand all the boxes
+  by that amount and add 45-degree sloped boxes to the edges of each box (of
+  width horizon_padding). That is, the total amount of horizontal expansion is
+  horizon_padding*4, half of which is sloped and half of which is flat.
+
+  Buildings should have fatness in the horizon_axis (after they are expanded by
+  horizon_padding), otherwise they are ignored.
+ */
+Skyline::Skyline (vector<Drul_array<Offset> > const &buildings, Real horizon_padding, Axis horizon_axis, Direction sky)
+{
+  list<Drul_array<Offset> > filtered_buildings;
+  sky_ = sky;
+
+  for (vsize i = 0; i < buildings.size (); i++)
+    {
+      Interval iv = Interval (buildings[i][LEFT][horizon_axis], buildings[i][RIGHT][horizon_axis]);
+      Interval other = Interval (buildings[i][LEFT][other_axis (horizon_axis)], buildings[i][RIGHT][other_axis (horizon_axis)]);
+      iv.widen (horizon_padding);
+      if (iv.length () > EPS && !other.is_empty ())
+        filtered_buildings.push_front (buildings[i]);
+    }
+
+  buildings_ = internal_build_skyline_from_buildings (&filtered_buildings, horizon_padding, horizon_axis, sky);
 }
 
 Skyline::Skyline (Box const &b, Real horizon_padding, Axis horizon_axis, Direction sky)

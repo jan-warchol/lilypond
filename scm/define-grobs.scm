@@ -2538,6 +2538,7 @@
 	(nonstaff-unrelatedstaff-spacing . ((padding . 0.5)))
 	(staff-staff-spacing . ,ly:axis-group-interface::calc-staff-staff-spacing)
 	(stencil . ,ly:axis-group-interface::print)
+	(skyline-horizontal-padding . 0.1)
 	(vertical-skylines . ,ly:hara-kiri-group-spanner::calc-skylines)
 	(X-extent . ,ly:axis-group-interface::width)
 	(Y-extent . ,ly:hara-kiri-group-spanner::y-extent)

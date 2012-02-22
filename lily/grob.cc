@@ -81,8 +81,6 @@ Grob::Grob (SCM basicprops)
     set_property ("Y-extent", Grob::stencil_height_proc);
   if (get_property_data ("vertical-skylines") == SCM_EOL)
     set_property ("vertical-skylines", Grob::simple_vertical_skylines_from_stencil_proc);
-  if (get_property_data ("skyline-horizontal-padding") == SCM_EOL)
-    set_property ("skyline-horizontal-padding", Grob::skyline_horizontal_padding_from_vertical_axis_group_proc);
 }
 
 Grob::Grob (Grob const &s)

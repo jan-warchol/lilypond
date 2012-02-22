@@ -57,6 +57,7 @@ private:
   void internal_merge_skyline (list<Building>*, list<Building>*,
                                list<Building> *const result);
   list<Building> internal_build_skyline (list<Box>*, Real, Axis, Direction);
+  list<Building> internal_build_skyline_from_buildings (list<Drul_array<Offset> >*, Real, Axis, Direction);
 
   DECLARE_SIMPLE_SMOBS (Skyline);
 
@@ -65,8 +66,8 @@ public:
   Skyline (Skyline const &src);
   Skyline (Skyline const &src, Real horizon_padding, Axis a);
   Skyline (Direction sky);
-  Skyline (Building b, Real start, Axis horizon_axis, Direction sky);
   Skyline (vector<Box> const &bldgs, Real horizon_padding, Axis a, Direction sky);
+  Skyline (vector<Drul_array<Offset> > const &bldgs, Real horizon_padding, Axis a, Direction sky);
   Skyline (Box const &b, Real horizon_padding, Axis a, Direction sky);
 
   vector<Offset> to_points (Axis) const;
