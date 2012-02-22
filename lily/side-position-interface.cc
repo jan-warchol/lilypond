@@ -257,7 +257,8 @@ Side_position_interface::skyline_side_position (Grob *me, Axis a,
       dim.set_minimum_height (minmax (dir, min_h, staff_extents[dir]));
     }
 
-  Real total_off = dir * dim.distance (my_dim);
+  Real dist = dim.distance (my_dim);
+  Real total_off = dist > 0 ? dir * dist : 0.0;
   return finish_offset (me, dir, total_off, current_offset);
 }
 

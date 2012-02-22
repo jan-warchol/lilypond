@@ -903,6 +903,9 @@ SCM
 Grob::simple_vertical_skylines_from_stencil (SCM smob)
 {
   Grob *me = unsmob_grob (smob);
+  if (to_boolean (me->get_property ("transparent")))
+    return Skyline_pair ().smobbed_copy ();
+
   extract_grob_set (me, "elements", elts);
   if (elts.size ())
     return vertical_skylines_from_element_stencils (smob);
@@ -947,6 +950,9 @@ SCM
 Grob::vertical_skylines_from_stencil (SCM smob)
 {
   Grob *me = unsmob_grob (smob);
+  if (to_boolean (me->get_property ("transparent")))
+    return Skyline_pair ().smobbed_copy ();
+
   Stencil *s = unsmob_stencil (me->get_property ("stencil"));
   SCM vertical_skylines_cache = ly_lily_module_constant ("vertical-skylines-cache");
   if (Skyline_pair *vsk =
@@ -977,6 +983,9 @@ SCM
 Grob::vertical_skylines_from_element_stencils (SCM smob)
 {
   Grob *me = unsmob_grob (smob);
+  if (to_boolean (me->get_property ("transparent")))
+    return Skyline_pair ().smobbed_copy ();
+
   extract_grob_set (me, "elements", elts);
   vector<Real> x_pos;
   vector<Real> y_pos;
