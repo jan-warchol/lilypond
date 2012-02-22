@@ -605,31 +605,21 @@ pure_staff_priority_less (Grob *const &g1, Grob *const &g2)
 }
 
 static void
-add_boxes (Grob *me, Grob *x_common, Grob *y_common, vector<Box> *const boxes, Skyline_pair *skylines)
+add_interior_skylines (Grob *me, Grob *x_common, Grob *y_common, Skyline_pair *skylines)
 {
-  /* if a child has skylines, use them instead of the extent box */
-  if (Skyline_pair *pair = Skyline_pair::unsmob (me->get_property ("vertical-skylines")))
-    {
-      if (!scm_is_number (me->get_property ("outside-staff-priority"))
-          && !to_boolean (me->get_property ("cross-staff")))
-        {
-          Skyline_pair s = Skyline_pair (*pair);
-          s.shift (me->relative_coordinate (x_common, X_AXIS));
-          s.raise (me->relative_coordinate (y_common, Y_AXIS));
-          skylines->merge (s);
-        }
-    }
-  else if (Grob_array *elements = unsmob_grob_array (me->get_object ("elements")))
-    {
-      for (vsize i = 0; i < elements->size (); i++)
-        add_boxes (elements->grob (i), x_common, y_common, boxes, skylines);
-    }
-  else if (!scm_is_number (me->get_property ("outside-staff-priority"))
-           && !to_boolean (me->get_property ("cross-staff")))
-    {
-      boxes->push_back (Box (me->extent (x_common, X_AXIS),
-                             me->extent (y_common, Y_AXIS)));
-    }
+  if (!scm_is_number (me->get_property ("outside-staff-priority"))
+      && !to_boolean (me->get_property ("cross-staff")))
+      {
+        Skyline_pair *maybe_pair = Skyline_pair::unsmob (me->get_property ("vertical-skylines"));
+        if (!maybe_pair)
+          return;
+        if (maybe_pair->is_empty ())
+          return;
+        Skyline_pair s (*maybe_pair);
+        s.shift (me->relative_coordinate (x_common, X_AXIS));
+        s.raise (me->relative_coordinate (y_common, Y_AXIS));
+        skylines->merge (s);
+      }
 }
 
 /* We want to avoid situations like this:
@@ -656,7 +646,6 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
                            vector<Grob *> elements,
                            Grob *x_common,
                            Grob *y_common,
-                           Real global_horizon_padding,
                            vector<Grob *> *riders)
 {
   vector<Box> boxes;
@@ -680,32 +669,18 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
           SCM horizon_padding_scm = elements[i]->get_property ("outside-staff-horizontal-padding");
           Real horizon_padding = robust_scm2double (horizon_padding_scm, 0.0);
           Skyline other;
-          Box b;
           bool do_add = false;
           bool before_last_affected_position = false;
-          bool uses_boxes = false;
           Skyline_pair pair;
 
-          if (Skyline_pair::unsmob (elements[i]->get_property ("vertical-skylines")))
+          pair = Skyline_pair (*Skyline_pair::unsmob (elements[i]->get_property ("vertical-skylines")));
+          do_add = !pair.is_empty ();
+          if (do_add)
             {
-              pair = Skyline_pair (*Skyline_pair::unsmob (elements[i]->get_property ("vertical-skylines")));
-              do_add = !pair.is_empty ();
-              if (do_add)
-                {
-                  pair.shift (elements[i]->relative_coordinate (x_common, X_AXIS));
-                  pair.raise (elements[i]->relative_coordinate (y_common, Y_AXIS));
-                }
-              before_last_affected_position = pair[-dir].left () - 2 * horizon_padding < last_affected_position[dir];
+              pair.shift (elements[i]->relative_coordinate (x_common, X_AXIS));
+              pair.raise (elements[i]->relative_coordinate (y_common, Y_AXIS));
             }
-          else
-            {
-              uses_boxes = true;
-              b = Box (elements[i]->extent (x_common, X_AXIS),
-                       elements[i]->extent (y_common, Y_AXIS));
-
-              before_last_affected_position = b[X_AXIS][LEFT] - 2 * horizon_padding < last_affected_position[dir];
-              do_add = !b[X_AXIS].is_empty () && !b[Y_AXIS].is_empty ();
-            }
+          before_last_affected_position = pair[-dir].left () - 2 * horizon_padding < last_affected_position[dir];
 
           if (before_last_affected_position)
             continue;
@@ -716,55 +691,32 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
           */
           if (!scm_is_number (elements[i]->get_property ("outside-staff-priority")))
             {
-              add_boxes (elements[i], x_common, y_common, &boxes, skylines);
-              if (boxes.size ())
-                skylines->merge (Skyline_pair (boxes, 0.0, X_AXIS));
-              boxes.clear ();
+              add_interior_skylines (elements[i], x_common, y_common, skylines);
               elements.erase (elements.begin () + i);
               continue;
             }
 
           if (do_add)
             {
-              boxes.clear ();
-              if (uses_boxes)
-                {
-                  boxes.push_back (b);
-                  other = Skyline (boxes, horizon_padding + global_horizon_padding, X_AXIS, -dir);
-                }
-
               Real padding = robust_scm2double (elements[i]->get_property ("outside-staff-padding"), 0.5);
-              Real dist = (*skylines)[dir].distance (uses_boxes ? other : pair[-dir]) + padding;
+              Real dist = (*skylines)[dir].distance (pair[-dir]) + padding;
 
               if (dist > 0)
                 {
-                  if (uses_boxes)
-                    b.translate (Offset (0, dir * dist));
-                  else
-                    pair.raise (dir * dist);
+                  pair.raise (dir * dist);
                   elements[i]->translate_axis (dir * dist, Y_AXIS);
                 }
-              if (uses_boxes)
-                skylines->insert (b, 0, X_AXIS);
-              else
-                skylines->merge (pair);
+
+              skylines->merge (pair);
               elements[i]->set_property ("outside-staff-priority", SCM_BOOL_F);
-              if (uses_boxes)
-                last_affected_position[dir] = b[X_AXIS][RIGHT];
-              else
-                last_affected_position[dir] = pair.right ();
+              last_affected_position[dir] = pair.right ();
               other.clear ();
             }
           // if a grob previously had an outside staff parent but no longer does,
           // it is safe now to add it to the skyline
           for (vsize j = 0; j < riders->size (); j++)
             if (!Axis_group_interface::has_outside_staff_parent (riders->at (j)))
-              {
-                add_boxes (riders->at (j), x_common, y_common, &boxes, skylines);
-                if (boxes.size ())
-                  skylines->merge (Skyline_pair (boxes, 0.0, X_AXIS));
-                boxes.clear ();
-              }
+              add_interior_skylines (riders->at (j), x_common, y_common, skylines);
           /*
             Ugh: quadratic. --hwn
            */
@@ -824,7 +776,6 @@ Axis_group_interface::skyline_spacing (Grob *me, vector<Grob *> elements)
   assert (y_common == me);
 
   vsize i = 0;
-  vector<Box> boxes;
   vector<Grob *> riders;
 
   Skyline_pair skylines;
@@ -832,14 +783,11 @@ Axis_group_interface::skyline_spacing (Grob *me, vector<Grob *> elements)
        && !scm_is_number (elements[i]->get_property ("outside-staff-priority")); i++)
     {
       if (!(to_boolean (elements[i]->get_property ("cross-staff")) || has_outside_staff_parent (elements[i])))
-        add_boxes (elements[i], x_common, y_common, &boxes, &skylines);
+        add_interior_skylines (elements[i], x_common, y_common, &skylines);
       if (has_outside_staff_parent (elements[i]))
         riders.push_back (elements[i]);
     }
 
-  SCM padding_scm = me->get_property ("skyline-horizontal-padding");
-  Real padding = robust_scm2double (padding_scm, 0.1);
-  skylines.merge (Skyline_pair (boxes, 0.0, X_AXIS)); // use padding later
   for (; i < elements.size (); i++)
     {
       if (to_boolean (elements[i]->get_property ("cross-staff")))
@@ -856,7 +804,7 @@ Axis_group_interface::skyline_spacing (Grob *me, vector<Grob *> elements)
           ++i;
         }
 
-      add_grobs_of_one_priority (&skylines, current_elts, x_common, y_common, padding, &riders);
+      add_grobs_of_one_priority (&skylines, current_elts, x_common, y_common, &riders);
       for (vsize j = riders.size (); j--;)
         if (!has_outside_staff_parent (riders[j]))
           riders.erase (riders.begin () + j);

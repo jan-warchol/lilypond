@@ -70,6 +70,7 @@ public:
   DECLARE_SCHEME_CALLBACK (stencil_height, (SCM smob));
   DECLARE_SCHEME_CALLBACK (stencil_width, (SCM smob));
   DECLARE_SCHEME_CALLBACK (simple_vertical_skylines_from_stencil, (SCM smob));
+  DECLARE_SCHEME_CALLBACK (skyline_horizontal_padding_from_vertical_axis_group, (SCM smob));
   DECLARE_SCHEME_CALLBACK (vertical_skylines_from_stencil, (SCM smob));
   DECLARE_SCHEME_CALLBACK (vertical_skylines_from_element_stencils, (SCM smob));
 
