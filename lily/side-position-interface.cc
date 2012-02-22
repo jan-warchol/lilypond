@@ -181,7 +181,7 @@ Side_position_interface::skyline_side_position (Grob *me, Axis a,
     {
       Skyline_pair copy = Skyline_pair (*Skyline_pair::unsmob (me->get_property ("vertical-skylines")));
       copy.shift (me->relative_coordinate (common[X_AXIS], X_AXIS));
-      copy.raise (me->get_parent (X_AXIS)->relative_coordinate (common[Y_AXIS], Y_AXIS));
+      copy.raise (me->get_parent (Y_AXIS)->relative_coordinate (common[Y_AXIS], Y_AXIS));
       my_dim = copy[-dir];
     }
   else
@@ -259,6 +259,7 @@ Side_position_interface::skyline_side_position (Grob *me, Axis a,
 
   Real dist = dim.distance (my_dim);
   Real total_off = dist > 0 ? dir * dist : 0.0;
+
   return finish_offset (me, dir, total_off, current_offset);
 }
 
