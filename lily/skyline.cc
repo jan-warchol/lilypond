@@ -483,8 +483,6 @@ Skyline::internal_build_skyline_from_buildings (list<Drul_array<Offset> > *build
                   buildings->front ()[LEFT][other_axis (horizon_axis)],
                   buildings->front ()[RIGHT][other_axis (horizon_axis)],
                   buildings->front ()[RIGHT][horizon_axis]);
-      b.y_intercept_ *= sky_;
-      b.slope_ *= sky_;
       single_skyline_with_plateau (b,
                                    buildings->front ()[LEFT][horizon_axis] - horizon_padding,
                                    horizon_padding, &result);
@@ -611,8 +609,16 @@ Skyline::Skyline (vector<Drul_array<Offset> > const &buildings, Real horizon_pad
       Interval iv = Interval (buildings[i][LEFT][horizon_axis], buildings[i][RIGHT][horizon_axis]);
       Interval other = Interval (buildings[i][LEFT][other_axis (horizon_axis)], buildings[i][RIGHT][other_axis (horizon_axis)]);
       iv.widen (horizon_padding);
-      if (iv.length () > EPS && !other.is_empty ())
+      if (iv.length () > EPS)
         filtered_buildings.push_front (buildings[i]);
+    }
+
+  for (list<Drul_array<Offset> >::iterator i = filtered_buildings.begin (); i != filtered_buildings.end (); i++)
+    {
+      Direction d = LEFT;
+      do
+        (*i)[d][Y_AXIS] = (*i)[d][Y_AXIS] * sky;
+      while (flip (&d) != LEFT);
     }
 
   buildings_ = internal_build_skyline_from_buildings (&filtered_buildings, horizon_padding, horizon_axis, sky);

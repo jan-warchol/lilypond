@@ -836,8 +836,6 @@ Axis_group_interface::skyline_spacing (Grob *me, vector<Grob *> elements)
           assert (pts.size () % 2 == 0);
 
           vector<Drul_array<Offset> > buildings;
-          for (vsize i = 0; i < pts.size (); i++)
-            pts[i][Y_AXIS] *= d;
           for (vsize i = 0; i < pts.size () / 2; i++)
             buildings.push_back (Drul_array<Offset> (pts[i * 2], pts[(i * 2) + 1]));
 
