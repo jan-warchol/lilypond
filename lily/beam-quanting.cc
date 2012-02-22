@@ -386,9 +386,9 @@ void Beam_scoring_problem::init_instance_variables (Grob *me, Drul_array<Real> y
       x_span_ += beams[i]->spanner_length ();
     }
 }
-
+#include <valgrind/valgrind.h>
 Beam_scoring_problem::Beam_scoring_problem (Grob *me, Drul_array<Real> ys, bool align_broken_intos)
-{
+{VALGRIND_PRINTF_BACKTRACE ("foo");
   beam_ = dynamic_cast<Spanner *> (me);
   unquanted_y_ = ys;
   align_broken_intos_ = align_broken_intos;

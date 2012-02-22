@@ -607,19 +607,24 @@ pure_staff_priority_less (Grob *const &g1, Grob *const &g2)
 static void
 add_interior_skylines (Grob *me, Grob *x_common, Grob *y_common, Skyline_pair *skylines)
 {
-  if (!scm_is_number (me->get_property ("outside-staff-priority"))
+  if (Grob_array *elements = unsmob_grob_array (me->get_object ("elements")))
+    {
+      for (vsize i = 0; i < elements->size (); i++)
+        add_interior_skylines (elements->grob (i), x_common, y_common, skylines);
+    }
+  else if (!scm_is_number (me->get_property ("outside-staff-priority"))
       && !to_boolean (me->get_property ("cross-staff")))
-      {
-        Skyline_pair *maybe_pair = Skyline_pair::unsmob (me->get_property ("vertical-skylines"));
-        if (!maybe_pair)
-          return;
-        if (maybe_pair->is_empty ())
-          return;
-        Skyline_pair s (*maybe_pair);
-        s.shift (me->relative_coordinate (x_common, X_AXIS));
-        s.raise (me->relative_coordinate (y_common, Y_AXIS));
-        skylines->merge (s);
-      }
+    {        
+      Skyline_pair *maybe_pair = Skyline_pair::unsmob (me->get_property ("vertical-skylines"));
+      if (!maybe_pair)
+        return;
+      if (maybe_pair->is_empty ())
+        return;
+      Skyline_pair s (*maybe_pair);
+      s.shift (me->relative_coordinate (x_common, X_AXIS));
+      s.raise (me->relative_coordinate (y_common, Y_AXIS));
+      skylines->merge (s);
+    }
 }
 
 /* We want to avoid situations like this:
