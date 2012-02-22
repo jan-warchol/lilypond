@@ -493,7 +493,7 @@ Skyline::internal_build_skyline_from_buildings (list<Drul_array<Offset> > *build
 
   deque<list<Building> > partials;
   buildings->sort (LessThanBuilding (horizon_axis));
-  
+
   while (!buildings->empty ())
     partials.push_back (non_overlapping_skyline_from_buildings (buildings, horizon_padding, horizon_axis, sky));
 
