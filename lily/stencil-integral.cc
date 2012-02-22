@@ -636,7 +636,7 @@ all_commands_to_absolute_and_group (SCM expr)
 }
 
 void
-internal_make_path_boxes (vector<Box> &boxes, vector<Skyline_pair> &skypairs, PangoMatrix trans, SCM expr)
+internal_make_path_boxes (vector<Box> &boxes, vector<Skyline_pair> &skypairs, PangoMatrix trans, SCM expr, bool use_building)
 {
   SCM blot = scm_car (expr);
   expr = scm_cdr (expr);
@@ -646,7 +646,7 @@ internal_make_path_boxes (vector<Box> &boxes, vector<Skyline_pair> &skypairs, Pa
   for (SCM s = path; scm_is_pair (s); s = scm_cdr (s))
     {
       scm_to_int (scm_length (scm_car (s))) == 4
-                  ? make_draw_line_boxes (boxes, skypairs, trans, scm_cons (blot, scm_car (s)), false)
+                  ? make_draw_line_boxes (boxes, skypairs, trans, scm_cons (blot, scm_car (s)), use_building)
                   : make_draw_bezier_boxes (boxes, skypairs, trans, scm_cons (blot, scm_car (s)));
     }
 }
@@ -654,7 +654,7 @@ internal_make_path_boxes (vector<Box> &boxes, vector<Skyline_pair> &skypairs, Pa
 void
 make_path_boxes (vector<Box> &boxes, vector<Skyline_pair> &skypairs, PangoMatrix trans, SCM expr)
 {
-  return internal_make_path_boxes (boxes, skypairs, trans, scm_cons (scm_car (expr), get_path_list (scm_cdr (expr))));
+  return internal_make_path_boxes (boxes, skypairs, trans, scm_cons (scm_car (expr), get_path_list (scm_cdr (expr))), false);
 }
 
 void
@@ -674,7 +674,7 @@ make_polygon_boxes (vector<Box> &boxes, vector<Skyline_pair> &skypairs, PangoMat
       first = false;
     }
   l = scm_cons (ly_symbol2scm ("closepath"), l);
-  internal_make_path_boxes (boxes, skypairs, trans, scm_cons (blot_diameter, scm_reverse_x (l, SCM_EOL)));
+  internal_make_path_boxes (boxes, skypairs, trans, scm_cons (blot_diameter, scm_reverse_x (l, SCM_EOL)), true);
 }
 
 void
