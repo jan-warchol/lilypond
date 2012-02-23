@@ -174,12 +174,11 @@ Side_position_interface::skyline_side_position (Grob *me, Axis a,
   Direction dir = get_grob_direction (me);
 
   Skyline my_dim;
-  Real skyline_padding = 0.1;
-  if (me->get_property_data ("vertical-skylines") != SCM_EOL
-      && a == Y_AXIS
-      && !pure)
+  Real skyline_padding = 0.0;
+  Skyline_pair *sp = Skyline_pair::unsmob (me->get_property ("vertical-skylines"));
+  if (sp && a == Y_AXIS && !pure)
     {
-      Skyline_pair copy = Skyline_pair (*Skyline_pair::unsmob (me->get_property ("vertical-skylines")));
+      Skyline_pair copy = Skyline_pair (*sp);
       copy.shift (me->relative_coordinate (common[X_AXIS], X_AXIS));
       copy.raise (me->get_parent (Y_AXIS)->relative_coordinate (common[Y_AXIS], Y_AXIS));
       my_dim = copy[-dir];

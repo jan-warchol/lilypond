@@ -1784,6 +1784,7 @@
 
 	(stencil . ,ly:script-interface::print)
 	(use-skylines . #t)
+	(vertical-skylines . ,ly:grob::vertical-skylines-from-stencil)
 	(X-offset . ,script-interface::calc-x-offset)
 	(Y-offset . ,ly:side-position-interface::y-aligned-side)
 	(meta . ((class . Item)
