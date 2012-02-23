@@ -906,6 +906,9 @@ Grob::simple_vertical_skylines_from_stencil (SCM smob)
   if (to_boolean (me->get_property ("transparent")))
     return Skyline_pair ().smobbed_copy ();
 
+  if (to_boolean (me->get_property ("cross-staff")))
+    return Skyline_pair ().smobbed_copy ();
+
   extract_grob_set (me, "elements", elts);
   if (elts.size ())
     return vertical_skylines_from_element_stencils (smob);
