@@ -18,6 +18,7 @@
 */
 
 #include "skyline.hh"
+#include "skyline-pair.hh"
 #include <deque>
 #include <cstdio>
 
@@ -599,7 +600,8 @@ Skyline::Skyline (vector<Box> const &boxes, Real horizon_padding, Axis horizon_a
   Buildings should have fatness in the horizon_axis (after they are expanded by
   horizon_padding), otherwise they are ignored.
  */
-Skyline::Skyline (vector<Drul_array<Offset> > const &buildings, Real horizon_padding, Axis horizon_axis, Direction sky)
+void
+Skyline::shared_building_constructor (vector<Drul_array<Offset> > const &buildings, Real horizon_padding, Axis horizon_axis, Direction sky)
 {
   list<Drul_array<Offset> > filtered_buildings;
   sky_ = sky;
@@ -622,6 +624,30 @@ Skyline::Skyline (vector<Drul_array<Offset> > const &buildings, Real horizon_pad
     }
 
   buildings_ = internal_build_skyline_from_buildings (&filtered_buildings, horizon_padding, horizon_axis, sky);
+
+}
+
+Skyline::Skyline (vector<Drul_array<Offset> > const &buildings, Real horizon_padding, Axis horizon_axis, Direction sky)
+{
+  shared_building_constructor (buildings, horizon_padding, horizon_axis, sky);
+}
+
+Skyline::Skyline (vector<Skyline_pair> const &skypairs, Real horizon_padding, Axis horizon_axis, Direction sky)
+{
+  vector<Drul_array<Offset> > buildings;
+  for (vsize i = 0; i < skypairs.size (); i++)
+    {
+      vector<Offset> pts = skypairs[i][sky].to_points (horizon_axis);
+      for (vsize j = pts.size (); j--;)
+        if (pts[j][Y_AXIS] == -sky * infinity_f)
+          pts.erase (pts.begin () + j);
+
+      assert (pts.size () % 2 == 0);
+
+      for (vsize j = 0; j < pts.size () / 2; j++)
+        buildings.push_back (Drul_array<Offset> (pts[j * 2], pts[(j * 2) + 1]));
+    }
+  shared_building_constructor (buildings, horizon_padding, horizon_axis, sky);    
 }
 
 Skyline::Skyline (Box const &b, Real horizon_padding, Axis horizon_axis, Direction sky)
