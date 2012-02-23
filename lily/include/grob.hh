@@ -70,6 +70,7 @@ public:
   DECLARE_SCHEME_CALLBACK (stencil_height, (SCM smob));
   DECLARE_SCHEME_CALLBACK (stencil_width, (SCM smob));
   DECLARE_SCHEME_CALLBACK (simple_vertical_skylines_from_stencil, (SCM smob));
+  DECLARE_SCHEME_CALLBACK (simple_vertical_skylines_from_possibly_transparent_stencil, (SCM smob));
   DECLARE_SCHEME_CALLBACK (vertical_skylines_from_stencil, (SCM smob));
   DECLARE_SCHEME_CALLBACK (vertical_skylines_from_element_stencils, (SCM smob));
 
@@ -151,6 +152,8 @@ public:
   static bool internal_vertical_less (Grob *g1, Grob *g2, bool pure);
   static int get_vertical_axis_group_index (Grob *g);
 
+  /* vertical skylines */
+  static SCM internal_simple_vertical_skylines_from_stencil (SCM, bool);
   virtual Interval_t<int> spanned_rank_interval () const;
   virtual bool pure_is_visible (int start, int end) const;
   bool check_cross_staff (Grob *common);

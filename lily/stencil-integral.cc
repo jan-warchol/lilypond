@@ -898,12 +898,11 @@ stencil_traverser (PangoMatrix trans, SCM expr)
   return vector<Transform_matrix_and_expression> ();
 }
 
-MAKE_SCHEME_CALLBACK (Grob, simple_vertical_skylines_from_stencil, 1);
 SCM
-Grob::simple_vertical_skylines_from_stencil (SCM smob)
+Grob::internal_simple_vertical_skylines_from_stencil (SCM smob, bool check_trans)
 {
   Grob *me = unsmob_grob (smob);
-  if (to_boolean (me->get_property ("transparent")))
+  if (check_trans && to_boolean (me->get_property ("transparent")))
     return Skyline_pair ().smobbed_copy ();
 
   if (to_boolean (me->get_property ("cross-staff")))
@@ -921,6 +920,20 @@ Grob::simple_vertical_skylines_from_stencil (SCM smob)
   boxes.push_back (Box (s->extent (X_AXIS), s->extent (Y_AXIS)));
   Real pad = robust_scm2double (me->get_property ("skyline-horizontal-padding"), 0.0);
   return Skyline_pair (boxes, pad, X_AXIS).smobbed_copy ();
+}
+
+MAKE_SCHEME_CALLBACK (Grob, simple_vertical_skylines_from_stencil, 1);
+SCM
+Grob::simple_vertical_skylines_from_stencil (SCM smob)
+{
+  return internal_simple_vertical_skylines_from_stencil (smob, true);
+}
+
+MAKE_SCHEME_CALLBACK (Grob, simple_vertical_skylines_from_possibly_transparent_stencil, 1);
+SCM
+Grob::simple_vertical_skylines_from_possibly_transparent_stencil (SCM smob)
+{
+  return internal_simple_vertical_skylines_from_stencil (smob, false);
 }
 
 SCM
