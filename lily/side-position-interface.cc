@@ -270,7 +270,7 @@ Side_position_interface::skyline_side_position (Grob *me, Axis a,
         }
       if (!big[X_AXIS].is_empty () && !big[Y_AXIS].is_empty ())
         boxes.push_back (big);
-    }  
+    }
 
   Skyline dim (boxes, skyline_padding, other_axis (a), dir);
   if (!boxes.size ())
