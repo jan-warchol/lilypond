@@ -176,7 +176,7 @@ Side_position_interface::skyline_side_position (Grob *me, Axis a,
   Direction dir = get_grob_direction (me);
 
   Skyline my_dim;
-  Real skyline_padding = 0.0;
+  Real skyline_padding = 0.1;
   Skyline_pair *sp = Skyline_pair::unsmob (me->get_property ("vertical-skylines"));
   if (sp && a == Y_AXIS && !pure)
     {
