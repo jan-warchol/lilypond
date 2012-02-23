@@ -21,6 +21,7 @@
 
 #include <cmath>                // ceil.
 #include <algorithm>
+#include <map>
 
 using namespace std;
 
@@ -32,6 +33,7 @@ using namespace std;
 #include "main.hh"
 #include "misc.hh"
 #include "note-head.hh"
+#include "note-column.hh"
 #include "pointer-group-interface.hh"
 #include "skyline-pair.hh"
 #include "staff-symbol-referencer.hh"
@@ -208,6 +210,7 @@ Side_position_interface::skyline_side_position (Grob *me, Axis a,
 
   vector<Box> boxes;
   Real min_h = dir == LEFT ? infinity_f : -infinity_f;
+  map<Grob *, vector<Grob *> > note_column_map; // for parts of a note column
   for (vsize i = 0; i < support.size (); i++)
     {
       Grob *e = support[i];
@@ -229,6 +232,12 @@ Side_position_interface::skyline_side_position (Grob *me, Axis a,
             }
           else
             {
+              if (Note_column::has_interface (e->get_parent (X_AXIS)))
+                {
+                  note_column_map[e->get_parent (X_AXIS)].push_back (e);
+                  continue;
+                }
+
               Box b;
               for (Axis ax = X_AXIS; ax < NO_AXES; incr (ax))
                 b[ax] = e->maybe_pure_extent (common[ax], ax, pure, start, end);
@@ -241,6 +250,27 @@ Side_position_interface::skyline_side_position (Grob *me, Axis a,
             }
         }
     }
+
+  // this loop ensures that parts of a note column will be in the same box
+  // pushes scripts and such over stems instead of just over heads
+  for (map<Grob *, vector<Grob *> >::iterator i = note_column_map.begin (); i != note_column_map.end (); i++)
+    {
+      Box big;
+      for (vsize j = 0; j < (*i).second.size (); j++)
+        {
+          Grob *e = (*i).second[j];
+          Box b;
+          for (Axis ax = X_AXIS; ax < NO_AXES; incr (ax))
+            b[ax] = e->maybe_pure_extent (common[ax], ax, pure, start, end);
+
+          if (b[X_AXIS].is_empty () || b[Y_AXIS].is_empty ())
+            continue;
+
+          big.unite (b);
+        }
+      if (!big[X_AXIS].is_empty () && !big[Y_AXIS].is_empty ())
+        boxes.push_back (big);
+    }  
 
   Skyline dim (boxes, skyline_padding, other_axis (a), dir);
   if (!boxes.size ())
@@ -257,7 +287,7 @@ Side_position_interface::skyline_side_position (Grob *me, Axis a,
     }
 
   Real dist = dim.distance (my_dim);
-  Real total_off = dist > 0 ? dir * dist : 0.0;
+  Real total_off = !isinf (dist) ? dir * dist : 0.0;
 
   return finish_offset (me, dir, total_off, current_offset);
 }
