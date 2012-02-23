@@ -647,7 +647,7 @@ Skyline::Skyline (vector<Skyline_pair> const &skypairs, Real horizon_padding, Ax
       for (vsize j = 0; j < pts.size () / 2; j++)
         buildings.push_back (Drul_array<Offset> (pts[j * 2], pts[(j * 2) + 1]));
     }
-  shared_building_constructor (buildings, horizon_padding, horizon_axis, sky);    
+  shared_building_constructor (buildings, horizon_padding, horizon_axis, sky);
 }
 
 Skyline::Skyline (Box const &b, Real horizon_padding, Axis horizon_axis, Direction sky)
