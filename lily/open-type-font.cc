@@ -24,6 +24,8 @@
 using namespace std;
 
 #include <freetype/tttables.h>
+#include <freetype/ftoutln.h>
+#include <freetype/ftbbox.h>
 
 #include "dimensions.hh"
 #include "international.hh"
@@ -234,6 +236,142 @@ Open_type_font::name_to_index (string nm) const
     return (size_t) idx;
 
   return (size_t) - 1;
+}
+
+SCM
+box_to_scheme_lines (Box b)
+{
+  return scm_list_4 (scm_list_4 (scm_from_double (b[X_AXIS][LEFT]),
+                                 scm_from_double (b[Y_AXIS][DOWN]),
+                                 scm_from_double (b[X_AXIS][RIGHT]),
+                                 scm_from_double (b[Y_AXIS][DOWN])),
+                     scm_list_4 (scm_from_double (b[X_AXIS][RIGHT]),
+                                 scm_from_double (b[Y_AXIS][DOWN]),
+                                 scm_from_double (b[X_AXIS][RIGHT]),
+                                 scm_from_double (b[Y_AXIS][UP])),
+                     scm_list_4 (scm_from_double (b[X_AXIS][RIGHT]),
+                                 scm_from_double (b[Y_AXIS][UP]),
+                                 scm_from_double (b[X_AXIS][LEFT]),
+                                 scm_from_double (b[Y_AXIS][UP])),
+                     scm_list_4 (scm_from_double (b[X_AXIS][LEFT]),
+                                 scm_from_double (b[Y_AXIS][UP]),
+                                 scm_from_double (b[X_AXIS][LEFT]),
+                                 scm_from_double (b[Y_AXIS][DOWN])));
+}
+
+Box
+Open_type_font::get_glyph_outline_bbox (size_t signed_idx) const
+{
+  FT_UInt idx = FT_UInt (signed_idx);
+  FT_Load_Glyph (face_, idx, FT_LOAD_NO_SCALE);
+
+  if (!(face_->glyph->format == FT_GLYPH_FORMAT_OUTLINE))
+    {
+      warning ("Cannot make glyph outline");
+      return Box (Interval (infinity_f, -infinity_f), Interval (infinity_f, -infinity_f));
+    }
+  FT_Outline *outline;
+  outline = &(face_->glyph->outline);
+
+  FT_BBox bbox;
+  FT_Outline_Get_BBox (outline, &bbox);
+
+  return Box (Interval (bbox.xMin, bbox.xMax), Interval (bbox.yMin, bbox.yMax));
+}
+
+SCM
+Open_type_font::get_glyph_outline (size_t signed_idx) const
+{
+  FT_UInt idx = FT_UInt (signed_idx);
+  FT_Load_Glyph (face_, idx, FT_LOAD_NO_SCALE);
+
+  if (!(face_->glyph->format == FT_GLYPH_FORMAT_OUTLINE))
+    {
+      warning ("Cannot make glyph outline");
+      return box_to_scheme_lines (get_indexed_char_dimensions (signed_idx));
+    }
+
+  FT_Outline *outline;
+  outline = &(face_->glyph->outline);
+
+  SCM out = SCM_EOL;
+  Offset lastpos;
+  vsize j = 0;
+  while (j < outline->n_points)
+    {
+      if (outline->tags[j] & 1)
+        {
+          // it is a line
+          out = scm_cons (scm_list_4 (scm_from_double (lastpos[X_AXIS]),
+                                      scm_from_double (lastpos[Y_AXIS]),
+                                      scm_from_double (outline->points[j].x),
+                                      scm_from_double (outline->points[j].y)),
+                          out);
+          j++;
+          lastpos = Offset (outline->points[j].x, outline->points[j].y);
+        }
+      else if (outline->tags[j] & 2)
+        {
+          // it is a third order bezier
+          out = scm_cons (scm_list_n (scm_from_double (lastpos[X_AXIS]),
+                                      scm_from_double (lastpos[Y_AXIS]),
+                                      scm_from_double (outline->points[j].x),
+                                      scm_from_double (outline->points[j].y),
+                                      scm_from_double (outline->points[j + 1].x),
+                                      scm_from_double (outline->points[j + 1].y),
+                                      scm_from_double (outline->points[j + 2].x),
+                                      scm_from_double (outline->points[j + 2].y),
+                                      SCM_UNDEFINED),
+                          out);
+          lastpos = Offset (outline->points[j + 2].x, outline->points[j + 2].y);
+          j += 3;
+        }
+      else
+        {
+          // it is a second order bezier
+          Real x0 = lastpos[X_AXIS];
+          Real x1 = outline->points[j].x;
+          Real x2 = outline->points[j + 1].x;
+
+          Real y0 = lastpos[Y_AXIS];
+          Real y1 = outline->points[j].y;
+          Real y2 = outline->points[j + 1].y;
+
+          Real qx2 = x0 + x2 - (2 * x1);
+          Real qx1 = (2 * x1) - (2 * x0);
+          Real qx0 = x0;
+
+          Real qy2 = y0 + y2 - (2 * y1);
+          Real qy1 = (2 * y1) - (2 * y0);
+          Real qy0 = y0;
+
+          Real cx0 = qx0;
+          Real cx1 = qx0 + (qx1 / 3);
+          Real cx2 = qx0 + (2 * qx1 / 3) + (qx2 / 3);
+          Real cx3 = qx0 + qx1 + qx2;
+
+          Real cy0 = qy0;
+          Real cy1 = qy0 + (qy1 / 3);
+          Real cy2 = qy0 + (2 * qy1 / 3) + (qy2 / 3);
+          Real cy3 = qy0 + qy1 + qy2;
+
+          out = scm_cons (scm_list_n (scm_from_double (cx0),
+                                      scm_from_double (cy0),
+                                      scm_from_double (cx1),
+                                      scm_from_double (cy1),
+                                      scm_from_double (cx2),
+                                      scm_from_double (cy2),
+                                      scm_from_double (cx3),
+                                      scm_from_double (cy3),
+                                      SCM_UNDEFINED),
+                          out);
+          lastpos = Offset (outline->points[j + 1].x, outline->points[j + 1].y);
+          j += 2;
+        }
+    }
+
+  out = scm_reverse_x (out, SCM_EOL);
+  return out;
 }
 
 size_t

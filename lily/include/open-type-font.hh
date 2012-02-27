@@ -45,7 +45,8 @@ public:
   SCM get_global_table () const;
   SCM get_char_table () const;
   SCM glyph_list () const;
-
+  SCM get_glyph_outline (size_t signed_idx) const;
+  Box get_glyph_outline_bbox (size_t signed_idx) const;
   string get_otf_table (string tag) const;
   static SCM make_otf (string);
   string font_name () const;

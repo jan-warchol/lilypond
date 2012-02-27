@@ -42,6 +42,8 @@ when this transforms a point (x,y), the point is written as matrix:
 #include "interval.hh"
 #include "misc.hh"
 #include "offset.hh"
+#include "open-type-font.hh"
+#include "modified-font-metric.hh"
 #include "pointer-group-interface.hh"
 #include "lily-guile.hh"
 #include "real.hh"
@@ -684,14 +686,18 @@ make_named_glyph_boxes (vector<Box> &boxes, vector<Drul_array<Offset> > &buildin
   Font_metric *fm = unsmob_metrics (fm_scm);
   expr = scm_cdr (expr);
   SCM glyph = scm_car (expr);
+  string glyph_s = ly_scm2string (glyph);
   //////////////////////
-  string font_name = String_convert::to_lower (fm->font_name ());
-  SCM box_lookup_function = ly_lily_module_constant ("box-data-for-glyph");
-  SCM glyph_info = scm_call_2 (box_lookup_function, fm_scm, glyph);
+  Open_type_font *open_fm =
+    dynamic_cast<Open_type_font *>
+      (dynamic_cast<Modified_font_metric *>(fm)->original_font ());
+  SCM_ASSERT_TYPE (open_fm, fm_scm, SCM_ARG1, __FUNCTION__, "OpenType font");
   Stencil m = fm->find_by_name (ly_scm2string (glyph));
+  Box bbox = open_fm->get_glyph_outline_bbox (open_fm->name_to_index (glyph_s));
+  SCM outline = open_fm->get_glyph_outline (open_fm->name_to_index (glyph_s));
   // mmx and mmy give the bounding box for the original stencil
-  Interval mmx = robust_scm2interval (ly_assoc_get (ly_symbol2scm ("mmx"), glyph_info, SCM_EOL), Interval (0,0));
-  Interval mmy = robust_scm2interval (ly_assoc_get (ly_symbol2scm ("mmy"), glyph_info, SCM_EOL), Interval (0,0));
+  Interval mmx (bbox[X_AXIS][LEFT], bbox[X_AXIS][RIGHT]);
+  Interval mmy = Interval (bbox[Y_AXIS][DOWN], bbox[Y_AXIS][UP]);
   // xex and yex give the bounding box for the current stencil
   Interval xex = m.extent (X_AXIS);
   Interval yex = m.extent (Y_AXIS);
@@ -701,7 +707,7 @@ make_named_glyph_boxes (vector<Box> &boxes, vector<Drul_array<Offset> > &buildin
   pango_matrix_scale (&trans, scale[X_AXIS], scale[Y_AXIS]);
   pango_matrix_translate (&trans, -mmx[LEFT], -mmy[DOWN]);
   //////////////////////
-  for (SCM s = ly_assoc_get (ly_symbol2scm ("paths"), glyph_info, SCM_EOL);
+  for (SCM s = outline;
        scm_is_pair (s);
        s = scm_cdr (s))
     {
