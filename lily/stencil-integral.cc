@@ -778,7 +778,7 @@ make_glyph_string_boxes (vector<Box> &boxes, vector<Drul_array<Offset> > &buildi
       assert (abs (xlen - ylen) < 10e-3);
 
       // the three operations below move the stencil from its original coordinates to current coordinates
-      pango_matrix_translate (&transcopy, kerned_bbox[X_AXIS][LEFT], 0.0); // this is just for horizontal kerning
+      pango_matrix_translate (&transcopy, kerned_bbox[X_AXIS][LEFT], kerned_bbox[Y_AXIS][DOWN] - real_bbox[Y_AXIS][DOWN]);
       pango_matrix_translate (&transcopy, real_bbox[X_AXIS][LEFT], real_bbox[Y_AXIS][DOWN]);
       pango_matrix_scale (&transcopy, xlen, xlen);
       pango_matrix_translate (&transcopy, -bbox[X_AXIS][LEFT], -bbox[Y_AXIS][DOWN]);
