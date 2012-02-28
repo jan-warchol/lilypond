@@ -759,8 +759,6 @@ make_glyph_string_boxes (vector<Box> &boxes, vector<Drul_array<Offset> > &buildi
       Offset pt0 (cumulative_x + xos[i], heights[i][DOWN] + yos[i]);
       Offset pt1 (cumulative_x + widths[i] + xos[i], heights[i][UP] + yos[i]);
       cumulative_x += widths[i];
-      if (char_ids[i] == "space")
-        continue;
 
       Box kerned_bbox;
       kerned_bbox.add_point (pt0);
@@ -773,6 +771,10 @@ make_glyph_string_boxes (vector<Box> &boxes, vector<Drul_array<Offset> > &buildi
       // scales may have rounding error but should be close
       Real xlen = real_bbox[X_AXIS].length () / bbox[X_AXIS].length ();
       Real ylen = real_bbox[Y_AXIS].length () / bbox[Y_AXIS].length ();
+
+      // this will happen for whitespace glyphs
+      if (isnan (xlen) || isnan (ylen))
+        continue;
       assert (abs (xlen - ylen) < 10e-3);
 
       // the three operations below move the stencil from its original coordinates to current coordinates
