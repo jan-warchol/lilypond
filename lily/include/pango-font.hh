@@ -34,7 +34,6 @@ class Pango_font : public Font_metric
   PangoContext *context_;
   PangoFontDescription *pango_description_;
   PangoAttrList *attribute_list_;
-  PangoFont *font_;
   Real scale_;
   Real output_scale_;
   SCM physical_font_tab_;

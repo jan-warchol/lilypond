@@ -77,7 +77,10 @@ ly_FT_get_glyph_outline_bbox (FT_Face const &face, size_t signed_idx)
 
   if (!(face->glyph->format == FT_GLYPH_FORMAT_OUTLINE))
     {
+#if 0
+      // will generate a lot of warnings
       warning ("Cannot make glyph outline");
+#endif
       return Box (Interval (infinity_f, -infinity_f), Interval (infinity_f, -infinity_f));
     }
   FT_Outline *outline;
@@ -97,7 +100,10 @@ ly_FT_get_glyph_outline (FT_Face const &face, size_t signed_idx)
 
   if (!(face->glyph->format == FT_GLYPH_FORMAT_OUTLINE))
     {
+#if 0
+      // will generate a lot of warnings
       warning ("Cannot make glyph outline");
+#endif
       return box_to_scheme_lines (ly_FT_get_unscaled_indexed_char_dimensions (face, signed_idx));
     }
 

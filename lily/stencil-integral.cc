@@ -40,6 +40,7 @@ when this transforms a point (x,y), the point is written as matrix:
 #include "font-metric.hh"
 #include "grob.hh"
 #include "interval.hh"
+#include "freetype.hh"
 #include "misc.hh"
 #include "offset.hh"
 #include "modified-font-metric.hh"
@@ -772,16 +773,29 @@ make_glyph_string_boxes (vector<Box> &boxes, vector<Drul_array<Offset> > &buildi
       Real xlen = real_bbox[X_AXIS].length () / bbox[X_AXIS].length ();
       Real ylen = real_bbox[Y_AXIS].length () / bbox[Y_AXIS].length ();
 
-      // this will happen for whitespace glyphs
-      if (isnan (xlen) || isnan (ylen))
-        continue;
-      assert (abs (xlen - ylen) < 10e-3);
+      /*
+        TODO:
+        
+        The value will be nan for whitespace, in which case we just want
+        filler, so the kerned bbox is ok.
+        
+        However, if the value is inf, this likely means that LilyPond is
+        using a font that is currently difficult to get the measurements
+        from the Pango_font.  This should eventually be fixed.  The solution
+        for now is just to use the bounding box.
+      */
+      if (isnan (xlen) || isnan (ylen) || isinf (xlen) || isinf (ylen))
+        outline = box_to_scheme_lines (kerned_bbox);
+      else
+        {
+          assert (abs (xlen - ylen) < 10e-3);
 
-      // the three operations below move the stencil from its original coordinates to current coordinates
-      pango_matrix_translate (&transcopy, kerned_bbox[X_AXIS][LEFT], kerned_bbox[Y_AXIS][DOWN] - real_bbox[Y_AXIS][DOWN]);
-      pango_matrix_translate (&transcopy, real_bbox[X_AXIS][LEFT], real_bbox[Y_AXIS][DOWN]);
-      pango_matrix_scale (&transcopy, xlen, xlen);
-      pango_matrix_translate (&transcopy, -bbox[X_AXIS][LEFT], -bbox[Y_AXIS][DOWN]);
+          // the three operations below move the stencil from its original coordinates to current coordinates
+          pango_matrix_translate (&transcopy, kerned_bbox[X_AXIS][LEFT], kerned_bbox[Y_AXIS][DOWN] - real_bbox[Y_AXIS][DOWN]);
+          pango_matrix_translate (&transcopy, real_bbox[X_AXIS][LEFT], real_bbox[Y_AXIS][DOWN]);
+          pango_matrix_scale (&transcopy, xlen, xlen);
+          pango_matrix_translate (&transcopy, -bbox[X_AXIS][LEFT], -bbox[Y_AXIS][DOWN]);
+        }
       //////////////////////
       for (SCM s = outline;
            scm_is_pair (s);
