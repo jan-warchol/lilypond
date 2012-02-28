@@ -42,8 +42,9 @@ when this transforms a point (x,y), the point is written as matrix:
 #include "interval.hh"
 #include "misc.hh"
 #include "offset.hh"
-#include "open-type-font.hh"
 #include "modified-font-metric.hh"
+#include "open-type-font.hh"
+#include "pango-font.hh"
 #include "pointer-group-interface.hh"
 #include "lily-guile.hh"
 #include "real.hh"
@@ -687,25 +688,27 @@ make_named_glyph_boxes (vector<Box> &boxes, vector<Drul_array<Offset> > &buildin
   expr = scm_cdr (expr);
   SCM glyph = scm_car (expr);
   string glyph_s = ly_scm2string (glyph);
+
   //////////////////////
   Open_type_font *open_fm =
     dynamic_cast<Open_type_font *>
       (dynamic_cast<Modified_font_metric *>(fm)->original_font ());
   SCM_ASSERT_TYPE (open_fm, fm_scm, SCM_ARG1, __FUNCTION__, "OpenType font");
-  Stencil m = fm->find_by_name (ly_scm2string (glyph));
-  Box bbox = open_fm->get_glyph_outline_bbox (open_fm->name_to_index (glyph_s));
-  SCM outline = open_fm->get_glyph_outline (open_fm->name_to_index (glyph_s));
-  // mmx and mmy give the bounding box for the original stencil
-  Interval mmx (bbox[X_AXIS][LEFT], bbox[X_AXIS][RIGHT]);
-  Interval mmy = Interval (bbox[Y_AXIS][DOWN], bbox[Y_AXIS][UP]);
-  // xex and yex give the bounding box for the current stencil
-  Interval xex = m.extent (X_AXIS);
-  Interval yex = m.extent (Y_AXIS);
-  Offset scale (xex.length () / mmx.length (), yex.length () / mmy.length ());
+
+  size_t gidx = open_fm->name_to_index (glyph_s);
+  Box bbox = open_fm->get_unscaled_indexed_char_dimensions (gidx);
+  SCM outline = open_fm->get_glyph_outline (gidx);
+  Box real_bbox = fm->get_indexed_char_dimensions (gidx);
+
+  // scales may have rounding error but should be close
+  Real xlen = real_bbox[X_AXIS].length () / bbox[X_AXIS].length ();
+  Real ylen = real_bbox[Y_AXIS].length () / bbox[Y_AXIS].length ();
+  assert (abs (xlen - ylen) < 10e-3);
+  
   // the three operations below move the stencil from its original coordinates to current coordinates
-  pango_matrix_translate (&trans, xex[LEFT], yex[DOWN]);
-  pango_matrix_scale (&trans, scale[X_AXIS], scale[Y_AXIS]);
-  pango_matrix_translate (&trans, -mmx[LEFT], -mmy[DOWN]);
+  pango_matrix_translate (&trans, real_bbox[X_AXIS][LEFT], real_bbox[Y_AXIS][DOWN]);
+  pango_matrix_scale (&trans, xlen, xlen);
+  pango_matrix_translate (&trans, -bbox[X_AXIS][LEFT], -bbox[Y_AXIS][DOWN]);
   //////////////////////
   for (SCM s = outline;
        scm_is_pair (s);
@@ -718,8 +721,11 @@ make_named_glyph_boxes (vector<Box> &boxes, vector<Drul_array<Offset> > &buildin
 }
 
 void
-make_glyph_string_boxes (vector<Box> &boxes, PangoMatrix trans, SCM expr)
+make_glyph_string_boxes (vector<Box> &boxes, vector<Drul_array<Offset> > &buildings, PangoMatrix trans, SCM expr)
 {
+  SCM fm_scm = scm_car (expr);
+  Font_metric *fm = unsmob_metrics (fm_scm);
+  expr = scm_cdr (expr);
   expr = scm_cdr (expr); // font-name
   expr = scm_cdr (expr); // size
   expr = scm_cdr (expr); // cid?
@@ -728,7 +734,11 @@ make_glyph_string_boxes (vector<Box> &boxes, PangoMatrix trans, SCM expr)
   vector<Interval> heights;
   vector<Real> xos;
   vector<Real> yos;
+  vector<string> char_ids;
   //////////////////////
+  Pango_font *pango_fm = dynamic_cast<Pango_font *> (fm);
+  SCM_ASSERT_TYPE (pango_fm, fm_scm, SCM_ARG1, __FUNCTION__, "Pango font");
+
   for (SCM s = whxy; scm_is_pair (s); s = scm_cdr (s))
     {
       SCM now = scm_car (s);
@@ -739,19 +749,46 @@ make_glyph_string_boxes (vector<Box> &boxes, PangoMatrix trans, SCM expr)
       xos.push_back (robust_scm2double (scm_car (now), 0.0));
       now = scm_cdr (now);
       yos.push_back (robust_scm2double (scm_car (now), 0.0));
+      now = scm_cdr (now);
+      char_ids.push_back (robust_scm2string (scm_car (now), ""));
     }
   Real cumulative_x = 0.0;
   for (vsize i = 0; i < widths.size (); i++)
     {
+      PangoMatrix transcopy (trans);
       Offset pt0 (cumulative_x + xos[i], heights[i][DOWN] + yos[i]);
       Offset pt1 (cumulative_x + widths[i] + xos[i], heights[i][UP] + yos[i]);
-      pango_matrix_transform_point (&trans, &pt0[X_AXIS], &pt0[Y_AXIS]);
-      pango_matrix_transform_point (&trans, &pt1[X_AXIS], &pt1[Y_AXIS]);
-      Box b;
-      b.add_point (pt0);
-      b.add_point (pt1);
-      boxes.push_back (b);
       cumulative_x += widths[i];
+      if (char_ids[i] == "space")
+        continue;
+
+      Box kerned_bbox;
+      kerned_bbox.add_point (pt0);
+      kerned_bbox.add_point (pt1);
+      size_t gidx = pango_fm->name_to_index (char_ids[i]);
+      Box real_bbox = pango_fm->get_scaled_indexed_char_dimensions (gidx);
+      Box bbox = pango_fm->get_unscaled_indexed_char_dimensions (gidx);
+      SCM outline = pango_fm->get_glyph_outline (gidx);
+
+      // scales may have rounding error but should be close
+      Real xlen = real_bbox[X_AXIS].length () / bbox[X_AXIS].length ();
+      Real ylen = real_bbox[Y_AXIS].length () / bbox[Y_AXIS].length ();
+      assert (abs (xlen - ylen) < 10e-3);
+
+      // the three operations below move the stencil from its original coordinates to current coordinates
+      pango_matrix_translate (&transcopy, kerned_bbox[X_AXIS][LEFT], 0.0); // this is just for horizontal kerning
+      pango_matrix_translate (&transcopy, real_bbox[X_AXIS][LEFT], real_bbox[Y_AXIS][DOWN]);
+      pango_matrix_scale (&transcopy, xlen, xlen);
+      pango_matrix_translate (&transcopy, -bbox[X_AXIS][LEFT], -bbox[Y_AXIS][DOWN]);
+      //////////////////////
+      for (SCM s = outline;
+           scm_is_pair (s);
+           s = scm_cdr (s))
+        {
+          scm_to_int (scm_length (scm_car (s))) == 4
+                      ? make_draw_line_boxes (boxes, buildings, transcopy, scm_cons (scm_from_double (0), scm_car (s)), false)
+                      : make_draw_bezier_boxes (boxes, buildings, transcopy, scm_cons (scm_from_double (0), scm_car (s)));
+        }
     }
 }
 
@@ -824,7 +861,7 @@ stencil_dispatcher (vector<Box> &boxes, vector<Drul_array<Offset> > &buildings, 
   else if (scm_car (expr) == ly_symbol2scm ("path"))
     make_path_boxes (boxes, buildings, trans, scm_cdr (expr));
   else if (scm_car (expr) == ly_symbol2scm ("glyph-string"))
-    make_glyph_string_boxes (boxes, trans, scm_cdr (expr));
+    make_glyph_string_boxes (boxes, buildings, trans, scm_cdr (expr));
   else
     {
       #if 0
@@ -975,28 +1012,9 @@ Grob::vertical_skylines_from_stencil (SCM smob)
   if (to_boolean (me->get_property ("transparent")))
     return Skyline_pair ().smobbed_copy ();
 
-  Stencil *s = unsmob_stencil (me->get_property ("stencil"));
-  SCM vertical_skylines_cache = ly_lily_module_constant ("vertical-skylines-cache");
-  if (Skyline_pair *vsk =
-        Skyline_pair::unsmob
-          (ly_assoc_get (me->get_property ("vertical-skylines-cache-name"),
-                         vertical_skylines_cache,
-                         SCM_BOOL_F)))
-    {
-      // lucky day - we've already calculated this.  just need to shift it...
-      Skyline_pair ret (*vsk);
-      ret.shift (s->extent (X_AXIS)[LEFT] - ret.left ());
-      ret.raise (s->extent (Y_AXIS)[UP] - ret[UP].max_height ());
-      return ret.smobbed_copy ();
-    }
-
   Real pad = robust_scm2double (me->get_property ("skyline-horizontal-padding"), 0.0);
   SCM out = Stencil::vertical_skylines_from_stencil (me->get_property ("stencil"), pad);
-  if (scm_is_symbol (me->get_property ("vertical-skylines-cache-name")))
-    {
-      SCM write_to_skyline_cache = ly_lily_module_constant ("write-to-vertical-skylines-cache");
-      (void) scm_call_2 (write_to_skyline_cache, out, me->get_property ("vertical-skylines-cache-name"));
-    }
+
   return out;
 }
 

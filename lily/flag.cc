@@ -155,8 +155,6 @@ Flag::print (SCM smob)
         }
     }
 
-  me->set_property ("stencil", flag.smobbed_copy ());
-  me->set_property ("vertical-skylines-cache-name", scm_call_1 (ly_lily_module_constant ("grob::make-vertical-skylines-cache-name"), smob));
   return flag.smobbed_copy ();
 }
 
@@ -197,5 +195,4 @@ ADD_INTERFACE (Flag,
                "glyph-name "
                "style "
                "stroke-style "
-               "vertical-skylines-cache-name "
               );

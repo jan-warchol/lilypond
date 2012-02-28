@@ -54,6 +54,7 @@ public:
   Offset attachment_point (string) const;
   size_t count () const;
   Box get_indexed_char_dimensions (size_t) const;
+  Box get_unscaled_indexed_char_dimensions (size_t) const;
   size_t name_to_index (string) const;
   //size_t glyph_name_to_charcode (string) const;
   size_t index_to_charcode (size_t) const;

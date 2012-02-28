@@ -34,6 +34,7 @@ class Pango_font : public Font_metric
   PangoContext *context_;
   PangoFontDescription *pango_description_;
   PangoAttrList *attribute_list_;
+  PangoFont *font_;
   Real scale_;
   Real output_scale_;
   SCM physical_font_tab_;
@@ -49,6 +50,12 @@ public:
   string description_string () const;
   SCM font_file_name () const;
   void register_font_file (string, string, int);
+
+  size_t name_to_index (string) const;
+  SCM get_glyph_outline (size_t signed_idx) const;
+  Box get_glyph_outline_bbox (size_t signed_idx) const;
+  Box get_unscaled_indexed_char_dimensions (size_t) const;
+  Box get_scaled_indexed_char_dimensions (size_t) const;
 
   Stencil pango_item_string_stencil (PangoGlyphItem const *) const;
 

@@ -232,7 +232,8 @@ Side_position_interface::skyline_side_position (Grob *me, Axis a,
             }
           else
             {
-              if (Note_column::has_interface (e->get_parent (X_AXIS)))
+              if (Note_column::has_interface (e->get_parent (X_AXIS))
+                  && to_boolean (me->get_property ("add-stem-support")))
                 {
                   note_column_map[e->get_parent (X_AXIS)].push_back (e);
                   continue;
@@ -506,6 +507,7 @@ ADD_INTERFACE (Side_position_interface,
                " is ignored.",
 
                /* properties */
+               "add-stem-support "
                "direction "
                "minimum-space "
                "padding "

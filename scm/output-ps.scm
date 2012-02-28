@@ -112,7 +112,8 @@
 (define (embedded-ps string)
   string)
 
-(define (glyph-string postscript-font-name
+(define (glyph-string pango-font
+                      postscript-font-name
 		      size
 		      cid?
 		      w-x-y-named-glyphs)

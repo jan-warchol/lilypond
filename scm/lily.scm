@@ -382,8 +382,6 @@ messages into errors.")
     "c++.scm"
     "chord-entry.scm"
     "stencil.scm"
-    "stencil-integral.scm"
-    "font-integral-generate.scm"
     "define-markup-commands.scm"
     "markup.scm"
     "modal-transforms.scm"

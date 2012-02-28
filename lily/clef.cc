@@ -64,8 +64,6 @@ Clef::print (SCM smob)
   if (out.is_empty ())
     me->warning (_f ("clef `%s' not found", glyph.c_str ()));
 
-  me->set_property ("stencil", out.smobbed_copy ());
-  me->set_property ("vertical-skylines-cache-name", scm_call_1 (ly_lily_module_constant ("grob::make-vertical-skylines-cache-name"), smob));
   return out.smobbed_copy ();
 }
 
@@ -77,6 +75,5 @@ ADD_INTERFACE (Clef,
                "glyph "
                "glyph-name "
                "non-default "
-               "vertical-skylines-cache-name "
               );
 

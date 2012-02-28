@@ -236,5 +236,4 @@ ADD_INTERFACE (Accidental_interface,
                "parenthesized "
                "restore-first "
                "tie "
-               "vertical-skylines-cache-name "
               );
