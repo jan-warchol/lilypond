@@ -704,7 +704,7 @@ make_named_glyph_boxes (vector<Box> &boxes, vector<Drul_array<Offset> > &buildin
   Real xlen = real_bbox[X_AXIS].length () / bbox[X_AXIS].length ();
   Real ylen = real_bbox[Y_AXIS].length () / bbox[Y_AXIS].length ();
   assert (abs (xlen - ylen) < 10e-3);
-  
+
   // the three operations below move the stencil from its original coordinates to current coordinates
   pango_matrix_translate (&trans, real_bbox[X_AXIS][LEFT], real_bbox[Y_AXIS][DOWN]);
   pango_matrix_scale (&trans, xlen, xlen);

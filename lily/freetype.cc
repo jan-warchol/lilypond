@@ -183,4 +183,3 @@ ly_FT_get_glyph_outline (FT_Face const &face, size_t signed_idx)
   out = scm_reverse_x (out, SCM_EOL);
   return out;
 }
-
