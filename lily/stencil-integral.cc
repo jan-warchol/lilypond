@@ -775,10 +775,10 @@ make_glyph_string_boxes (vector<Box> &boxes, vector<Drul_array<Offset> > &buildi
 
       /*
         TODO:
-        
+
         The value will be nan for whitespace, in which case we just want
         filler, so the kerned bbox is ok.
-        
+
         However, if the value is inf, this likely means that LilyPond is
         using a font that is currently difficult to get the measurements
         from the Pango_font.  This should eventually be fixed.  The solution
