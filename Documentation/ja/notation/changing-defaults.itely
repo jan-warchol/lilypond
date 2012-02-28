@@ -1,7 +1,7 @@
 @c -*- coding: utf-8; mode: texinfo; documentlanguage: ja -*-
 
 @ignore
-    Translation of GIT committish: 45329bd378eedfebca34c746fff9e53b46cf2fe5
+    Translation of GIT committish: ebe492ca408fb0d9abf80b94c56197eef8dc2f09
 
     When revising a translation, copy the HEAD committish of the
     version that you are working on.  For details, see the Contributors'
@@ -35,7 +35,7 @@ LilyPond はデフォルトで最高品質の出力を提供できるよう設�
 このマニュアルは利用可能なすべての変数、関数、それにオプションを@c
 リストアップしています。@c
 これは HTML ドキュメントとして記述されていて、@c
-@uref{http://@/lilypond@/.org/@/doc/@/stable/@/Documentation/@/user/@/lilypond@/-internals/,オンライン}
+@uref{http://@/lilypond@/.org/@/doc/@/stable/@/Documentation/@/internals/,オンライン}
 で入手可能であり、@c
 LilyPond ドキュメント パッケージにも含まれています。
 

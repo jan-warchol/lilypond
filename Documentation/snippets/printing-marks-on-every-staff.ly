@@ -9,14 +9,14 @@
 \header {
   lsrtags = "text"
 
-%% Translation of GIT committish: 6977ddc9a3b63ea810eaecb864269c7d847ccf98
+%% Translation of GIT committish: ea0b270e14781707ab52683acddf9302bbe337f3
   texidoces = "
-Aunque normalmente las marcas de texto sólo se imprimen sobre el
-pentagrama superior, también se pueden imprimir en otro pentagrama
-cualquiera.
+Aunque normalmente las marcas de ensayo textuales sólo se imprimen
+sobre el pentagrama superior, también se pueden imprimir en otro
+pentagrama cualquiera.
 
 "
-  doctitlees = "Imprimir marcas en cualquier pentagrama"
+  doctitlees = "Imprimir marcas de ensayo en cualquier pentagrama"
 
 
 %% Translation of GIT committish: 0a868be38a775ecb1ef935b079000cebbc64de40
