@@ -1339,6 +1339,7 @@
 	(break-visibility . ,end-of-line-invisible)
 	(direction . ,UP)
 	(extra-spacing-width . (+inf.0 . -inf.0))
+	(outside-staff-horizontal-padding . 0.12)
 	(outside-staff-priority . 1000)
 	(padding . 0.8)
 	(side-axis . ,Y)
@@ -1690,6 +1691,7 @@
 	(extra-spacing-width . (+inf.0 . -inf.0))
 	(font-size . 2)
 	(non-musical . #t)
+	(outside-staff-horizontal-padding . 0.12)
 	(outside-staff-priority . 1500)
 	(padding . 0.8)
 	(self-alignment-X . ,CENTER)
@@ -2229,6 +2231,7 @@
 	(cross-staff . ,script-or-side-position-cross-staff)
 	(direction . ,DOWN)
 	(extra-spacing-width . (+inf.0 . -inf.0))
+	(outside-staff-horizontal-padding . 0.12)
 	(outside-staff-priority . 450)
 
 	;; sync with Fingering ?
