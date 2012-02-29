@@ -209,6 +209,7 @@ Side_position_interface::skyline_side_position (Grob *me, Axis a,
       && !to_boolean (me->get_property ("quantize-position"));
 
   vector<Box> boxes;
+  vector<Skyline_pair> skyps;
   Real min_h = dir == LEFT ? infinity_f : -infinity_f;
   map<Grob *, vector<Grob *> > note_column_map; // for parts of a note column
   for (vsize i = 0; i < support.size (); i++)
@@ -239,6 +240,15 @@ Side_position_interface::skyline_side_position (Grob *me, Axis a,
                   continue;
                 }
 
+              Skyline_pair *sp = Skyline_pair::unsmob (e->get_property ("vertical-skylines"));
+              if (sp && a == Y_AXIS && !pure)
+                {
+                  Skyline_pair copy = Skyline_pair (*sp);
+                  copy.shift (e->relative_coordinate (common[X_AXIS], X_AXIS));
+                  copy.raise (e->relative_coordinate (common[Y_AXIS], Y_AXIS));
+                  skyps.push_back (copy);
+                  continue;
+                }
               Box b;
               for (Axis ax = X_AXIS; ax < NO_AXES; incr (ax))
                 b[ax] = e->maybe_pure_extent (common[ax], ax, pure, start, end);
@@ -274,6 +284,11 @@ Side_position_interface::skyline_side_position (Grob *me, Axis a,
     }
 
   Skyline dim (boxes, skyline_padding, other_axis (a), dir);
+  if (skyps.size ())
+    {
+      Skyline_pair merged (skyps, skyline_padding, other_axis (a));
+      dim.merge (merged[dir]);
+    }
   if (!boxes.size ())
     dim.set_minimum_height (0.0);
   else

@@ -697,19 +697,25 @@ make_named_glyph_boxes (vector<Box> &boxes, vector<Drul_array<Offset> > &buildin
   SCM_ASSERT_TYPE (open_fm, fm_scm, SCM_ARG1, __FUNCTION__, "OpenType font");
 
   size_t gidx = open_fm->name_to_index (glyph_s);
+  //Box bbox = open_fm->get_unscaled_indexed_char_dimensions (gidx);
   Box bbox = open_fm->get_unscaled_indexed_char_dimensions (gidx);
   SCM outline = open_fm->get_glyph_outline (gidx);
   Box real_bbox = fm->get_indexed_char_dimensions (gidx);
 
-  // scales may have rounding error but should be close
+  /*
+    Because extents for named glyphs are cached, the value of
+    real_bbox may not be the one that freetype calculates.
+
+    They should be close, though.
+    A workaround below is to use the max of the two, which may
+    slightly overshoot an extent but generally doesn't.
+  */
   Real xlen = real_bbox[X_AXIS].length () / bbox[X_AXIS].length ();
   Real ylen = real_bbox[Y_AXIS].length () / bbox[Y_AXIS].length ();
   assert (abs (xlen - ylen) < 10e-3);
 
-  // the three operations below move the stencil from its original coordinates to current coordinates
-  pango_matrix_translate (&trans, real_bbox[X_AXIS][LEFT], real_bbox[Y_AXIS][DOWN]);
-  pango_matrix_scale (&trans, xlen, xlen);
-  pango_matrix_translate (&trans, -bbox[X_AXIS][LEFT], -bbox[Y_AXIS][DOWN]);
+  pango_matrix_scale (&trans, max (xlen, ylen), max (xlen, ylen));
+
   //////////////////////
   for (SCM s = outline;
        scm_is_pair (s);
@@ -790,10 +796,11 @@ make_glyph_string_boxes (vector<Box> &boxes, vector<Drul_array<Offset> > &buildi
         {
           assert (abs (xlen - ylen) < 10e-3);
 
+          Real scale_factor = max (xlen, ylen);
           // the three operations below move the stencil from its original coordinates to current coordinates
           pango_matrix_translate (&transcopy, kerned_bbox[X_AXIS][LEFT], kerned_bbox[Y_AXIS][DOWN] - real_bbox[Y_AXIS][DOWN]);
           pango_matrix_translate (&transcopy, real_bbox[X_AXIS][LEFT], real_bbox[Y_AXIS][DOWN]);
-          pango_matrix_scale (&transcopy, xlen, xlen);
+          pango_matrix_scale (&transcopy, scale_factor, scale_factor);
           pango_matrix_translate (&transcopy, -bbox[X_AXIS][LEFT], -bbox[Y_AXIS][DOWN]);
         }
       //////////////////////

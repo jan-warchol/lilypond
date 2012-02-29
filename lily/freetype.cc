@@ -109,13 +109,17 @@ ly_FT_get_glyph_outline (FT_Face const &face, size_t signed_idx)
 
   FT_Outline *outline;
   outline = &(face->glyph->outline);
-
   SCM out = SCM_EOL;
   Offset lastpos;
   vsize j = 0;
   while (j < outline->n_points)
     {
-      if (outline->tags[j] & 1)
+      if (j == 0)
+        {
+          lastpos = Offset (outline->points[j].x, outline->points[j].y);
+          j++;
+        }
+      else if (outline->tags[j] & 1)
         {
           // it is a line
           out = scm_cons (scm_list_4 (scm_from_double (lastpos[X_AXIS]),
@@ -123,8 +127,8 @@ ly_FT_get_glyph_outline (FT_Face const &face, size_t signed_idx)
                                       scm_from_double (outline->points[j].x),
                                       scm_from_double (outline->points[j].y)),
                           out);
-          j++;
           lastpos = Offset (outline->points[j].x, outline->points[j].y);
+          j++;
         }
       else if (outline->tags[j] & 2)
         {
