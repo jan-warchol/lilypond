@@ -55,9 +55,7 @@ when this transforms a point (x,y), the point is written as matrix:
 #include "skyline-pair.hh"
 using namespace std;
 
-Real CURVE_QUANTIZATION =  10;
-
-Real ELLIPSE_QUANTIZATION = 20;
+Real QUANTIZATION_UNIT = 0.2;
 
 void create_path_cap (vector<Box> &boxes, vector<Drul_array<Offset> > &buildings, PangoMatrix trans, Offset pt, Real rad, Real slope, Direction d);
 
@@ -258,7 +256,7 @@ make_draw_line_boxes (vector<Box> &boxes, vector<Drul_array<Offset> > &buildings
 }
 
 void
-make_partial_ellipse_boxes (vector<Box> &boxes, vector<Drul_array<Offset> > &buildings, PangoMatrix trans, SCM expr, Real quantization)
+make_partial_ellipse_boxes (vector<Box> &boxes, vector<Drul_array<Offset> > &buildings, PangoMatrix trans, SCM expr)
 {
   Real x_rad = robust_scm2double (scm_car (expr), 0.0);
   expr = scm_cdr (expr);
@@ -285,6 +283,7 @@ make_partial_ellipse_boxes (vector<Box> &boxes, vector<Drul_array<Offset> > &bui
   //////////////////////
   Drul_array<vector<Offset> > points;
   Direction d = DOWN;
+  int quantization = max (1, (int) (((x_rad * trans.xx) + (y_rad * trans.yy)) * M_PI / QUANTIZATION_UNIT));
   do
     {
       for (vsize i = 0; i < 1 + quantization; i++)
@@ -354,12 +353,6 @@ make_partial_ellipse_boxes (vector<Box> &boxes, vector<Drul_array<Offset> > &bui
 }
 
 void
-make_partial_ellipse_boxes (vector<Box> &boxes, vector<Drul_array<Offset> > &buildings, PangoMatrix trans, SCM expr)
-{
-  make_partial_ellipse_boxes (boxes, buildings, trans, expr, ELLIPSE_QUANTIZATION);
-}
-
-void
 make_round_filled_box_boxes (vector<Box> &boxes, PangoMatrix trans, SCM expr)
 {
   Real left = robust_scm2double (scm_car (expr), 0.0);
@@ -407,8 +400,7 @@ create_path_cap (vector<Box> &boxes, vector<Drul_array<Offset> > &buildings, Pan
                                                  scm_from_double (0.0),
                                                  SCM_BOOL_F,
                                                  SCM_BOOL_F,
-                                                 SCM_UNDEFINED),
-                                     3);
+                                                 SCM_UNDEFINED));
 }
 
 void
@@ -437,17 +429,29 @@ make_draw_bezier_boxes (vector<Box> &boxes, vector<Drul_array<Offset> > &buildin
   curve.control_[1] = Offset (x1, y1);
   curve.control_[2] = Offset (x2, y2);
   curve.control_[3] = Offset (x3, y3);
+  Offset temp0 (x0, y0);
+  Offset temp1 (x1, y1);
+  Offset temp2 (x2, y2);
+  Offset temp3 (x3, y3);
+  pango_matrix_transform_point (&trans, &temp0[X_AXIS], &temp0[Y_AXIS]);
+  pango_matrix_transform_point (&trans, &temp1[X_AXIS], &temp1[Y_AXIS]);
+  pango_matrix_transform_point (&trans, &temp2[X_AXIS], &temp2[Y_AXIS]);
+  pango_matrix_transform_point (&trans, &temp3[X_AXIS], &temp3[Y_AXIS]);
   //////////////////////
   Drul_array<vector<Offset> > points;
   Direction d = DOWN;
+  int quantization = int (((temp1 - temp0).length ()
+                           + (temp2 - temp1).length ()
+                           + (temp3 - temp2).length ())
+                          / QUANTIZATION_UNIT);
   do
     {
       Offset first = get_point_in_y_direction (curve.control_[0], perpendicular_slope (curve.slope_at_point (0.0)), th / 2, d);
       pango_matrix_transform_point (&trans, &first[X_AXIS], &first[Y_AXIS]);
       points[d].push_back (first);
-      for (vsize i = 1; i < CURVE_QUANTIZATION; i++)
+      for (vsize i = 1; i < quantization; i++)
         {
-          Real pt = (i * 1.0) / CURVE_QUANTIZATION;
+          Real pt = (i * 1.0) / quantization;
           Offset inter = get_point_in_y_direction (curve.curve_point (pt), perpendicular_slope (curve.slope_at_point (pt)), th / 2, d);
           pango_matrix_transform_point (&trans, &inter[X_AXIS], &inter[Y_AXIS]);
           points[d].push_back (inter);
