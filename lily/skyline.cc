@@ -320,23 +320,22 @@ non_overlapping_skyline (list<Box> *const boxes, Real horizon_padding, Axis hori
         }
 
       if (iv[LEFT] - horizon_padding > last_end + EPS)
-        result.push_front (Building (last_end, -infinity_f, -infinity_f, iv[LEFT] - 2 * horizon_padding));
+        result.push_back (Building (last_end, -infinity_f, -infinity_f, iv[LEFT] - 2 * horizon_padding));
 
       Building b (*i, horizon_padding, horizon_axis, sky);
       bool sloped_neighbours = horizon_padding > 0 && !isinf (iv.length ());
       if (sloped_neighbours)
-        result.push_front (b.sloped_neighbour (iv[LEFT] - horizon_padding, horizon_padding, LEFT));
-      result.push_front (b);
+        result.push_back (b.sloped_neighbour (iv[LEFT] - horizon_padding, horizon_padding, LEFT));
+      result.push_back (b);
       if (sloped_neighbours)
-        result.push_front (b.sloped_neighbour (iv[LEFT] - horizon_padding, horizon_padding, RIGHT));
+        result.push_back (b.sloped_neighbour (iv[LEFT] - horizon_padding, horizon_padding, RIGHT));
 
       list<Box>::iterator j = i++;
       boxes->erase (j);
-      last_end = result.front ().end_;
+      last_end = result.back ().end_;
     }
   if (last_end < infinity_f)
-    result.push_front (Building (last_end, -infinity_f, -infinity_f, infinity_f));
-  result.reverse ();
+    result.push_back (Building (last_end, -infinity_f, -infinity_f, infinity_f));
   return result;
 }
 
@@ -359,7 +358,7 @@ non_overlapping_skyline_from_buildings (list<Drul_array<Offset> > *const buildin
         }
 
       if (iv[LEFT] - horizon_padding > last_end + EPS)
-        result.push_front (Building (last_end, -infinity_f, -infinity_f, iv[LEFT] - 2 * horizon_padding));
+        result.push_back (Building (last_end, -infinity_f, -infinity_f, iv[LEFT] - 2 * horizon_padding));
 
       Building b ((*i)[LEFT][horizon_axis], (*i)[LEFT][other_axis (horizon_axis)], (*i)[RIGHT][other_axis (horizon_axis)], (*i)[RIGHT][horizon_axis]);
 
@@ -368,25 +367,24 @@ non_overlapping_skyline_from_buildings (list<Drul_array<Offset> > *const buildin
         {
           Real y = (*i)[LEFT][other_axis (horizon_axis)];
           Building plateau (iv[LEFT] - horizon_padding, y, y, iv[LEFT]);
-          result.push_front (plateau.sloped_neighbour (iv[LEFT] - horizon_padding, horizon_padding, LEFT));
-          result.push_front (plateau);
+          result.push_back (plateau.sloped_neighbour (iv[LEFT] - horizon_padding, horizon_padding, LEFT));
+          result.push_back (plateau);
         }
-      result.push_front (b);
+      result.push_back (b);
       if (sloped_neighbours)
         {
           Real y = (*i)[RIGHT][other_axis (horizon_axis)];
           Building plateau (b.end_, y, y, b.end_ + horizon_padding);
-          result.push_front (plateau);
-          result.push_front (plateau.sloped_neighbour (b.end_, horizon_padding, RIGHT));
+          result.push_back (plateau);
+          result.push_back (plateau.sloped_neighbour (b.end_, horizon_padding, RIGHT));
         }
 
       list<Drul_array<Offset> >::iterator j = i++;
       buildings->erase (j);
-      last_end = result.front ().end_;
+      last_end = result.back ().end_;
     }
   if (last_end < infinity_f)
-    result.push_front (Building (last_end, -infinity_f, -infinity_f, infinity_f));
-  result.reverse ();
+    result.push_back (Building (last_end, -infinity_f, -infinity_f, infinity_f));
   return result;
 }
 
