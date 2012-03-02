@@ -691,16 +691,20 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
           Skyline_pair pair;
           Skyline_pair to_pass_to_constructor;
           do_add = !(*orig).is_empty ();
+          bool use_separate_constructor_skyline = horizon_padding != 0;
           if (do_add)
             {
               vector<Skyline_pair> construct_from_me;
               construct_from_me.push_back (*orig);
               pair = Skyline_pair (construct_from_me, horizon_padding, X_AXIS);
-              to_pass_to_constructor = Skyline_pair (construct_from_me, 0.0, X_AXIS);
               pair.shift (elements[i]->relative_coordinate (x_common, X_AXIS));
               pair.raise (elements[i]->relative_coordinate (y_common, Y_AXIS));
-              to_pass_to_constructor.shift (elements[i]->relative_coordinate (x_common, X_AXIS));
-              to_pass_to_constructor.raise (elements[i]->relative_coordinate (y_common, Y_AXIS));
+              if (use_separate_constructor_skyline)
+                {
+                  to_pass_to_constructor = Skyline_pair (construct_from_me, 0.0, X_AXIS);
+                  to_pass_to_constructor.shift (elements[i]->relative_coordinate (x_common, X_AXIS));
+                  to_pass_to_constructor.raise (elements[i]->relative_coordinate (y_common, Y_AXIS));
+                }
             }
           before_last_affected_position = pair[-dir].left () - 2 * horizon_padding < last_affected_position[dir];
 
@@ -726,11 +730,12 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
               if (dist > 0)
                 {
                   pair.raise (dir * dist);
-                  to_pass_to_constructor.raise (dir * dist);
+                  if (use_separate_constructor_skyline)
+                    to_pass_to_constructor.raise (dir * dist);
                   elements[i]->translate_axis (dir * dist, Y_AXIS);
                 }
 
-              to_constructor.push_back (to_pass_to_constructor);
+              to_constructor.push_back (use_separate_constructor_skyline ? to_pass_to_constructor : pair);
               elements[i]->set_property ("outside-staff-priority", SCM_BOOL_F);
               last_affected_position[dir] = pair.right ();
               other.clear ();
