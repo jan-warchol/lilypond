@@ -270,7 +270,6 @@
     (BassFigure
      . (
 	(stencil . ,ly:text-interface::print)
-	(vertical-skylines . ,ly:grob::simple-vertical-skylines-from-possibly-transparent-stencil)
 	(meta . ((class . Item)
 		 (interfaces . (bass-figure-interface
 				font-interface

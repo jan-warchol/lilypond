@@ -356,7 +356,7 @@ non_overlapping_skyline_from_buildings (list<Drul_array<Offset> > *const buildin
       Offset right = (*i)[RIGHT];
       if (left[horizon_axis] > right[horizon_axis])
         swap (left, right);
- 
+
       Real x1 = left[horizon_axis];
       Real y1 = left[other];
       Real x2 = right[horizon_axis];
