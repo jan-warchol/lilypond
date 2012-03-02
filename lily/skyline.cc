@@ -345,38 +345,55 @@ static list<Building>
 non_overlapping_skyline_from_buildings (list<Drul_array<Offset> > *const buildings, Real horizon_padding, Axis horizon_axis, Direction sky)
 {
   list<Building> result;
+  Building last_building (-infinity_f, -infinity_f, -infinity_f, infinity_f);
+  Axis other = other_axis (horizon_axis);
   Real last_end = -infinity_f;
   list<Drul_array<Offset> >::iterator i = buildings->begin ();
+
   while (i != buildings->end ())
     {
-      Interval iv ((*i)[LEFT][horizon_axis], (*i)[RIGHT][horizon_axis]);
+      Offset left = (*i)[LEFT];
+      Offset right = (*i)[RIGHT];
+      if (left[horizon_axis] > right[horizon_axis])
+        swap (left, right);
+ 
+      Real x1 = left[horizon_axis];
+      Real y1 = left[other];
+      Real x2 = right[horizon_axis];
+      Real y2 = right[other];
 
-      if (iv[LEFT] - horizon_padding < last_end)
+      if (last_building.height (x1) >= y1 && last_building.end_ >= x2 && last_building.height (x2) >= y2)
+        {
+          list<Drul_array<Offset> >::iterator j = i++;
+          buildings->erase (j);
+          continue;
+        }
+
+      if (x1 - 2 * horizon_padding < last_end)
         {
           i++;
           continue;
         }
 
-      if (iv[LEFT] - horizon_padding > last_end + EPS)
-        result.push_back (Building (last_end, -infinity_f, -infinity_f, iv[LEFT] - 2 * horizon_padding));
+      if (x1 - 2 * horizon_padding > last_end + EPS)
+        result.push_back (Building (last_end, -infinity_f, -infinity_f, x1 - 2 * horizon_padding));
 
-      Building b ((*i)[LEFT][horizon_axis], (*i)[LEFT][other_axis (horizon_axis)], (*i)[RIGHT][other_axis (horizon_axis)], (*i)[RIGHT][horizon_axis]);
+      Building b (x1, y1, y2, x2);
 
-      bool sloped_neighbours = horizon_padding > 0 && !isinf (iv.length ());
+      bool sloped_neighbours = horizon_padding > 0 && !isinf (x2 - x1);
       if (sloped_neighbours)
         {
-          Real y = (*i)[LEFT][other_axis (horizon_axis)];
-          Building plateau (iv[LEFT] - horizon_padding, y, y, iv[LEFT]);
-          result.push_back (plateau.sloped_neighbour (iv[LEFT] - horizon_padding, horizon_padding, LEFT));
+          Building plateau (x1 - horizon_padding, y1, y1, x1);
+          result.push_back (plateau.sloped_neighbour (x1 - horizon_padding, horizon_padding, LEFT));
           result.push_back (plateau);
         }
       result.push_back (b);
+      last_building = b;
       if (sloped_neighbours)
         {
-          Real y = (*i)[RIGHT][other_axis (horizon_axis)];
-          Building plateau (b.end_, y, y, b.end_ + horizon_padding);
+          Building plateau (x2, y2, y2, x2 + horizon_padding);
           result.push_back (plateau);
-          result.push_back (plateau.sloped_neighbour (b.end_, horizon_padding, RIGHT));
+          result.push_back (plateau.sloped_neighbour (x2, horizon_padding, RIGHT));
         }
 
       list<Drul_array<Offset> >::iterator j = i++;
@@ -416,7 +433,9 @@ public:
 
   bool operator () (Drul_array<Offset> const &b1, Drul_array<Offset> const &b2)
   {
-    return b1[LEFT][a_] < b2[LEFT][a_];
+    Axis o = other_axis (a_);
+    return b1[LEFT][a_] < b2[LEFT][a_]
+      || (b1[LEFT][a_] == b2[LEFT][a_] && b1[LEFT][o] > b2[LEFT][o]);
   }
 };
 
@@ -632,9 +651,13 @@ Skyline::Skyline (vector<Drul_array<Offset> > const &buildings, Real horizon_pad
 
 Skyline::Skyline (vector<Skyline_pair> const &skypairs, Real horizon_padding, Axis horizon_axis, Direction sky)
 {
+
   vector<Drul_array<Offset> > buildings;
   for (vsize i = 0; i < skypairs.size (); i++)
     {
+      if (skypairs[i].is_empty ())
+        continue;
+
       vector<Offset> pts = skypairs[i][sky].to_points (horizon_axis);
       for (vsize j = pts.size (); j--;)
         if (pts[j][Y_AXIS] == -sky * infinity_f)
@@ -645,6 +668,7 @@ Skyline::Skyline (vector<Skyline_pair> const &skypairs, Real horizon_padding, Ax
       for (vsize j = 0; j < pts.size () / 2; j++)
         buildings.push_back (Drul_array<Offset> (pts[j * 2], pts[(j * 2) + 1]));
     }
+
   shared_building_constructor (buildings, horizon_padding, horizon_axis, sky);
 }
 
