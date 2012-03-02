@@ -120,7 +120,7 @@ Building::precompute (Real start, Real start_height, Real end_height, Real end)
     y_intercept_ = start_height - slope_ * start;
 }
 
-Real
+inline Real
 Building::height (Real x) const
 {
   return isinf (x) ? y_intercept_ : slope_ * x + y_intercept_;
@@ -132,7 +132,7 @@ Building::print () const
   printf ("%f x + %f ends at %f\n", slope_, y_intercept_, end_);
 }
 
-Real
+inline Real
 Building::intersection_x (Building const &other) const
 {
   Real ret = (y_intercept_ - other.y_intercept_) / (other.slope_ - slope_);
