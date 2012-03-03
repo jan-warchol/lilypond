@@ -105,9 +105,9 @@ Building::Building (Box const &b, Real horizon_padding, Axis horizon_axis, Direc
 void
 Building::precompute (Real start, Real start_height, Real end_height, Real end)
 {
-  slope_ = (end_height - start_height) / (end - start);
-  if (start_height == end_height) /* if they were both infinite, we would get nan, not 0, from the prev line */
-    slope_ = 0;
+  slope_ = 0.0; /* if they were both infinite, we would get nan, not 0, from the prev line */
+  if (start_height != end_height)
+    slope_ = (end_height - start_height) / (end - start);
 
   assert (!isinf (slope_) && !isnan (slope_));
 
@@ -651,17 +651,13 @@ Skyline::Skyline (vector<Drul_array<Offset> > const &buildings, Real horizon_pad
 
 Skyline::Skyline (vector<Skyline_pair> const &skypairs, Real horizon_padding, Axis horizon_axis, Direction sky)
 {
-
   vector<Drul_array<Offset> > buildings;
-  vector<Drul_array<Offset> > temp;
   for (vsize i = 0; i < skypairs.size (); i++)
     {
       if (skypairs[i].is_empty ())
         continue;
 
-      skypairs[i][sky].to_drul_array_offset (temp, horizon_axis);
-      buildings.insert (buildings.end (), temp.begin (), temp.end ());
-      temp.resize (0);
+      skypairs[i][sky].to_drul_array_offset (buildings, horizon_axis);
     }
 
   shared_building_constructor (buildings, horizon_padding, horizon_axis, sky);
