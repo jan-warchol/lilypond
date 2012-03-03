@@ -73,6 +73,7 @@ public:
   Skyline (Box const &b, Real horizon_padding, Axis a, Direction sky);
 
   vector<Offset> to_points (Axis) const;
+  void to_drul_array_offset (vector<Drul_array<Offset> > &out, Axis horizon_axis) const;
   void merge (Skyline const &);
   void insert (Box const &, Real horizon_padding, Axis);
   void print () const;

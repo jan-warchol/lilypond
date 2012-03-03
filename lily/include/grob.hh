@@ -144,15 +144,14 @@ public:
   void fixup_refpoint ();
 
   /* vertical ordering */
+  static bool internal_vertical_less (Grob *g1, Grob *g2, bool pure);
   static Grob *get_root_vertical_alignment (Grob *g);
   static Grob *get_vertical_axis_group (Grob *g);
   static bool vertical_less (Grob *g1, Grob *g2);
   static bool pure_vertical_less (Grob *g1, Grob *g2);
-  static bool internal_vertical_less (Grob *g1, Grob *g2, bool pure);
   static int get_vertical_axis_group_index (Grob *g);
 
   /* vertical skylines */
-  static SCM internal_simple_vertical_skylines_from_stencil (SCM, bool);
   virtual Interval_t<int> spanned_rank_interval () const;
   virtual bool pure_is_visible (int start, int end) const;
   bool check_cross_staff (Grob *common);

@@ -653,20 +653,15 @@ Skyline::Skyline (vector<Skyline_pair> const &skypairs, Real horizon_padding, Ax
 {
 
   vector<Drul_array<Offset> > buildings;
+  vector<Drul_array<Offset> > temp;
   for (vsize i = 0; i < skypairs.size (); i++)
     {
       if (skypairs[i].is_empty ())
         continue;
 
-      vector<Offset> pts = skypairs[i][sky].to_points (horizon_axis);
-      for (vsize j = pts.size (); j--;)
-        if (pts[j][Y_AXIS] == -sky * infinity_f)
-          pts.erase (pts.begin () + j);
-
-      assert (pts.size () % 2 == 0);
-
-      for (vsize j = 0; j < pts.size () / 2; j++)
-        buildings.push_back (Drul_array<Offset> (pts[j * 2], pts[(j * 2) + 1]));
+      skypairs[i][sky].to_drul_array_offset (temp, horizon_axis);
+      buildings.insert (buildings.end (), temp.begin (), temp.end ());
+      temp.resize (0);
     }
 
   shared_building_constructor (buildings, horizon_padding, horizon_axis, sky);
@@ -866,6 +861,27 @@ Skyline::to_points (Axis horizon_axis) const
       out[i] = out[i].swapped ();
 
   return out;
+}
+
+void
+Skyline::to_drul_array_offset (vector<Drul_array<Offset> > &out, Axis horizon_axis) const
+{
+  Real start = -infinity_f;
+  for (list<Building>::const_iterator i (buildings_.begin ());
+       i != buildings_.end (); i++)
+    {
+      if (!isinf (i->y_intercept_))
+        out.push_back (Drul_array<Offset> (Offset (start, sky_ * i->height (start)),
+                                           Offset (i->end_, sky_ * i->height (i->end_))));
+      start = i->end_;
+    }
+
+  if (horizon_axis == Y_AXIS)
+    for (vsize i = 0; i < out.size (); i++)
+      {
+        out[i][LEFT] = out[i][LEFT].swapped ();
+        out[i][RIGHT] = out[i][RIGHT].swapped ();
+      }
 }
 
 Real
