@@ -2124,7 +2124,8 @@
 		 (object-callbacks . ((footnotes-before-line-breaking . ,ly:system::footnotes-before-line-breaking)
 				      (footnotes-after-line-breaking . ,ly:system::footnotes-after-line-breaking)
 				      (pure-relevant-grobs . ,ly:system::calc-pure-relevant-grobs)
-				      (pure-Y-common . ,ly:axis-group-interface::calc-pure-y-common)))
+				      (pure-Y-common . ,ly:axis-group-interface::calc-pure-y-common)
+				      (vertical-skyline-elements . ,ly:system::vertical-skyline-elements)))
 		 (interfaces . (axis-group-interface
 				system-interface))))))
 

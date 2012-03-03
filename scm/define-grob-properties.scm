@@ -1131,6 +1131,9 @@ results, use @code{LEFT} and @code{RIGHT}.")
      (tuplet-start ,boolean? "Is stem at the start of a tuplet?")
      (tuplets ,ly:grob-array? "An array of smaller tuplet brackets.")
 
+     (vertical-skyline-elements ,ly:grob-array? "An array of grobs
+used to create vertical skylines.")
+
      (X-colliding-grobs ,ly:grob-array? "Grobs that can collide
 with a self-aligned grob on the X-axis.")
      (Y-colliding-grobs ,ly:grob-array? "Grobs that can collide

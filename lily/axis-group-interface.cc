@@ -381,7 +381,7 @@ SCM
 Axis_group_interface::calc_skylines (SCM smob)
 {
   Grob *me = unsmob_grob (smob);
-  extract_grob_set (me, "elements", elts);
+  extract_grob_set (me, Grob_array::unsmob (me->get_object ("vertical-skyline-elements")) ? "vertical-skyline-elements" : "elements", elts);
   Skyline_pair skylines = skyline_spacing (me, elts);
 
   return skylines.smobbed_copy ();
@@ -957,6 +957,7 @@ ADD_INTERFACE (Axis_group_interface,
                "staff-grouper "
                "staff-staff-spacing "
                "system-Y-offset "
+               "vertical-skyline-elements "
                "X-common "
                "Y-common "
               );

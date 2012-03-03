@@ -390,6 +390,28 @@ System::footnotes_after_line_breaking (SCM smob)
   return grobs_scm;
 }
 
+MAKE_SCHEME_CALLBACK (System, vertical_skyline_elements, 1);
+SCM
+System::vertical_skyline_elements (SCM smob)
+{
+  Grob *me_grob = unsmob_grob (smob);
+  System *me = dynamic_cast<System *> (me_grob);
+  Grob *align = me->get_vertical_alignment ();
+  if (!align)
+    return Grob_array::make_array ();
+
+  extract_grob_set (align, "elements", elts);
+
+  vector<Grob *> vertical_skyline_grobs;
+  for (vsize i = 0; i < elts.size (); i++)
+    if (Hara_kiri_group_spanner::has_interface (elts[i]))
+      vertical_skyline_grobs.push_back (elts[i]);
+
+  SCM grobs_scm = Grob_array::make_array ();
+  unsmob_grob_array (grobs_scm)->set_array (vertical_skyline_grobs);
+  return grobs_scm;
+}
+
 void
 System::break_into_pieces (vector<Column_x_positions> const &breaking)
 {
