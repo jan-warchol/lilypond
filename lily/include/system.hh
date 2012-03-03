@@ -60,6 +60,7 @@ public:
   DECLARE_SCHEME_CALLBACK (footnotes_before_line_breaking, (SCM));
   DECLARE_SCHEME_CALLBACK (footnotes_after_line_breaking, (SCM));
   DECLARE_SCHEME_CALLBACK (calc_pure_relevant_grobs, (SCM));
+  DECLARE_SCHEME_CALLBACK (calc_vertical_skylines, (SCM));
   DECLARE_SCHEME_CALLBACK (height, (SCM));
   DECLARE_SCHEME_CALLBACK (calc_pure_height, (SCM, SCM, SCM));
   DECLARE_SCHEME_CALLBACK (get_staves, (SCM));

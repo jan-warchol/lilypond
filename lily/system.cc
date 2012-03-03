@@ -359,6 +359,55 @@ grob_2D_less (Grob *g1, Grob *g2)
   return sri[0] < sri[1];
 }
 
+MAKE_SCHEME_CALLBACK (System, calc_vertical_skylines, 1);
+SCM
+System::calc_vertical_skylines (SCM smob)
+{
+  Grob *me_grob = unsmob_grob (smob);
+  System *me = dynamic_cast<System *> (me_grob);
+
+  Real my_skyline_horizontal_padding = robust_scm2double (me->get_property ("skyline-horizontal-padding"), 0.0);
+
+  Drul_array<Grob *> extremal_vertical_axis_groups (me->get_extremal_staff (DOWN, Interval (-infinity_f, infinity_f)),
+                                                    me->get_extremal_staff (UP, Interval (-infinity_f, infinity_f)));
+  Skyline_pair res;
+  vector<Skyline_pair> holder;
+  Grob* common[2];
+  for (Axis a = X_AXIS; a < NO_AXES; incr (a))
+    {
+      common[a] = extremal_vertical_axis_groups[DOWN]->common_refpoint (me, a);
+      common[a] = extremal_vertical_axis_groups[UP]->common_refpoint (common[a], a);
+    }
+
+  Direction d = DOWN;
+  do
+    {
+      Skyline_pair *pair = Skyline_pair::unsmob (extremal_vertical_axis_groups[d]->get_property ("vertical-skylines"));
+      if (!pair)
+        {
+          me->warning ("System cannot calculate upper vertical skyline.");
+          break;
+        }
+      holder.push_back (*pair);
+      Real his_skyline_horizontal_padding = robust_scm2double (extremal_vertical_axis_groups[d]->get_property ("skyline-horizontal-padding"), 0.0);
+      Real padding = max (0.0, my_skyline_horizontal_padding - his_skyline_horizontal_padding);
+      Skyline_pair temp (holder, padding, X_AXIS);
+      temp.shift (extremal_vertical_axis_groups[d]->relative_coordinate (common[X_AXIS], X_AXIS));
+      temp.raise (extremal_vertical_axis_groups[d]->relative_coordinate (common[Y_AXIS], Y_AXIS));
+
+      res[d] = temp[d];
+      if (extremal_vertical_axis_groups[DOWN] == extremal_vertical_axis_groups[UP])
+        {
+          res[-d] = temp[-d];
+          return res.smobbed_copy ();
+        }
+      holder.resize (0);
+    }
+  while (flip (&d) != DOWN);
+
+  return res.smobbed_copy ();
+}
+
 MAKE_SCHEME_CALLBACK (System, footnotes_before_line_breaking, 1);
 SCM
 System::footnotes_before_line_breaking (SCM smob)
