@@ -36,6 +36,7 @@
 #include "pointer-group-interface.hh"
 #include "skyline-pair.hh"
 #include "staff-symbol-referencer.hh"
+#include "system-start-delimiter.hh"
 #include "text-interface.hh"
 #include "warn.hh"
 #include "unpure-pure-container.hh"
@@ -395,14 +396,24 @@ SCM
 System::vertical_skyline_elements (SCM smob)
 {
   Grob *me_grob = unsmob_grob (smob);
+  vector<Grob *> vertical_skyline_grobs;
+  extract_grob_set (me_grob, "elements", my_elts);
+  for (vsize i = 0; i < my_elts.size (); i++)
+    if (System_start_delimiter::has_interface (my_elts[i]))
+      vertical_skyline_grobs.push_back (my_elts[i]);
+
+
   System *me = dynamic_cast<System *> (me_grob);
   Grob *align = me->get_vertical_alignment ();
   if (!align)
-    return Grob_array::make_array ();
+    {
+      SCM grobs_scm = Grob_array::make_array ();
+      unsmob_grob_array (grobs_scm)->set_array (vertical_skyline_grobs);
+      return grobs_scm;      
+    }
 
   extract_grob_set (align, "elements", elts);
 
-  vector<Grob *> vertical_skyline_grobs;
   for (vsize i = 0; i < elts.size (); i++)
     if (Hara_kiri_group_spanner::has_interface (elts[i]))
       vertical_skyline_grobs.push_back (elts[i]);
