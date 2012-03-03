@@ -32,7 +32,7 @@ public:
   Skyline_pair ();
   Skyline_pair (vector<Box> const &boxes, Real horizon_padding, Axis a);
   Skyline_pair (vector<Drul_array<Offset> > const &buildings, Real horizon_padding, Axis a);
-  Skyline_pair (vector<Skyline_pair> const &skypairs, Real horizon_padding, Axis a);
+  Skyline_pair (vector<Skyline_pair *> const &skypairs, Real horizon_padding, Axis a);
   Skyline_pair (Box const &, Real horizon_padding, Axis a);
   void raise (Real);
   void shift (Real);

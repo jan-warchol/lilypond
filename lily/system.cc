@@ -371,7 +371,7 @@ System::calc_vertical_skylines (SCM smob)
   Drul_array<Grob *> extremal_vertical_axis_groups (me->get_extremal_staff (DOWN, Interval (-infinity_f, infinity_f)),
                                                     me->get_extremal_staff (UP, Interval (-infinity_f, infinity_f)));
   Skyline_pair res;
-  vector<Skyline_pair> holder;
+  vector<Skyline_pair *> holder;
   Grob* common[2];
   for (Axis a = X_AXIS; a < NO_AXES; incr (a))
     {
@@ -388,7 +388,7 @@ System::calc_vertical_skylines (SCM smob)
           me->warning ("System cannot calculate upper vertical skyline.");
           break;
         }
-      holder.push_back (*pair);
+      holder.push_back (pair);
       Real his_skyline_horizontal_padding = robust_scm2double (extremal_vertical_axis_groups[d]->get_property ("skyline-horizontal-padding"), 0.0);
       Real padding = max (0.0, my_skyline_horizontal_padding - his_skyline_horizontal_padding);
       Skyline_pair temp (holder, padding, X_AXIS);

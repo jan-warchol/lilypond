@@ -38,7 +38,7 @@ Skyline_pair::Skyline_pair (vector<Drul_array<Offset> > const &buildings, Real p
 {
 }
 
-Skyline_pair::Skyline_pair (vector<Skyline_pair> const &skypairs, Real padding, Axis a)
+Skyline_pair::Skyline_pair (vector<Skyline_pair *> const &skypairs, Real padding, Axis a)
   : skylines_ (Skyline (skypairs, padding, a, DOWN), Skyline (skypairs, padding, a, UP))
 {
 }

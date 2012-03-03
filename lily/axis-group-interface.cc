@@ -605,7 +605,7 @@ pure_staff_priority_less (Grob *const &g1, Grob *const &g2)
 }
 
 static void
-add_interior_skylines (Grob *me, Grob *x_common, Grob *y_common, vector<Skyline_pair> *skylines)
+add_interior_skylines (Grob *me, Grob *x_common, Grob *y_common, vector<Skyline_pair *> *skylines)
 {
   if (Grob_array *elements = unsmob_grob_array (me->get_object ("elements")))
     {
@@ -620,9 +620,9 @@ add_interior_skylines (Grob *me, Grob *x_common, Grob *y_common, vector<Skyline_
         return;
       if (maybe_pair->is_empty ())
         return;
-      Skyline_pair s (*maybe_pair);
-      s.shift (me->relative_coordinate (x_common, X_AXIS));
-      s.raise (me->relative_coordinate (y_common, Y_AXIS));
+      Skyline_pair *s = new Skyline_pair (*maybe_pair);
+      s->shift (me->relative_coordinate (x_common, X_AXIS));
+      s->raise (me->relative_coordinate (y_common, Y_AXIS));
       skylines->push_back (s);
     }
 }
@@ -655,7 +655,7 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
 {
   vector<Box> boxes;
   Drul_array<Real> last_affected_position;
-  vector<Skyline_pair> to_constructor;
+  vector<Skyline_pair *> to_constructor;
 
   reverse (elements);
   while (!elements.empty ())
@@ -688,25 +688,25 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
             the padding of the axis group or system
           */
 
-          Skyline_pair pair;
-          Skyline_pair to_pass_to_constructor;
+          Skyline_pair *pair = 0;
+          Skyline_pair *to_pass_to_constructor = 0;
           do_add = !(*orig).is_empty ();
           bool use_separate_constructor_skyline = horizon_padding != 0;
           if (do_add)
             {
-              vector<Skyline_pair> construct_from_me;
-              construct_from_me.push_back (*orig);
-              pair = Skyline_pair (construct_from_me, horizon_padding, X_AXIS);
-              pair.shift (elements[i]->relative_coordinate (x_common, X_AXIS));
-              pair.raise (elements[i]->relative_coordinate (y_common, Y_AXIS));
+              vector<Skyline_pair *> construct_from_me;
+              construct_from_me.push_back (orig);
+              pair = new Skyline_pair (construct_from_me, horizon_padding, X_AXIS);
+              pair->shift (elements[i]->relative_coordinate (x_common, X_AXIS));
+              pair->raise (elements[i]->relative_coordinate (y_common, Y_AXIS));
               if (use_separate_constructor_skyline)
                 {
-                  to_pass_to_constructor = Skyline_pair (construct_from_me, 0.0, X_AXIS);
-                  to_pass_to_constructor.shift (elements[i]->relative_coordinate (x_common, X_AXIS));
-                  to_pass_to_constructor.raise (elements[i]->relative_coordinate (y_common, Y_AXIS));
+                  to_pass_to_constructor = new Skyline_pair (construct_from_me, 0.0, X_AXIS);
+                  to_pass_to_constructor->shift (elements[i]->relative_coordinate (x_common, X_AXIS));
+                  to_pass_to_constructor->raise (elements[i]->relative_coordinate (y_common, Y_AXIS));
                 }
             }
-          before_last_affected_position = pair[-dir].left () - 2 * horizon_padding < last_affected_position[dir];
+          before_last_affected_position = !do_add ? false : (*pair)[-dir].left () - 2 * horizon_padding < last_affected_position[dir];
 
           if (before_last_affected_position)
             continue;
@@ -725,19 +725,19 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
           if (do_add)
             {
               Real padding = robust_scm2double (elements[i]->get_property ("outside-staff-padding"), 0.5);
-              Real dist = (*skylines)[dir].distance (pair[-dir]) + padding;
+              Real dist = (*skylines)[dir].distance ((*pair)[-dir]) + padding;
 
               if (dist > 0)
                 {
-                  pair.raise (dir * dist);
+                  pair->raise (dir * dist);
                   if (use_separate_constructor_skyline)
-                    to_pass_to_constructor.raise (dir * dist);
+                    to_pass_to_constructor->raise (dir * dist);
                   elements[i]->translate_axis (dir * dist, Y_AXIS);
                 }
 
               to_constructor.push_back (use_separate_constructor_skyline ? to_pass_to_constructor : pair);
               elements[i]->set_property ("outside-staff-priority", SCM_BOOL_F);
-              last_affected_position[dir] = pair.right ();
+              last_affected_position[dir] = pair->right ();
               other.clear ();
             }
           // if a grob previously had an outside staff parent but no longer does,
@@ -750,6 +750,10 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
            */
           elements.erase (elements.begin () + i);
           skylines->merge (Skyline_pair (to_constructor, 0.0, X_AXIS));
+          for (vsize i = 0; i < to_constructor.size (); i++)
+            delete to_constructor[i];
+          if (use_separate_constructor_skyline)
+            delete pair;
           to_constructor.resize (0);
         }
     }
@@ -808,7 +812,7 @@ Axis_group_interface::skyline_spacing (Grob *me, vector<Grob *> elements)
   vsize i = 0;
   vector<Grob *> riders;
 
-  vector<Skyline_pair> to_constructor;
+  vector<Skyline_pair *> to_constructor;
   for (i = 0; i < elements.size ()
        && !scm_is_number (elements[i]->get_property ("outside-staff-priority")); i++)
     {
@@ -819,6 +823,8 @@ Axis_group_interface::skyline_spacing (Grob *me, vector<Grob *> elements)
     }
 
   Skyline_pair skylines (to_constructor, 0.0, X_AXIS);
+  for (vsize i = 0; i < to_constructor.size (); i++)
+    delete to_constructor[i];
 
   for (; i < elements.size (); i++)
     {
@@ -852,9 +858,9 @@ Axis_group_interface::skyline_spacing (Grob *me, vector<Grob *> elements)
 
   if (pad > 0.0)
     {
-      vector<Skyline_pair> to_constructor;
-      to_constructor.push_back (skylines);
-      return Skyline_pair (to_constructor, pad, X_AXIS);
+      vector<Skyline_pair *> temp;
+      temp.push_back (&skylines);
+      return Skyline_pair (temp, pad, X_AXIS);
     }
   return skylines;
 }

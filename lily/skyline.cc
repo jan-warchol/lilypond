@@ -649,15 +649,15 @@ Skyline::Skyline (vector<Drul_array<Offset> > const &buildings, Real horizon_pad
   shared_building_constructor (buildings, horizon_padding, horizon_axis, sky);
 }
 
-Skyline::Skyline (vector<Skyline_pair> const &skypairs, Real horizon_padding, Axis horizon_axis, Direction sky)
+Skyline::Skyline (vector<Skyline_pair *> const &skypairs, Real horizon_padding, Axis horizon_axis, Direction sky)
 {
   vector<Drul_array<Offset> > buildings;
   for (vsize i = 0; i < skypairs.size (); i++)
     {
-      if (skypairs[i].is_empty ())
+      if ((*skypairs[i]).is_empty ())
         continue;
 
-      skypairs[i][sky].to_drul_array_offset (buildings, horizon_axis);
+      (*skypairs[i])[sky].to_drul_array_offset (buildings, horizon_axis);
     }
 
   shared_building_constructor (buildings, horizon_padding, horizon_axis, sky);
