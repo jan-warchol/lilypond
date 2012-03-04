@@ -32,6 +32,7 @@
 
 struct Building
 {
+  Real start_;
   Real end_;
   Real y_intercept_;
   Real slope_;
@@ -55,8 +56,7 @@ private:
 
   void internal_merge_skyline (list<Building>*, list<Building>*,
                                list<Building> *const result);
-  list<Building> internal_build_skyline (list<Box>*, Axis, Direction);
-  list<Building> internal_build_skyline_from_buildings (list<Drul_array<Offset> >*, Axis, Direction);
+  list<Building> internal_build_skyline (list<Building>*);
   void shared_building_constructor (vector<Drul_array<Offset> > const &bldgs, Axis a, Direction sky);
 
   DECLARE_SIMPLE_SMOBS (Skyline);

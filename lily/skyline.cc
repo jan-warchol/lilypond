@@ -88,6 +88,7 @@ Building::Building (Real start, Real start_height, Real end_height, Real end)
   if (isinf (start) || isinf (end))
     assert (start_height == end_height);
 
+  start_ = start;
   end_ = end;
   precompute (start, start_height, end_height, end);
 }
@@ -98,6 +99,7 @@ Building::Building (Box const &b, Axis horizon_axis, Direction sky)
   Real end = b[horizon_axis][RIGHT];
   Real height = sky * b[other_axis (horizon_axis)][sky];
 
+  start_ = start;
   end_ = end;
   precompute (start, height, height, end);
 }
@@ -129,7 +131,7 @@ Building::height (Real x) const
 void
 Building::print () const
 {
-  printf ("%f x + %f ends at %f\n", slope_, y_intercept_, end_);
+  printf ("%f x + %f from %f to %f\n", slope_, y_intercept_, start_, end_);
 }
 
 inline Real
@@ -199,7 +201,8 @@ Skyline::internal_merge_skyline (list<Building> *s1, list<Building> *s2,
 
       if (s2->empty ())
         {
-          result->push_front (b);
+          b.start_ = result->back ().end_;
+          result->push_back (b);
           break;
         }
 
@@ -207,7 +210,8 @@ Skyline::internal_merge_skyline (list<Building> *s1, list<Building> *s2,
       if (end > x + EPS)
         {
           b.leading_part (end);
-          result->push_front (b);
+          b.start_ = result->back ().end_;
+          result->push_back (b);
         }
 
       if (end >= s1->front ().end_)
@@ -215,7 +219,6 @@ Skyline::internal_merge_skyline (list<Building> *s1, list<Building> *s2,
 
       x = end;
     }
-  result->reverse ();
 }
 
 static void
@@ -225,16 +228,15 @@ empty_skyline (list<Building> *const ret)
 }
 
 /*
-  Given Building 'b' with starting wall location 'start', build
-  a skyline containing only that building.
+  Given Building 'b', build a skyline containing only that building.
 */
 static void
-single_skyline (Building b, Real start, list<Building> *const ret)
+single_skyline (Building b, list<Building> *const ret)
 {
-  if (b.end_ > start + EPS)
+  if (b.end_ > b.start_ + EPS)
     {
       ret->push_back (Building (-infinity_f, -infinity_f,
-                                -infinity_f, start));
+                                -infinity_f, b.start_));
       ret->push_front (b);
       ret->push_back (Building (b.end_, -infinity_f,
                                 -infinity_f, infinity_f));
@@ -248,65 +250,25 @@ single_skyline (Building b, Real start, list<Building> *const ret)
 /* remove a non-overlapping set of boxes from BOXES and build a skyline
    out of them */
 static list<Building>
-non_overlapping_skyline (list<Box> *const boxes, Axis horizon_axis, Direction sky)
+non_overlapping_skyline (list<Building> *const buildings)
 {
   list<Building> result;
   Real last_end = -infinity_f;
-  list<Box>::iterator i = boxes->begin ();
-  while (i != boxes->end ())
-    {
-      Interval iv = (*i)[horizon_axis];
-
-      if (iv[LEFT] < last_end)
-        {
-          i++;
-          continue;
-        }
-
-      if (iv[LEFT] > last_end + EPS)
-        result.push_back (Building (last_end, -infinity_f, -infinity_f, iv[LEFT]));
-
-      Building b (*i, horizon_axis, sky);
-
-      list<Box>::iterator j = i++;
-      boxes->erase (j);
-      last_end = result.back ().end_;
-    }
-  if (last_end < infinity_f)
-    result.push_back (Building (last_end, -infinity_f, -infinity_f, infinity_f));
-  return result;
-}
-
-/* remove a non-overlapping set of boxes from BOXES and build a skyline
-   out of them */
-static list<Building>
-non_overlapping_skyline_from_buildings (list<Drul_array<Offset> > *const buildings,
-                                        Axis horizon_axis, Direction sky)
-{
-  list<Building> result;
   Building last_building (-infinity_f, -infinity_f, -infinity_f, infinity_f);
-  Axis other = other_axis (horizon_axis);
-  Real last_end = -infinity_f;
-  list<Drul_array<Offset> >::iterator i = buildings->begin ();
-
+  list<Building>::iterator i = buildings->begin ();
   while (i != buildings->end ())
     {
-      Offset left = (*i)[LEFT];
-      Offset right = (*i)[RIGHT];
-      if (left[horizon_axis] > right[horizon_axis])
-        swap (left, right);
-
-      Real x1 = left[horizon_axis];
-      Real y1 = left[other];
-      Real x2 = right[horizon_axis];
-      Real y2 = right[other];
+      Real x1 = i->start_;
+      Real y1 = i->height (i->start_);
+      Real x2 = i->end_;
+      Real y2 = i->height (i->end_);
 
       // Drop buildings that will obviously have no effect.
       if (last_building.height (x1) >= y1
           && last_building.end_ >= x2
           && last_building.height (x2) >= y2)
         {
-          list<Drul_array<Offset> >::iterator j = i++;
+          list<Building>::iterator j = i++;
           buildings->erase (j);
           continue;
         }
@@ -320,99 +282,35 @@ non_overlapping_skyline_from_buildings (list<Drul_array<Offset> > *const buildin
       if (x1 > last_end + EPS)
         result.push_back (Building (last_end, -infinity_f, -infinity_f, x1));
 
-      Building b (x1, y1, y2, x2);
-      result.push_back (b);
-      last_building = b;
+      result.push_back (*i);
+      last_building = *i;
+      last_end = i->end_;
 
-      list<Drul_array<Offset> >::iterator j = i++;
+      list<Building>::iterator j = i++;
       buildings->erase (j);
-      last_end = result.back ().end_;
     }
+
   if (last_end < infinity_f)
     result.push_back (Building (last_end, -infinity_f, -infinity_f, infinity_f));
   return result;
 }
 
-class LessThanBox
-{
-  Axis a_;
-
-public:
-  LessThanBox (Axis a)
-  {
-    a_ = a;
-  }
-
-  bool operator () (Box const &b1, Box const &b2)
-  {
-    return b1[a_][LEFT] < b2[a_][LEFT];
-  }
-};
-
 class LessThanBuilding
 {
-  Axis a_;
-
 public:
-  LessThanBuilding (Axis a)
+  bool operator () (Building const &b1, Building const &b2)
   {
-    a_ = a;
-  }
-
-  bool operator () (Drul_array<Offset> const &b1, Drul_array<Offset> const &b2)
-  {
-    Axis o = other_axis (a_);
-    return b1[LEFT][a_] < b2[LEFT][a_]
-      || (b1[LEFT][a_] == b2[LEFT][a_] && b1[LEFT][o] > b2[LEFT][o]);
+    return b1.start_ < b2.start_
+      || (b1.start_ == b2.start_ && b1.height (b1.start_) > b2.height (b1.start_));
   }
 };
 
+/**
+   BUILDINGS is a list of buildings, but they could be overlapping
+   and in any order.  The returned list of buildings is ordered and non-overlapping.
+*/
 list<Building>
-Skyline::internal_build_skyline (list<Box> *boxes, Axis horizon_axis, Direction sky)
-{
-  vsize size = boxes->size ();
-
-  if (size == 0)
-    {
-      list<Building> result;
-      empty_skyline (&result);
-      return result;
-    }
-  else if (size == 1)
-    {
-      list<Building> result;
-      single_skyline (Building (boxes->front (), horizon_axis, sky),
-                      boxes->front ()[horizon_axis][LEFT],
-                      &result);
-      return result;
-    }
-
-  deque<list<Building> > partials;
-  boxes->sort (LessThanBox (horizon_axis));
-  while (!boxes->empty ())
-    partials.push_back (non_overlapping_skyline (boxes, horizon_axis, sky));
-
-  /* we'd like to say while (partials->size () > 1) but that's O (n).
-     Instead, we exit in the middle of the loop */
-  while (!partials.empty ())
-    {
-      list<Building> merged;
-      list<Building> one = partials.front ();
-      partials.pop_front ();
-      if (partials.empty ())
-        return one;
-
-      list<Building> two = partials.front ();
-      partials.pop_front ();
-      internal_merge_skyline (&one, &two, &merged);
-      partials.push_back (merged);
-    }
-  assert (0);
-  return list<Building> ();
-}
-
-list<Building>
-Skyline::internal_build_skyline_from_buildings (list<Drul_array<Offset> > *buildings, Axis horizon_axis, Direction sky)
+Skyline::internal_build_skyline (list<Building> *buildings)
 {
   vsize size = buildings->size ();
 
@@ -425,21 +323,14 @@ Skyline::internal_build_skyline_from_buildings (list<Drul_array<Offset> > *build
   else if (size == 1)
     {
       list<Building> result;
-      Building b (buildings->front ()[LEFT][horizon_axis],
-                  buildings->front ()[LEFT][other_axis (horizon_axis)],
-                  buildings->front ()[RIGHT][other_axis (horizon_axis)],
-                  buildings->front ()[RIGHT][horizon_axis]);
-      single_skyline (b,
-                      buildings->front ()[LEFT][horizon_axis],
-                      &result);
+      single_skyline (buildings->front (), &result);
       return result;
     }
 
   deque<list<Building> > partials;
-  buildings->sort (LessThanBuilding (horizon_axis));
-
+  buildings->sort (LessThanBuilding ());
   while (!buildings->empty ())
-    partials.push_back (non_overlapping_skyline_from_buildings (buildings, horizon_axis, sky));
+    partials.push_back (non_overlapping_skyline (buildings));
 
   /* we'd like to say while (partials->size () > 1) but that's O (n).
      Instead, we exit in the middle of the loop */
@@ -491,7 +382,7 @@ Skyline::Skyline (Direction sky)
  */
 Skyline::Skyline (vector<Box> const &boxes, Axis horizon_axis, Direction sky)
 {
-  list<Box> filtered_boxes;
+  list<Building> buildings;
   sky_ = sky;
 
   Axis vert_axis = other_axis (horizon_axis);
@@ -499,10 +390,10 @@ Skyline::Skyline (vector<Box> const &boxes, Axis horizon_axis, Direction sky)
     {
       Interval iv = boxes[i][horizon_axis];
       if (iv.length () > EPS && !boxes[i][vert_axis].is_empty ())
-        filtered_boxes.push_front (boxes[i]);
+        buildings.push_front (Building (boxes[i], horizon_axis, sky));
     }
 
-  buildings_ = internal_build_skyline (&filtered_boxes, horizon_axis, sky);
+  buildings_ = internal_build_skyline (&buildings);
 }
 
 /*
@@ -511,56 +402,56 @@ Skyline::Skyline (vector<Box> const &boxes, Axis horizon_axis, Direction sky)
   Buildings should have fatness in the horizon_axis, otherwise they are ignored.
  */
 void
-Skyline::shared_building_constructor (vector<Drul_array<Offset> > const &buildings,
+Skyline::shared_building_constructor (vector<Drul_array<Offset> > const &segments,
                                       Axis horizon_axis, Direction sky)
 {
-  list<Drul_array<Offset> > filtered_buildings;
+  list<Building> buildings;
   sky_ = sky;
 
-  for (vsize i = 0; i < buildings.size (); i++)
+  for (vsize i = 0; i < segments.size (); i++)
     {
-      Interval iv = Interval (buildings[i][LEFT][horizon_axis], buildings[i][RIGHT][horizon_axis]);
-      Interval other = Interval (buildings[i][LEFT][other_axis (horizon_axis)], buildings[i][RIGHT][other_axis (horizon_axis)]);
-      if (iv.length () > EPS)
-        filtered_buildings.push_front (buildings[i]);
+      Drul_array<Offset> const& seg = segments[i];
+      Offset left = seg[LEFT];
+      Offset right = seg[RIGHT];
+      if (left[horizon_axis] > right[horizon_axis])
+        swap (left, right);
+
+      Real x1 = left[horizon_axis];
+      Real x2 = right[horizon_axis];
+      Real y1 = left[other_axis (horizon_axis)] * sky;
+      Real y2 = right[other_axis (horizon_axis)] * sky;
+
+      if (x1 + EPS < x2)
+        buildings.push_back (Building (x1, y1, y2, x2));
     }
 
-  for (list<Drul_array<Offset> >::iterator i = filtered_buildings.begin (); i != filtered_buildings.end (); i++)
-    {
-      Direction d = LEFT;
-      do
-        (*i)[d][Y_AXIS] = (*i)[d][Y_AXIS] * sky;
-      while (flip (&d) != LEFT);
-    }
-
-  buildings_ = internal_build_skyline_from_buildings (&filtered_buildings, horizon_axis, sky);
-
+  buildings_ = internal_build_skyline (&buildings);
 }
 
-Skyline::Skyline (vector<Drul_array<Offset> > const &buildings, Axis horizon_axis, Direction sky)
+Skyline::Skyline (vector<Drul_array<Offset> > const &segments, Axis horizon_axis, Direction sky)
 {
-  shared_building_constructor (buildings, horizon_axis, sky);
+  shared_building_constructor (segments, horizon_axis, sky);
 }
 
 Skyline::Skyline (vector<Skyline_pair *> const &skypairs, Axis horizon_axis, Direction sky)
 {
-  vector<Drul_array<Offset> > buildings;
+  vector<Drul_array<Offset> > segments;
   for (vsize i = 0; i < skypairs.size (); i++)
     {
       if ((*skypairs[i]).is_empty ())
         continue;
 
-      (*skypairs[i])[sky].to_drul_array_offset (buildings, horizon_axis);
+      (*skypairs[i])[sky].to_drul_array_offset (segments, horizon_axis);
     }
 
-  shared_building_constructor (buildings, horizon_axis, sky);
+  shared_building_constructor (segments, horizon_axis, sky);
 }
 
 Skyline::Skyline (Box const &b, Axis horizon_axis, Direction sky)
 {
   sky_ = sky;
   Building front (b, horizon_axis, sky);
-  single_skyline (front, b[horizon_axis][LEFT], &buildings_);
+  single_skyline (front, &buildings_);
 }
 
 void
@@ -593,7 +484,7 @@ Skyline::insert (Box const &b, Axis a)
     return;
 
   my_bld.splice (my_bld.begin (), buildings_);
-  single_skyline (Building (b, a, sky_), b[a][LEFT], &other_bld);
+  single_skyline (Building (b, a, sky_), &other_bld);
   internal_merge_skyline (&other_bld, &my_bld, &buildings_);
 }
 
