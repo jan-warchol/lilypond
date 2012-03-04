@@ -459,6 +459,15 @@ Skyline::merge (Skyline const &other)
 {
   assert (sky_ == other.sky_);
 
+  if (other.is_empty ())
+    return;
+
+  if (is_empty ())
+    {
+      buildings_ = other.buildings_;
+      return;
+    }
+
   list<Building> other_bld (other.buildings_);
   list<Building> my_bld;
   my_bld.splice (my_bld.begin (), buildings_);
@@ -629,9 +638,16 @@ Skyline::height (Real airplane) const
 Real
 Skyline::max_height () const
 {
-  Skyline s (-sky_);
-  s.set_minimum_height (0);
-  return sky_ * distance (s);
+  Real ret = -infinity_f;
+
+  list<Building>::const_iterator i;
+  for (i = buildings_.begin (); i != buildings_.end (); ++i)
+    {
+      ret = max (ret, i->height (i->start_));
+      ret = max (ret, i->height (i->end_));
+    }
+
+  return sky_ * ret;
 }
 
 Real
@@ -695,14 +711,11 @@ Skyline::to_drul_array_offset (vector<Drul_array<Offset> > &out, Axis horizon_ax
 Real
 Skyline::left () const
 {
-  Real last_end = -infinity_f;
   for (list<Building>::const_iterator i (buildings_.begin ());
        i != buildings_.end (); i++)
-    {
-      if (i->y_intercept_ > -infinity_f)
-        return last_end;
-      last_end = i->end_;
-    }
+    if (i->y_intercept_ > -infinity_f)
+        return i->start_;
+
   return infinity_f;
 }
 
@@ -711,7 +724,7 @@ Skyline::right () const
 {
   for (list<Building>::const_reverse_iterator i (buildings_.rbegin ());
        i != buildings_.rend (); ++i)
-    if (i->end_ < infinity_f)
+    if (i->y_intercept_ > -infinity_f)
       return i->end_;
 
   return -infinity_f;
