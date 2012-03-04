@@ -57,6 +57,9 @@ private:
   void internal_merge_skyline (list<Building>*, list<Building>*,
                                list<Building> *const result);
   list<Building> internal_build_skyline (list<Building>*);
+  Real internal_distance (Skyline const &, Real horizon_padding, Real *touch_point) const;
+  Real internal_distance (Skyline const &, Real *touch_point) const;
+  void to_drul_array_offset (vector<Drul_array<Offset> > &out, Axis horizon_axis) const;
   void shared_building_constructor (vector<Drul_array<Offset> > const &bldgs, Axis a, Direction sky);
 
   DECLARE_SIMPLE_SMOBS (Skyline);
@@ -71,7 +74,6 @@ public:
   Skyline (Box const &b, Axis a, Direction sky);
 
   vector<Offset> to_points (Axis) const;
-  void to_drul_array_offset (vector<Drul_array<Offset> > &out, Axis horizon_axis) const;
   void merge (Skyline const &);
   void insert (Box const &, Axis);
   void print () const;
@@ -88,16 +90,13 @@ public:
   bool is_empty () const;
   Real left () const;
   Real right () const;
+  Skyline padded (Real horizon_padding) const;
 
   DECLARE_SCHEME_CALLBACK (get_touching_point, (SCM, SCM, SCM));
   DECLARE_SCHEME_CALLBACK (get_distance, (SCM, SCM, SCM));
   DECLARE_SCHEME_CALLBACK (get_max_height, (SCM));
   DECLARE_SCHEME_CALLBACK (get_max_height_position, (SCM));
   DECLARE_SCHEME_CALLBACK (get_height, (SCM, SCM));
-
-protected:
-  Real internal_distance (Skyline const &, Real horizon_padding, Real *touch_point) const;
-  Real internal_distance (Skyline const &, Real *touch_point) const;
 };
 
 extern bool debug_skylines;

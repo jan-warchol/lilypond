@@ -528,9 +528,16 @@ Skyline::internal_distance (Skyline const &other, Real horizon_padding, Real *to
   if (horizon_padding == 0.0)
     return internal_distance (other, touch_point);
 
-  // Build a padded version of myself. Note that it is not necessary to
-  // build a padded version of other, because the same effect can be achieved
-  // just by doubling horizon_padding.
+  // Note that it is not necessary to build a padded version of other,
+  // because the same effect can be achieved just by doubling horizon_padding.
+  Skyline padded_this = padded (horizon_padding);
+  return padded_this.internal_distance (other, touch_point);
+}
+
+
+Skyline
+Skyline::padded (Real horizon_padding) const
+{
   vector<Box> pad_boxes;
   Real last_end = -infinity_f;
   for (list<Building>::const_iterator i = buildings_.begin (); i != buildings_.end (); ++i)
@@ -559,8 +566,7 @@ Skyline::internal_distance (Skyline const &other, Real horizon_padding, Real *to
 
   Skyline padded (pad_boxes, X_AXIS, UP);
   padded.merge (*this);
-
-  return padded.internal_distance (other, touch_point);
+  return padded;
 }
 
 Real
@@ -568,7 +574,6 @@ Skyline::internal_distance (Skyline const &other, Real *touch_point) const
 {
   assert (sky_ == -other.sky_);
 
-  // FIXME: re-add horizon-padding support.
   /*
     For systems, padding is not added at creation time.  Padding is
     added to AxisGroup objects when outside-staff objects are added.
