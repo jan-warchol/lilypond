@@ -50,8 +50,11 @@ Separation_item::set_distance (Item *l, Item *r, Real padding)
                                     Skyline_pair::unsmob (r->get_property ("horizontal-skylines")));
   Skyline right = conditional_skyline (r, l);
   right.merge ((*lines[RIGHT])[LEFT]);
+  Real horizon_padding =
+    robust_scm2double (l->get_property ("skyline-vertical-padding"), 0.0)
+    + robust_scm2double (r->get_property ("skyline-vertical-padding"), 0.0);
 
-  Real dist = padding + (*lines[LEFT])[RIGHT].distance (right);
+  Real dist = padding + (*lines[LEFT])[RIGHT].distance (right, horizon_padding);
   if (dist > 0)
     {
       Rod rod;
@@ -80,8 +83,7 @@ Skyline
 Separation_item::conditional_skyline (Grob *me, Grob *left)
 {
   vector<Box> bs = boxes (me, left);
-  Real horizon_padding = robust_scm2double (me->get_property ("skyline-vertical-padding"), 0.0);
-  return Skyline (bs, horizon_padding, Y_AXIS, LEFT);
+  return Skyline (bs, Y_AXIS, LEFT);
 }
 
 MAKE_SCHEME_CALLBACK (Separation_item, calc_skylines, 1);
@@ -90,8 +92,7 @@ Separation_item::calc_skylines (SCM smob)
 {
   Item *me = unsmob_item (smob);
   vector<Box> bs = boxes (me, 0);
-  Real horizon_padding = robust_scm2double (me->get_property ("skyline-vertical-padding"), 0.0);
-  return Skyline_pair (bs, horizon_padding, Y_AXIS).smobbed_copy ();
+  return Skyline_pair (bs, Y_AXIS).smobbed_copy ();
 }
 
 /* if left is non-NULL, get the boxes corresponding to the

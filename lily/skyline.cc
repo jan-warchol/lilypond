@@ -92,10 +92,10 @@ Building::Building (Real start, Real start_height, Real end_height, Real end)
   precompute (start, start_height, end_height, end);
 }
 
-Building::Building (Box const &b, Real horizon_padding, Axis horizon_axis, Direction sky)
+Building::Building (Box const &b, Axis horizon_axis, Direction sky)
 {
-  Real start = b[horizon_axis][LEFT] - horizon_padding;
-  Real end = b[horizon_axis][RIGHT] + horizon_padding;
+  Real start = b[horizon_axis][LEFT];
+  Real end = b[horizon_axis][RIGHT];
   Real height = sky * b[other_axis (horizon_axis)][sky];
 
   end_ = end;
@@ -144,22 +144,6 @@ Building::leading_part (Real chop)
 {
   assert (chop <= end_);
   end_ = chop;
-}
-
-Building
-Building::sloped_neighbour (Real start, Real horizon_padding, Direction d) const
-{
-  Real x = (d == LEFT) ? start : end_;
-  Real left = x;
-  Real right = x + d * horizon_padding;
-  Real left_height = height (x);
-  Real right_height = left_height - horizon_padding;
-  if (d == LEFT)
-    {
-      swap (left, right);
-      swap (left_height, right_height);
-    }
-  return Building (left, left_height, right_height, right);
 }
 
 static Real
@@ -241,70 +225,30 @@ empty_skyline (list<Building> *const ret)
 }
 
 /*
-  Given Building 'b' with starting wall location 'start', extend each side
-  with a sloped roofline of width 'horizon_padding'; put the skyline in 'ret'
+  Given Building 'b' with starting wall location 'start', build
+  a skyline containing only that building.
 */
 static void
-single_skyline (Building b, Real start, Real horizon_padding, list<Building> *const ret)
+single_skyline (Building b, Real start, list<Building> *const ret)
 {
-  bool sloped_neighbours = horizon_padding > 0 && !isinf (start) && !isinf (b.end_);
-  if (!isinf (b.end_))
-    ret->push_front (Building (b.end_ + horizon_padding, -infinity_f,
-                               -infinity_f, infinity_f));
-  if (sloped_neighbours)
-    ret->push_front (b.sloped_neighbour (start, horizon_padding, RIGHT));
-
   if (b.end_ > start + EPS)
-    ret->push_front (b);
-
-  if (sloped_neighbours)
-    ret->push_front (b.sloped_neighbour (start, horizon_padding, LEFT));
-
-  if (!isinf (start))
-    ret->push_front (Building (-infinity_f, -infinity_f,
-                               -infinity_f, start - horizon_padding));
-}
-
-/*
-  Given Building 'b' with starting wall location 'start', create a plateau on
-  each side represented by horizontal padding in addition to
-  a sloped roofline of width 'horizon_padding'; put the skyline in 'ret'
-*/
-static void
-single_skyline_with_plateau (Building b, Real start, Real horizon_padding, list<Building> *const ret)
-{
-  bool sloped_neighbours = horizon_padding > 0 && !isinf (start) && !isinf (b.end_);
-  if (!isinf (b.end_))
-    ret->push_front (Building (b.end_ + horizon_padding, -infinity_f,
-                               -infinity_f, infinity_f));
-  if (sloped_neighbours)
     {
-      Real y = (b.slope_ * b.end_) + b.y_intercept_;
-      Building plateau (b.end_, y, y, b.end_ + horizon_padding);
-      ret->push_front (plateau.sloped_neighbour (b.end_, horizon_padding, RIGHT));
-      ret->push_front (plateau);
+      ret->push_back (Building (-infinity_f, -infinity_f,
+                                -infinity_f, start));
+      ret->push_front (b);
+      ret->push_back (Building (b.end_, -infinity_f,
+                                -infinity_f, infinity_f));
     }
-
-  if (b.end_ > start + EPS)
-    ret->push_front (b);
-
-  if (sloped_neighbours)
+  else
     {
-      Real y = (b.slope_ * start) + b.y_intercept_;
-      Building plateau (start - horizon_padding, y, y, start);
-      ret->push_front (plateau);
-      ret->push_front (plateau.sloped_neighbour (start - horizon_padding, horizon_padding, LEFT));
+      empty_skyline (ret);
     }
-
-  if (!isinf (start))
-    ret->push_front (Building (-infinity_f, -infinity_f,
-                               -infinity_f, start - horizon_padding));
 }
 
 /* remove a non-overlapping set of boxes from BOXES and build a skyline
    out of them */
 static list<Building>
-non_overlapping_skyline (list<Box> *const boxes, Real horizon_padding, Axis horizon_axis, Direction sky)
+non_overlapping_skyline (list<Box> *const boxes, Axis horizon_axis, Direction sky)
 {
   list<Building> result;
   Real last_end = -infinity_f;
@@ -313,22 +257,16 @@ non_overlapping_skyline (list<Box> *const boxes, Real horizon_padding, Axis hori
     {
       Interval iv = (*i)[horizon_axis];
 
-      if (iv[LEFT] - horizon_padding < last_end)
+      if (iv[LEFT] < last_end)
         {
           i++;
           continue;
         }
 
-      if (iv[LEFT] - horizon_padding > last_end + EPS)
-        result.push_back (Building (last_end, -infinity_f, -infinity_f, iv[LEFT] - 2 * horizon_padding));
+      if (iv[LEFT] > last_end + EPS)
+        result.push_back (Building (last_end, -infinity_f, -infinity_f, iv[LEFT]));
 
-      Building b (*i, horizon_padding, horizon_axis, sky);
-      bool sloped_neighbours = horizon_padding > 0 && !isinf (iv.length ());
-      if (sloped_neighbours)
-        result.push_back (b.sloped_neighbour (iv[LEFT] - horizon_padding, horizon_padding, LEFT));
-      result.push_back (b);
-      if (sloped_neighbours)
-        result.push_back (b.sloped_neighbour (iv[LEFT] - horizon_padding, horizon_padding, RIGHT));
+      Building b (*i, horizon_axis, sky);
 
       list<Box>::iterator j = i++;
       boxes->erase (j);
@@ -342,7 +280,8 @@ non_overlapping_skyline (list<Box> *const boxes, Real horizon_padding, Axis hori
 /* remove a non-overlapping set of boxes from BOXES and build a skyline
    out of them */
 static list<Building>
-non_overlapping_skyline_from_buildings (list<Drul_array<Offset> > *const buildings, Real horizon_padding, Axis horizon_axis, Direction sky)
+non_overlapping_skyline_from_buildings (list<Drul_array<Offset> > *const buildings,
+                                        Axis horizon_axis, Direction sky)
 {
   list<Building> result;
   Building last_building (-infinity_f, -infinity_f, -infinity_f, infinity_f);
@@ -362,39 +301,28 @@ non_overlapping_skyline_from_buildings (list<Drul_array<Offset> > *const buildin
       Real x2 = right[horizon_axis];
       Real y2 = right[other];
 
-      if (last_building.height (x1) >= y1 && last_building.end_ >= x2 && last_building.height (x2) >= y2)
+      // Drop buildings that will obviously have no effect.
+      if (last_building.height (x1) >= y1
+          && last_building.end_ >= x2
+          && last_building.height (x2) >= y2)
         {
           list<Drul_array<Offset> >::iterator j = i++;
           buildings->erase (j);
           continue;
         }
 
-      if (x1 - 2 * horizon_padding < last_end)
+      if (x1 < last_end)
         {
           i++;
           continue;
         }
 
-      if (x1 - 2 * horizon_padding > last_end + EPS)
-        result.push_back (Building (last_end, -infinity_f, -infinity_f, x1 - 2 * horizon_padding));
+      if (x1 > last_end + EPS)
+        result.push_back (Building (last_end, -infinity_f, -infinity_f, x1));
 
       Building b (x1, y1, y2, x2);
-
-      bool sloped_neighbours = horizon_padding > 0 && !isinf (x2 - x1);
-      if (sloped_neighbours)
-        {
-          Building plateau (x1 - horizon_padding, y1, y1, x1);
-          result.push_back (plateau.sloped_neighbour (x1 - horizon_padding, horizon_padding, LEFT));
-          result.push_back (plateau);
-        }
       result.push_back (b);
       last_building = b;
-      if (sloped_neighbours)
-        {
-          Building plateau (x2, y2, y2, x2 + horizon_padding);
-          result.push_back (plateau);
-          result.push_back (plateau.sloped_neighbour (x2, horizon_padding, RIGHT));
-        }
 
       list<Drul_array<Offset> >::iterator j = i++;
       buildings->erase (j);
@@ -440,7 +368,7 @@ public:
 };
 
 list<Building>
-Skyline::internal_build_skyline (list<Box> *boxes, Real horizon_padding, Axis horizon_axis, Direction sky)
+Skyline::internal_build_skyline (list<Box> *boxes, Axis horizon_axis, Direction sky)
 {
   vsize size = boxes->size ();
 
@@ -453,16 +381,16 @@ Skyline::internal_build_skyline (list<Box> *boxes, Real horizon_padding, Axis ho
   else if (size == 1)
     {
       list<Building> result;
-      single_skyline (Building (boxes->front (), horizon_padding, horizon_axis, sky),
-                      boxes->front ()[horizon_axis][LEFT] - horizon_padding,
-                      horizon_padding, &result);
+      single_skyline (Building (boxes->front (), horizon_axis, sky),
+                      boxes->front ()[horizon_axis][LEFT],
+                      &result);
       return result;
     }
 
   deque<list<Building> > partials;
   boxes->sort (LessThanBox (horizon_axis));
   while (!boxes->empty ())
-    partials.push_back (non_overlapping_skyline (boxes, horizon_padding, horizon_axis, sky));
+    partials.push_back (non_overlapping_skyline (boxes, horizon_axis, sky));
 
   /* we'd like to say while (partials->size () > 1) but that's O (n).
      Instead, we exit in the middle of the loop */
@@ -484,7 +412,7 @@ Skyline::internal_build_skyline (list<Box> *boxes, Real horizon_padding, Axis ho
 }
 
 list<Building>
-Skyline::internal_build_skyline_from_buildings (list<Drul_array<Offset> > *buildings, Real horizon_padding, Axis horizon_axis, Direction sky)
+Skyline::internal_build_skyline_from_buildings (list<Drul_array<Offset> > *buildings, Axis horizon_axis, Direction sky)
 {
   vsize size = buildings->size ();
 
@@ -501,9 +429,9 @@ Skyline::internal_build_skyline_from_buildings (list<Drul_array<Offset> > *build
                   buildings->front ()[LEFT][other_axis (horizon_axis)],
                   buildings->front ()[RIGHT][other_axis (horizon_axis)],
                   buildings->front ()[RIGHT][horizon_axis]);
-      single_skyline_with_plateau (b,
-                                   buildings->front ()[LEFT][horizon_axis] - horizon_padding,
-                                   horizon_padding, &result);
+      single_skyline (b,
+                      buildings->front ()[LEFT][horizon_axis],
+                      &result);
       return result;
     }
 
@@ -511,7 +439,7 @@ Skyline::internal_build_skyline_from_buildings (list<Drul_array<Offset> > *build
   buildings->sort (LessThanBuilding (horizon_axis));
 
   while (!buildings->empty ())
-    partials.push_back (non_overlapping_skyline_from_buildings (buildings, horizon_padding, horizon_axis, sky));
+    partials.push_back (non_overlapping_skyline_from_buildings (buildings, horizon_axis, sky));
 
   /* we'd like to say while (partials->size () > 1) but that's O (n).
      Instead, we exit in the middle of the loop */
@@ -556,42 +484,12 @@ Skyline::Skyline (Direction sky)
   empty_skyline (&buildings_);
 }
 
-Skyline::Skyline (Skyline const &src, Real horizon_padding, Axis /*a*/)
-{
-  /*
-     We extract boxes from the skyline, then build a new skyline from
-     the boxes.
-     A box is created for every horizontal portion of the skyline
-     Because skylines are defined positive, and then inverted if they
-     are to be down-facing, we create the new skyline in the UP
-     direction, then give it the down direction if needed.
-  */
-  Real start = -infinity_f;
-  list<Box> boxes;
-
-  // establish a baseline box
-  // FIXME: This has hardcoded logic, assuming a == X_AXIS!
-  boxes.push_back (Box (Interval (-infinity_f, infinity_f),
-                        Interval (0, 0)));
-  list<Building>::const_iterator end = src.buildings_.end ();
-  for (list<Building>::const_iterator i = src.buildings_.begin (); i != end; start = i->end_, i++)
-    if ((i->slope_ == 0) && !isinf (i->y_intercept_))
-      boxes.push_back (Box (Interval (start, i->end_),
-                            Interval (-infinity_f, i->y_intercept_)));
-  buildings_ = internal_build_skyline (&boxes, horizon_padding, X_AXIS, UP);
-  sky_ = src.sky_;
-}
-
 /*
-  build skyline from a set of boxes. If horizon_padding > 0, expand all the boxes
-  by that amount and add 45-degree sloped boxes to the edges of each box (of
-  width horizon_padding). That is, the total amount of horizontal expansion is
-  horizon_padding*4, half of which is sloped and half of which is flat.
+  Build skyline from a set of boxes.
 
-  Boxes should have fatness in the horizon_axis (after they are expanded by
-  horizon_padding), otherwise they are ignored.
+  Boxes should have fatness in the horizon_axis, otherwise they are ignored.
  */
-Skyline::Skyline (vector<Box> const &boxes, Real horizon_padding, Axis horizon_axis, Direction sky)
+Skyline::Skyline (vector<Box> const &boxes, Axis horizon_axis, Direction sky)
 {
   list<Box> filtered_boxes;
   sky_ = sky;
@@ -600,25 +498,21 @@ Skyline::Skyline (vector<Box> const &boxes, Real horizon_padding, Axis horizon_a
   for (vsize i = 0; i < boxes.size (); i++)
     {
       Interval iv = boxes[i][horizon_axis];
-      iv.widen (horizon_padding);
       if (iv.length () > EPS && !boxes[i][vert_axis].is_empty ())
         filtered_boxes.push_front (boxes[i]);
     }
 
-  buildings_ = internal_build_skyline (&filtered_boxes, horizon_padding, horizon_axis, sky);
+  buildings_ = internal_build_skyline (&filtered_boxes, horizon_axis, sky);
 }
 
 /*
-  build skyline from a set of buildings. If horizon_padding > 0, expand all the boxes
-  by that amount and add 45-degree sloped boxes to the edges of each box (of
-  width horizon_padding). That is, the total amount of horizontal expansion is
-  horizon_padding*4, half of which is sloped and half of which is flat.
+  build skyline from a set of buildings.
 
-  Buildings should have fatness in the horizon_axis (after they are expanded by
-  horizon_padding), otherwise they are ignored.
+  Buildings should have fatness in the horizon_axis, otherwise they are ignored.
  */
 void
-Skyline::shared_building_constructor (vector<Drul_array<Offset> > const &buildings, Real horizon_padding, Axis horizon_axis, Direction sky)
+Skyline::shared_building_constructor (vector<Drul_array<Offset> > const &buildings,
+                                      Axis horizon_axis, Direction sky)
 {
   list<Drul_array<Offset> > filtered_buildings;
   sky_ = sky;
@@ -627,7 +521,6 @@ Skyline::shared_building_constructor (vector<Drul_array<Offset> > const &buildin
     {
       Interval iv = Interval (buildings[i][LEFT][horizon_axis], buildings[i][RIGHT][horizon_axis]);
       Interval other = Interval (buildings[i][LEFT][other_axis (horizon_axis)], buildings[i][RIGHT][other_axis (horizon_axis)]);
-      iv.widen (horizon_padding);
       if (iv.length () > EPS)
         filtered_buildings.push_front (buildings[i]);
     }
@@ -640,16 +533,16 @@ Skyline::shared_building_constructor (vector<Drul_array<Offset> > const &buildin
       while (flip (&d) != LEFT);
     }
 
-  buildings_ = internal_build_skyline_from_buildings (&filtered_buildings, horizon_padding, horizon_axis, sky);
+  buildings_ = internal_build_skyline_from_buildings (&filtered_buildings, horizon_axis, sky);
 
 }
 
-Skyline::Skyline (vector<Drul_array<Offset> > const &buildings, Real horizon_padding, Axis horizon_axis, Direction sky)
+Skyline::Skyline (vector<Drul_array<Offset> > const &buildings, Axis horizon_axis, Direction sky)
 {
-  shared_building_constructor (buildings, horizon_padding, horizon_axis, sky);
+  shared_building_constructor (buildings, horizon_axis, sky);
 }
 
-Skyline::Skyline (vector<Skyline_pair *> const &skypairs, Real horizon_padding, Axis horizon_axis, Direction sky)
+Skyline::Skyline (vector<Skyline_pair *> const &skypairs, Axis horizon_axis, Direction sky)
 {
   vector<Drul_array<Offset> > buildings;
   for (vsize i = 0; i < skypairs.size (); i++)
@@ -660,15 +553,14 @@ Skyline::Skyline (vector<Skyline_pair *> const &skypairs, Real horizon_padding, 
       (*skypairs[i])[sky].to_drul_array_offset (buildings, horizon_axis);
     }
 
-  shared_building_constructor (buildings, horizon_padding, horizon_axis, sky);
+  shared_building_constructor (buildings, horizon_axis, sky);
 }
 
-Skyline::Skyline (Box const &b, Real horizon_padding, Axis horizon_axis, Direction sky)
+Skyline::Skyline (Box const &b, Axis horizon_axis, Direction sky)
 {
   sky_ = sky;
-  Building front (b, horizon_padding, horizon_axis, sky);
-  single_skyline (front, b[horizon_axis][LEFT] - horizon_padding,
-                  horizon_padding, &buildings_);
+  Building front (b, horizon_axis, sky);
+  single_skyline (front, b[horizon_axis][LEFT], &buildings_);
 }
 
 void
@@ -683,7 +575,7 @@ Skyline::merge (Skyline const &other)
 }
 
 void
-Skyline::insert (Box const &b, Real horizon_padding, Axis a)
+Skyline::insert (Box const &b, Axis a)
 {
   list<Building> other_bld;
   list<Building> my_bld;
@@ -697,13 +589,11 @@ Skyline::insert (Box const &b, Real horizon_padding, Axis a)
 
   /* do the same filtering as in Skyline (vector<Box> const&, etc.) */
   Interval iv = b[a];
-  iv.widen (horizon_padding);
   if (iv.length () <= EPS || b[other_axis (a)].is_empty ())
     return;
 
   my_bld.splice (my_bld.begin (), buildings_);
-  single_skyline (Building (b, horizon_padding, a, sky_), b[a][LEFT] - horizon_padding,
-                  horizon_padding, &other_bld);
+  single_skyline (Building (b, a, sky_), b[a][LEFT], &other_bld);
   internal_merge_skyline (&other_bld, &my_bld, &buildings_);
 }
 
@@ -744,32 +634,64 @@ Skyline::touching_point (Skyline const &other, Real horizon_padding) const
 Real
 Skyline::internal_distance (Skyline const &other, Real horizon_padding, Real *touch_point) const
 {
+  if (horizon_padding == 0.0)
+    return internal_distance (other, touch_point);
+
+  // Build a padded version of myself. Note that it is not necessary to
+  // build a padded version of other, because the same effect can be achieved
+  // just by doubling horizon_padding.
+  vector<Box> pad_boxes;
+  Real last_end = -infinity_f;
+  for (list<Building>::const_iterator i = buildings_.begin (); i != buildings_.end (); ++i)
+    {
+      if (last_end > -infinity_f)
+        {
+          // Add the box that pads the left side of the current building.
+          Real start = last_end - horizon_padding;
+          Real height = i->height (last_end);
+          if (height > -infinity_f)
+            pad_boxes.push_back (Box (Interval (start, last_end),
+                                      Interval (height, height - 1)));
+        }
+
+      if (i->end_ < infinity_f)
+        {
+          // Add the box that pads the right side of the current building.
+          Real start = i->end_;
+          Real end = start + horizon_padding;
+          Real height = i->height (start);
+          if (height > -infinity_f)
+            pad_boxes.push_back (Box (Interval (start, end),
+                                      Interval (height, height - 1)));
+        }
+    }
+
+  Skyline padded (pad_boxes, X_AXIS, UP);
+  padded.merge (*this);
+
+  return padded.internal_distance (other, touch_point);
+}
+
+Real
+Skyline::internal_distance (Skyline const &other, Real *touch_point) const
+{
   assert (sky_ == -other.sky_);
 
-  Skyline const *padded_this = this;
-  Skyline const *padded_other = &other;
-  bool created_tmp_skylines = false;
-
+  // FIXME: re-add horizon-padding support.
   /*
     For systems, padding is not added at creation time.  Padding is
     added to AxisGroup objects when outside-staff objects are added.
     Thus, when we want to place systems with horizontal padding,
     we do it at distance calculation time.
   */
-  if (horizon_padding != 0.0)
-    {
-      padded_this = new Skyline (*padded_this, horizon_padding, X_AXIS);
-      padded_other = new Skyline (*padded_other, horizon_padding, X_AXIS);
-      created_tmp_skylines = true;
-    }
 
-  list<Building>::const_iterator i = padded_this->buildings_.begin ();
-  list<Building>::const_iterator j = padded_other->buildings_.begin ();
+  list<Building>::const_iterator i = buildings_.begin ();
+  list<Building>::const_iterator j = other.buildings_.begin ();
 
   Real dist = -infinity_f;
   Real start = -infinity_f;
   Real touch = -infinity_f;
-  while (i != padded_this->buildings_.end () && j != padded_other->buildings_.end ())
+  while (i != buildings_.end () && j != other.buildings_.end ())
     {
       Real end = min (i->end_, j->end_);
       Real start_dist = i->height (start) + j->height (start);
@@ -786,12 +708,6 @@ Skyline::internal_distance (Skyline const &other, Real horizon_padding, Real *to
       else
         j++;
       start = end;
-    }
-
-  if (created_tmp_skylines)
-    {
-      delete padded_this;
-      delete padded_other;
     }
 
   *touch_point = touch;

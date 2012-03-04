@@ -382,7 +382,7 @@ Slur::vertical_skylines (SCM smob)
   vector<Box> boxes;
 
   if (!me)
-    return Skyline_pair (boxes, 0.0, X_AXIS).smobbed_copy ();
+    return Skyline_pair (boxes, X_AXIS).smobbed_copy ();
 
   Bezier curve = Slur::get_curve (me);
   vsize box_count = robust_scm2vsize (me->get_property ("skyline-quantizing"), 10);
@@ -394,7 +394,7 @@ Slur::vertical_skylines (SCM smob)
       boxes.push_back (b);
     }
 
-  return Skyline_pair (boxes, 0.0, X_AXIS).smobbed_copy ();
+  return Skyline_pair (boxes, X_AXIS).smobbed_copy ();
 }
 
 /*

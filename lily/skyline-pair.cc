@@ -28,23 +28,23 @@ Skyline_pair::Skyline_pair ()
 {
 }
 
-Skyline_pair::Skyline_pair (vector<Box> const &boxes, Real padding, Axis a)
-  : skylines_ (Skyline (boxes, padding, a, DOWN), Skyline (boxes, padding, a, UP))
+Skyline_pair::Skyline_pair (vector<Box> const &boxes, Axis a)
+  : skylines_ (Skyline (boxes, a, DOWN), Skyline (boxes, a, UP))
 {
 }
 
-Skyline_pair::Skyline_pair (vector<Drul_array<Offset> > const &buildings, Real padding, Axis a)
-  : skylines_ (Skyline (buildings, padding, a, DOWN), Skyline (buildings, padding, a, UP))
+Skyline_pair::Skyline_pair (vector<Drul_array<Offset> > const &buildings, Axis a)
+  : skylines_ (Skyline (buildings, a, DOWN), Skyline (buildings, a, UP))
 {
 }
 
-Skyline_pair::Skyline_pair (vector<Skyline_pair *> const &skypairs, Real padding, Axis a)
-  : skylines_ (Skyline (skypairs, padding, a, DOWN), Skyline (skypairs, padding, a, UP))
+Skyline_pair::Skyline_pair (vector<Skyline_pair *> const &skypairs, Axis a)
+  : skylines_ (Skyline (skypairs, a, DOWN), Skyline (skypairs, a, UP))
 {
 }
 
-Skyline_pair::Skyline_pair (Box const &b, Real padding, Axis a)
-  : skylines_ (Skyline (b, padding, a, DOWN), Skyline (b, padding, a, UP))
+Skyline_pair::Skyline_pair (Box const &b, Axis a)
+  : skylines_ (Skyline (b, a, DOWN), Skyline (b, a, UP))
 {
 }
 
@@ -63,10 +63,10 @@ Skyline_pair::shift (Real r)
 }
 
 void
-Skyline_pair::insert (Box const &b, Real padding, Axis a)
+Skyline_pair::insert (Box const &b, Axis a)
 {
-  skylines_[UP].insert (b, padding, a);
-  skylines_[DOWN].insert (b, padding, a);
+  skylines_[UP].insert (b, a);
+  skylines_[DOWN].insert (b, a);
 }
 
 Real

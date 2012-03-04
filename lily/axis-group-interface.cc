@@ -620,10 +620,9 @@ add_interior_skylines (Grob *me, Grob *x_common, Grob *y_common, vector<Skyline_
         return;
       if (maybe_pair->is_empty ())
         return;
-      Skyline_pair *s = new Skyline_pair (*maybe_pair);
-      s->shift (me->relative_coordinate (x_common, X_AXIS));
-      s->raise (me->relative_coordinate (y_common, Y_AXIS));
-      skylines->push_back (s);
+      skylines->push_back (new Skyline_pair (*maybe_pair));
+      skylines->back ()->shift (me->relative_coordinate (x_common, X_AXIS));
+      skylines->back ()->raise (me->relative_coordinate (y_common, Y_AXIS));
     }
 }
 
@@ -677,36 +676,15 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
           Skyline other;
           bool do_add = false;
           bool before_last_affected_position = false;
-          Skyline_pair *orig = Skyline_pair::unsmob (elements[i]->get_property ("vertical-skylines"));
+          Skyline_pair *elt_skylines = new Skyline_pair(*Skyline_pair::unsmob (elements[i]->get_property ("vertical-skylines")));
 
-          /*
-            we need two skyline pairs.
-            one, pair, has padding built in and is used for spacing.
-            the other, to_pass_to_constructor, has no padding and is used to
-            construct the actual skyline.  this is so that skylines don't
-            get double padded with outside-staff-horizontal-padding and
-            the padding of the axis group or system
-          */
-
-          Skyline_pair *pair = 0;
-          Skyline_pair *to_pass_to_constructor = 0;
-          do_add = !(*orig).is_empty ();
-          bool use_separate_constructor_skyline = horizon_padding != 0;
+          do_add = !elt_skylines->is_empty ();
           if (do_add)
             {
-              vector<Skyline_pair *> construct_from_me;
-              construct_from_me.push_back (orig);
-              pair = new Skyline_pair (construct_from_me, horizon_padding, X_AXIS);
-              pair->shift (elements[i]->relative_coordinate (x_common, X_AXIS));
-              pair->raise (elements[i]->relative_coordinate (y_common, Y_AXIS));
-              if (use_separate_constructor_skyline)
-                {
-                  to_pass_to_constructor = new Skyline_pair (construct_from_me, 0.0, X_AXIS);
-                  to_pass_to_constructor->shift (elements[i]->relative_coordinate (x_common, X_AXIS));
-                  to_pass_to_constructor->raise (elements[i]->relative_coordinate (y_common, Y_AXIS));
-                }
+              elt_skylines->shift (elements[i]->relative_coordinate (x_common, X_AXIS));
+              elt_skylines->raise (elements[i]->relative_coordinate (y_common, Y_AXIS));
             }
-          before_last_affected_position = !do_add ? false : (*pair)[-dir].left () - 2 * horizon_padding < last_affected_position[dir];
+          before_last_affected_position = !do_add ? false : (*elt_skylines)[-dir].left () - 2 * horizon_padding < last_affected_position[dir];
 
           if (before_last_affected_position)
             continue;
@@ -725,19 +703,17 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
           if (do_add)
             {
               Real padding = robust_scm2double (elements[i]->get_property ("outside-staff-padding"), 0.5);
-              Real dist = (*skylines)[dir].distance ((*pair)[-dir]) + padding;
+              Real dist = (*skylines)[dir].distance ((*elt_skylines)[-dir], horizon_padding) + padding;
 
               if (dist > 0)
                 {
-                  pair->raise (dir * dist);
-                  if (use_separate_constructor_skyline)
-                    to_pass_to_constructor->raise (dir * dist);
+                  elt_skylines->raise (dir * dist);
                   elements[i]->translate_axis (dir * dist, Y_AXIS);
                 }
 
-              to_constructor.push_back (use_separate_constructor_skyline ? to_pass_to_constructor : pair);
+              to_constructor.push_back (elt_skylines);
               elements[i]->set_property ("outside-staff-priority", SCM_BOOL_F);
-              last_affected_position[dir] = pair->right ();
+              last_affected_position[dir] = elt_skylines->right ();
               other.clear ();
             }
           // if a grob previously had an outside staff parent but no longer does,
@@ -749,12 +725,8 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
             Ugh: quadratic. --hwn
            */
           elements.erase (elements.begin () + i);
-          skylines->merge (Skyline_pair (to_constructor, 0.0, X_AXIS));
-          for (vsize i = 0; i < to_constructor.size (); i++)
-            delete to_constructor[i];
-          if (use_separate_constructor_skyline)
-            delete pair;
-          to_constructor.resize (0);
+          skylines->merge (Skyline_pair (to_constructor, X_AXIS));
+          to_constructor.clear ();
         }
     }
 }
@@ -822,7 +794,7 @@ Axis_group_interface::skyline_spacing (Grob *me, vector<Grob *> elements)
         riders.push_back (elements[i]);
     }
 
-  Skyline_pair skylines (to_constructor, 0.0, X_AXIS);
+  Skyline_pair skylines (to_constructor, X_AXIS);
   for (vsize i = 0; i < to_constructor.size (); i++)
     delete to_constructor[i];
 
@@ -854,14 +826,7 @@ Axis_group_interface::skyline_spacing (Grob *me, vector<Grob *> elements)
       riders[j]->programming_error ("Vertical skylines will not be high enough.");
 
   skylines.shift (-me->relative_coordinate (x_common, X_AXIS));
-  Real pad = robust_scm2double (me->get_property ("skyline-horizontal-padding"), 0.0);
 
-  if (pad > 0.0)
-    {
-      vector<Skyline_pair *> temp;
-      temp.push_back (&skylines);
-      return Skyline_pair (temp, pad, X_AXIS);
-    }
   return skylines;
 }
 
