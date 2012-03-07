@@ -351,8 +351,6 @@ Pango_font::pango_item_string_stencil (PangoGlyphItem const *glyph_item) const
                                                  ps_name,
                                                  face_index);
 
-      pango_fc_font_unlock_face (fcfont);
-
       SCM expr = scm_list_n (ly_symbol2scm ("glyph-string"),
                              self_scm (),
                              ly_string2scm (ps_name),

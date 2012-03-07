@@ -785,6 +785,7 @@
 	(self-alignment-X . ,CENTER)
 	(self-alignment-Y . ,CENTER)
 	(stencil . ,ly:text-interface::print)
+	(horizontal-skylines . ,ly:grob::horizontal-skylines-from-stencil)
 	(vertical-skylines . ,ly:grob::vertical-skylines-from-stencil)
 	(X-offset . ,ly:self-alignment-interface::x-aligned-on-self)
 	(Y-offset . ,ly:self-alignment-interface::y-aligned-on-self)
@@ -2242,6 +2243,7 @@
 	(slur-padding . 0.5)
 	(staff-padding . 0.5)
 	(stencil . ,ly:text-interface::print)
+	(horizontal-skylines . ,ly:grob::horizontal-skylines-from-stencil)
 	(vertical-skylines . ,ly:grob::vertical-skylines-from-stencil)
 	;; todo: add X self alignment?
 	(X-offset . ,ly:self-alignment-interface::x-aligned-on-self)

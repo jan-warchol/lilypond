@@ -81,6 +81,8 @@ Grob::Grob (SCM basicprops)
     set_property ("Y-extent", Grob::stencil_height_proc);
   if (get_property_data ("vertical-skylines") == SCM_EOL)
     set_property ("vertical-skylines", Grob::simple_vertical_skylines_from_stencil_proc);
+  if (get_property_data ("horizontal-skylines") == SCM_EOL)
+    set_property ("horizontal-skylines", Grob::simple_horizontal_skylines_from_stencil_proc);
 }
 
 Grob::Grob (Grob const &s)
@@ -802,6 +804,7 @@ ADD_INTERFACE (Grob,
                "extra-Y-extent "
                "extra-offset "
                "forced-spacing "
+               "horizontal-skylines "
                "interfaces "
                "layer "
                "meta "

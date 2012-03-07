@@ -80,8 +80,13 @@ public:
   void print_points () const;
   void raise (Real);
   void shift (Real);
+  void invert ();
   Real distance (Skyline const &, Real horizon_padding = 0) const;
   Real touching_point (Skyline const &, Real horizon_padding = 0) const;
+  Real shift_to_avoid (Skyline const &other, Real, Direction d, Real horizon_padding = 0);
+  Real raise_to_avoid (Skyline const &other, Real, Direction d, Real horizon_padding = 0);
+  Drul_array<Real> shifts_to_avoid_intersection (Skyline const &, Real horizon_padding = 0) const;
+  Interval raises_to_avoid_intersection (Skyline const &, Real horizon_padding = 0) const;
   Real height (Real airplane) const;
   Real max_height () const;
   Real max_height_position () const;

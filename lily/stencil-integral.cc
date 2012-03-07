@@ -968,9 +968,8 @@ stencil_traverser (PangoMatrix trans, SCM expr)
   return vector<Transform_matrix_and_expression> ();
 }
 
-MAKE_SCHEME_CALLBACK (Grob, simple_vertical_skylines_from_stencil, 1);
 SCM
-Grob::simple_vertical_skylines_from_stencil (SCM smob)
+Grob::internal_simple_skylines_from_stencil (SCM smob, Axis a)
 {
   Grob *me = unsmob_grob (smob);
 
@@ -987,12 +986,26 @@ Grob::simple_vertical_skylines_from_stencil (SCM smob)
 
   vector<Box> boxes;
   boxes.push_back (Box (s->extent (X_AXIS), s->extent (Y_AXIS)));
-  Real pad = robust_scm2double (me->get_property ("skyline-horizontal-padding"), 0.0);
-  return Skyline_pair (boxes, pad, X_AXIS).smobbed_copy ();
+  Real pad = robust_scm2double (me->get_property (a == X_AXIS ? "skyline-horizontal-padding" : "skyline-vertical-padding"), 0.0);
+  return Skyline_pair (boxes, pad, a).smobbed_copy ();
+}
+
+MAKE_SCHEME_CALLBACK (Grob, simple_vertical_skylines_from_stencil, 1);
+SCM
+Grob::simple_vertical_skylines_from_stencil (SCM smob)
+{
+  return internal_simple_skylines_from_stencil (smob, X_AXIS);
+}
+
+MAKE_SCHEME_CALLBACK (Grob, simple_horizontal_skylines_from_stencil, 1);
+SCM
+Grob::simple_horizontal_skylines_from_stencil (SCM smob)
+{
+  return internal_simple_skylines_from_stencil (smob, Y_AXIS);
 }
 
 SCM
-Stencil::vertical_skylines_from_stencil (SCM sten, Real pad)
+Stencil::skylines_from_stencil (SCM sten, Real pad, Axis a)
 {
   Stencil *s = unsmob_stencil (sten);
   if (!s)
@@ -1010,8 +1023,8 @@ Stencil::vertical_skylines_from_stencil (SCM sten, Real pad)
   if (!boxes.size () && !buildings.size ())
     boxes.push_back (Box (s->extent (X_AXIS), s->extent (Y_AXIS)));
 
-  Skyline_pair out (boxes, pad, X_AXIS);
-  out.merge (Skyline_pair (buildings, pad, X_AXIS));
+  Skyline_pair out (boxes, pad, a);
+  out.merge (Skyline_pair (buildings, pad, a));
 
   return out.smobbed_copy ();
 }
@@ -1023,14 +1036,24 @@ Grob::vertical_skylines_from_stencil (SCM smob)
   Grob *me = unsmob_grob (smob);
 
   Real pad = robust_scm2double (me->get_property ("skyline-horizontal-padding"), 0.0);
-  SCM out = Stencil::vertical_skylines_from_stencil (me->get_property ("stencil"), pad);
+  SCM out = Stencil::skylines_from_stencil (me->get_property ("stencil"), pad, X_AXIS);
 
   return out;
 }
 
-MAKE_SCHEME_CALLBACK (Grob, vertical_skylines_from_element_stencils, 1);
+MAKE_SCHEME_CALLBACK (Grob, horizontal_skylines_from_stencil, 1);
 SCM
-Grob::vertical_skylines_from_element_stencils (SCM smob)
+Grob::horizontal_skylines_from_stencil (SCM smob)
+{
+  Grob *me = unsmob_grob (smob);
+
+  SCM out = Stencil::skylines_from_stencil (me->get_property ("stencil"), 0.0, Y_AXIS);
+
+  return out;
+}
+
+SCM
+Grob::internal_skylines_from_element_stencils (SCM smob, Axis a)
 {
   Grob *me = unsmob_grob (smob);
 
@@ -1049,7 +1072,7 @@ Grob::vertical_skylines_from_element_stencils (SCM smob)
   Skyline_pair res;
   for (vsize i = 0; i < elts.size (); i++)
     {
-      Skyline_pair *skyp = Skyline_pair::unsmob (elts[i]->get_property ("vertical-skylines"));
+      Skyline_pair *skyp = Skyline_pair::unsmob (elts[i]->get_property (a == X_AXIS ? "vertical-skylines" : "horizontal-skylines"));
       if (skyp)
         {
           /*
@@ -1063,4 +1086,18 @@ Grob::vertical_skylines_from_element_stencils (SCM smob)
         }
     }
   return res.smobbed_copy ();
+}
+
+MAKE_SCHEME_CALLBACK (Grob, vertical_skylines_from_element_stencils, 1);
+SCM
+Grob::vertical_skylines_from_element_stencils (SCM smob)
+{
+  return internal_skylines_from_element_stencils (smob, X_AXIS);
+}
+
+MAKE_SCHEME_CALLBACK (Grob, horizontal_skylines_from_element_stencils, 1);
+SCM
+Grob::horizontal_skylines_from_element_stencils (SCM smob)
+{
+  return internal_skylines_from_element_stencils (smob, Y_AXIS);
 }

@@ -72,6 +72,9 @@ public:
   DECLARE_SCHEME_CALLBACK (simple_vertical_skylines_from_stencil, (SCM smob));
   DECLARE_SCHEME_CALLBACK (vertical_skylines_from_stencil, (SCM smob));
   DECLARE_SCHEME_CALLBACK (vertical_skylines_from_element_stencils, (SCM smob));
+  DECLARE_SCHEME_CALLBACK (simple_horizontal_skylines_from_stencil, (SCM smob));
+  DECLARE_SCHEME_CALLBACK (horizontal_skylines_from_stencil, (SCM smob));
+  DECLARE_SCHEME_CALLBACK (horizontal_skylines_from_element_stencils, (SCM smob));
 
   /* R/O access */
   Output_def *layout () const { return layout_; }
@@ -151,11 +154,13 @@ public:
   static bool pure_vertical_less (Grob *g1, Grob *g2);
   static int get_vertical_axis_group_index (Grob *g);
 
-  /* vertical skylines */
+  /* skylines */
   virtual Interval_t<int> spanned_rank_interval () const;
   virtual bool pure_is_visible (int start, int end) const;
   bool check_cross_staff (Grob *common);
   static bool less (Grob *g1, Grob *g2);
+  static SCM internal_simple_skylines_from_stencil (SCM, Axis);
+  static SCM internal_skylines_from_element_stencils (SCM, Axis);
 };
 
 /* smob utilities */

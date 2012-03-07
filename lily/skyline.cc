@@ -798,6 +798,206 @@ Skyline::internal_distance (Skyline const &other, Real horizon_padding, Real *to
   return dist;
 }
 
+
+// changes the direction that the skyline is pointing
+void
+Skyline::invert ()
+{
+  list<Building>::iterator i;
+  for (i = buildings_.begin (); i != buildings_.end (); i++)
+    if (!isinf (i->y_intercept_))
+      {
+        i->y_intercept_ *= -1;
+        i->slope_ *= -1;
+      }
+
+  sky_ = -sky_;
+}
+
+Real
+Skyline::shift_to_avoid (Skyline const &other, Real other_axis_padding, Direction d, Real horizon_padding)
+{
+  Interval dirty (0,0);
+  Real tally = 0.0;
+  do
+    {
+      dirty = shifts_to_avoid_intersection (other, horizon_padding);
+      assert (dirty[d] != 0.0);
+      if (!isinf (dirty[d]))
+        {
+          raise (dirty[d]);
+          tally += dirty[d];
+          if (other_axis_padding > 0.0)
+            {
+              shift (other_axis_padding * d);
+              tally += other_axis_padding * d;
+            }
+        }
+    }
+  while (!isinf (dirty[LEFT]) && !isinf (dirty[RIGHT]));
+  return tally;
+}
+
+Real
+Skyline::raise_to_avoid (Skyline const &other, Real other_axis_padding, Direction d, Real horizon_padding)
+{
+  Interval dirty;
+  Real tally = 0.0;
+  do
+    {
+      dirty = raises_to_avoid_intersection (other, horizon_padding);
+      assert (dirty[d] != 0.0);
+      if (!isinf (dirty[d]))
+        {
+          raise (dirty[d]);
+          tally = dirty[d];
+          if (other_axis_padding > 0.0)
+            {
+              raise (other_axis_padding * d);
+              tally += other_axis_padding * d;
+            }
+        }
+    }
+  while (!isinf (dirty[LEFT]) && !isinf (dirty[RIGHT]));
+  return tally;
+}
+
+void
+dispose_of_tmp_skylines (Skyline const *foo, Skyline const *bar)
+{
+  delete foo;
+  delete bar;
+}
+
+Drul_array<Real>
+Skyline::shifts_to_avoid_intersection (Skyline const &other, Real horizon_padding) const
+{
+  assert (sky_ == -other.sky_);
+
+  Skyline const *padded_this = this;
+  Skyline const *padded_other = &other;
+  bool created_tmp_skylines = false;
+
+  /*
+    For systems, padding is not added at creation time.  Padding is
+    added to AxisGroup objects when outside-staff objects are added.
+    Thus, when we want to place systems with horizontal padding,
+    we do it at distance calculation time.
+  */
+  if (horizon_padding != 0.0)
+    {
+      padded_this = new Skyline (*padded_this, horizon_padding, X_AXIS);
+      padded_other = new Skyline (*padded_other, horizon_padding, X_AXIS);
+      created_tmp_skylines = true;
+    }
+
+  list<Building>::const_iterator i = padded_this->buildings_.begin ();
+  list<Building>::const_iterator j = padded_other->buildings_.begin ();
+
+  Drul_array<bool> has_on_side (false, false);
+  Real start = -infinity_f;
+  while (i != padded_this->buildings_.end () && j != padded_other->buildings_.end ())
+    {
+      Real end = min (i->end_, j->end_);
+      Real start_dist = i->height (start) + j->height (start);
+      Real end_dist = i->height (end) + j->height (end);
+      const Direction sign_start_dist = Direction (sign (start_dist));
+      const Direction sign_end_dist = Direction (sign (end_dist));
+
+      if (!isinf (start_dist)) // if start_dist is inf, end_dist will be too
+        {
+          has_on_side[Direction (sign_start_dist)] = true;
+          // Heuristic that guarantees intersection over the whole interval
+          if (has_on_side[DOWN] && has_on_side[UP] && (sign_start_dist == sign_end_dist))
+            {
+              if (created_tmp_skylines)
+                dispose_of_tmp_skylines (padded_this, padded_other);
+              return Drul_array<Real> (-(end - start), (end - start));
+            }
+          has_on_side[Direction (sign_end_dist)] = true;
+          // An intersection must happen here
+          if (has_on_side[DOWN] && has_on_side[UP])
+            {
+              Real dist_slope = (end_dist - start_dist) / (end - start);
+              Real dist_y_intercept = start_dist - dist_slope * start;
+              Real zero_dist_pos = -dist_y_intercept / dist_slope;
+              if (created_tmp_skylines)
+                dispose_of_tmp_skylines (padded_this, padded_other);
+              return Drul_array<Real> (-(zero_dist_pos - start), end - zero_dist_pos);
+            }
+        }
+
+      if (i->end_ <= j->end_)
+        i++;
+      else
+        j++;
+      start = end;
+    }
+
+  if (created_tmp_skylines)
+    dispose_of_tmp_skylines (padded_this, padded_other);
+
+  return Drul_array<Real> (infinity_f, -infinity_f);
+}
+
+Interval
+Skyline::raises_to_avoid_intersection (Skyline const &other, Real horizon_padding) const
+{
+  assert (sky_ == -other.sky_);
+
+  Skyline const *padded_this = this;
+  Skyline const *padded_other = &other;
+  bool created_tmp_skylines = false;
+
+  /*
+    For systems, padding is not added at creation time.  Padding is
+    added to AxisGroup objects when outside-staff objects are added.
+    Thus, when we want to place systems with horizontal padding,
+    we do it at distance calculation time.
+  */
+  if (horizon_padding != 0.0)
+    {
+      padded_this = new Skyline (*padded_this, horizon_padding, X_AXIS);
+      padded_other = new Skyline (*padded_other, horizon_padding, X_AXIS);
+      created_tmp_skylines = true;
+    }
+
+  list<Building>::const_iterator i = padded_this->buildings_.begin ();
+  list<Building>::const_iterator j = padded_other->buildings_.begin ();
+
+  Interval distances;
+  distances.set_empty ();
+  Real start = -infinity_f;
+  while (i != padded_this->buildings_.end () && j != padded_other->buildings_.end ())
+    {
+      Real end = min (i->end_, j->end_);
+      Real start_dist = i->height (start) + j->height (start);
+      Real end_dist = i->height (end) + j->height (end);
+      const Direction sign_start_dist = Direction (sign (start_dist));
+      const Direction sign_end_dist = Direction (sign (end_dist));
+
+      if (!isinf (start_dist)) // if start_dist is inf, end_dist will be too
+        {
+          distances[sign_start_dist] = minmax (sign_start_dist, distances[sign_start_dist], start_dist);
+          distances[sign_end_dist] = minmax (sign_end_dist, distances[sign_end_dist], end_dist);
+          // An intersection have happened here
+          if (!distances.is_empty ())
+            return distances;
+        }
+
+      if (i->end_ <= j->end_)
+        i++;
+      else
+        j++;
+      start = end;
+    }
+
+  if (created_tmp_skylines)
+    dispose_of_tmp_skylines (padded_this, padded_other);
+
+  return Interval (infinity_f, -infinity_f);
+}
+
 Real
 Skyline::height (Real airplane) const
 {
