@@ -154,6 +154,18 @@ first_intersection (Building const &b, list<Building> *const s, Real start_x)
   while (!s->empty () && start_x < b.end_)
     {
       Building c = s->front ();
+
+      // conceals and intersection_x involve multiplication and
+      // division. Avoid that, if we can.
+      if (c.y_intercept_ == -infinity_f)
+        {
+          if (c.end_ > b.end_)
+            return b.end_;
+          start_x = c.end_;
+          s->pop_front ();
+          continue;
+        }
+
       if (c.conceals (b, start_x))
         return start_x;
 
@@ -197,8 +209,26 @@ Skyline::internal_merge_skyline (list<Building> *s1, list<Building> *s2,
         swap (s1, s2);
 
       Building b = s1->front ();
-      Real end = first_intersection (b, s2, x);
+      Building c = s2->front ();
 
+      // Optimization: if the other skyline is empty at this point,
+      // we can avoid testing some intersections. Just grab as many
+      // buildings from s1 as we can, and shove them onto the output.
+      if (c.y_intercept_ == -infinity_f
+          && c.end_ >= b.end_)
+        {
+          list<Building>::iterator i = s1->begin ();
+          i++;
+          while (i != s1->end () && i->end_ <= c.end_)
+            i++;
+
+          s1->front ().start_ = x;
+          result->splice (result->end (), *s1, s1->begin (), i);
+          x = result->back ().end_;
+          continue;
+        }
+
+      Real end = first_intersection (b, s2, x);
       if (s2->empty ())
         {
           b.start_ = result->back ().end_;
