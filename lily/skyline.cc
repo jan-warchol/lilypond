@@ -148,6 +148,73 @@ Building::leading_part (Real chop)
   end_ = chop;
 }
 
+// Returns a shift s such that (x + s, y) intersects the roof of
+// this building.  If no such shift exists, returns infinity_f.
+Real
+Building::shift_to_intersect (Real x, Real y) const
+{
+  // Solve for s: y = (x + s)*m + b
+  Real ret = (y - y_intercept_ - slope_ * x) / slope_;
+
+  if (ret >= start_ && ret <= end_ && !isinf (ret))
+    return ret;
+  return infinity_f;
+}
+
+// Returns the interval of horizontal shifts for which this
+// building (pointing up) overlaps the other building (pointing down).
+Interval
+Building::overlapping_shift_interval (Building const& other) const
+{
+  Interval iv;
+
+  // If one building is empty, there will never be an overlap.
+  if (y_intercept_ == -infinity_f || other.y_intercept_ == -infinity_f)
+    return iv;
+
+  // There are two kinds of interesting positions:
+  // - when the horizontal extents of the buildings just touch
+  // - when an endpoint of one building intersects the roof of the other.
+  // The interval we are looking for is the smallest one that
+  // contains all of the interesting points.
+
+
+  Real my_y1 = height (start_);
+  Real my_y2 = height (end_);
+  Real his_y1 = -other.height (start_); // "-" because OTHER points down
+  Real his_y2 = -other.height (end_);
+
+  // If both buildings are infinite in the same direction,
+  // the return value is either empty or full.
+  if ((isinf (start_) && isinf (other.start_))
+      || (isinf (end_) && isinf (other.end_)))
+    return (y_intercept_ > other.y_intercept_)
+      ? Interval (-infinity_f, infinity_f) : Interval ();
+
+  // ...when the horizontal extents of the buildings just touch...
+  if (my_y1 >= his_y2)
+    iv.add_point (other.end_ - start_);
+  if (my_y2 >= his_y1)
+    iv.add_point (other.start_ - end_);
+
+  // ...when an endpoint of one building intersects the roof of the other.
+  Real p1 = shift_to_intersect (other.start_, his_y1);
+  Real p2 = shift_to_intersect (other.end_, his_y2);
+  // "-my_y1" because OTHER points down:
+  Real p3 = other.shift_to_intersect (start_, -my_y1);
+  Real p4 = other.shift_to_intersect (end_, -my_y2);
+  if (!isinf (p1))
+    iv.add_point (p1);
+  if (!isinf (p2))
+    iv.add_point (p2);
+  if (!isinf (p3))
+    iv.add_point (p3);
+  if (!isinf (p4))
+    iv.add_point (p4);
+
+  return iv;
+}
+
 static Real
 first_intersection (Building const &b, list<Building> *const s, Real start_x)
 {
@@ -267,7 +334,7 @@ single_skyline (Building b, list<Building> *const ret)
     {
       ret->push_back (Building (-infinity_f, -infinity_f,
                                 -infinity_f, b.start_));
-      ret->push_front (b);
+      ret->push_back (b);
       ret->push_back (Building (b.end_, -infinity_f,
                                 -infinity_f, infinity_f));
     }
@@ -718,6 +785,68 @@ Skyline::to_points (Axis horizon_axis) const
       out[i] = out[i].swapped ();
 
   return out;
+}
+
+// Returns the smallest (non-negative) shift in the given
+// direction which will result in THIS and OTHER not overlapping.
+// Warning: this function is O(n^2 log n). Use sparingly.
+Real
+Skyline::horizontal_distance (Skyline const& other,
+                              Direction d,
+                              Real horizon_padding,
+                              Real vertical_padding) const
+{
+  // If one or both of the paddings is zero, this can
+  // be optimized...
+  Skyline padded_me = padded (horizon_padding);
+  padded_me.raise (vertical_padding);
+
+  list<Building>::const_iterator i = padded_me.buildings_.begin ();
+  list<Building>::const_iterator j = other.buildings_.begin ();
+  list<Building>::const_iterator i_end = padded_me.buildings_.end ();
+  list<Building>::const_iterator j_end = other.buildings_.end ();
+
+  // Find all shifts that are not allowed.
+  vector<Interval> forbidden_shifts;
+  for (; i != i_end; ++i)
+    if (i->y_intercept_ != -infinity_f)
+      for (j = other.buildings_.begin (); j != j_end; ++j)
+        {
+          Interval iv = i->overlapping_shift_interval (*j);
+          if (!iv.is_empty ())
+            forbidden_shifts.push_back (iv);
+        }
+
+  // Now comes the trick: we want to find the smallest point
+  // that is not in the union of forbidden_shifts. We can represent
+  // the union of forbidden_shifts as a skyline, where a point is
+  // allowed if it has height -infinity_f and forbidden otherwise.
+  vector<Box> boxes;
+  for (vector<Interval>::iterator k = forbidden_shifts.begin ();
+       k != forbidden_shifts.end (); ++k)
+    boxes.push_back (Box (*k, Interval(-1, 0)));
+  Skyline s (boxes, X_AXIS, UP);
+
+  // Find the smallest (ie. closest to zero, in the appropriate direction)
+  // coordinate where the height of s is -infinity_f.
+  Real last_good_point = -infinity_f;
+  for (i = s.buildings_.begin (); i != s.buildings_.end (); ++i)
+    {
+      if (d == LEFT && i->start_ > 0)
+        return last_good_point;
+
+      if (i->y_intercept_ == -infinity_f)
+        {
+          if (i->start_ <= 0 && i->end_ >= 0)
+            return 0;
+          if (d == RIGHT && i->start_ >= 0)
+            return i->start_;
+
+          last_good_point = i->end_;
+        }
+    }
+
+  return infinity_f * d;
 }
 
 Real

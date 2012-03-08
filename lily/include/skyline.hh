@@ -46,6 +46,8 @@ struct Building
   Real intersection_x (Building const &other) const;
   void leading_part (Real chop);
   bool conceals (Building const &other, Real x) const;
+  Real shift_to_intersect (Real x, Real y) const;
+  Interval overlapping_shift_interval (Building const &other) const;
 };
 
 class Skyline
@@ -79,6 +81,9 @@ public:
   void raise (Real);
   void shift (Real);
   Real distance (Skyline const &, Real horizon_padding = 0) const;
+  Real horizontal_distance (Skyline const &, Direction d,
+                            Real horizon_padding = 0,
+                            Real vertical_padding = 0) const;
   Real touching_point (Skyline const &, Real horizon_padding = 0) const;
   Real height (Real airplane) const;
   Real max_height () const;
