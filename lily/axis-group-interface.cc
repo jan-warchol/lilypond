@@ -725,7 +725,7 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
             Ugh: quadratic. --hwn
            */
           elements.erase (elements.begin () + i);
-          skylines->merge (Skyline_pair (to_constructor, X_AXIS));
+          skylines->merge (Skyline_pair (to_constructor));
           to_constructor.clear ();
         }
     }
@@ -794,7 +794,7 @@ Axis_group_interface::skyline_spacing (Grob *me, vector<Grob *> elements)
         riders.push_back (elements[i]);
     }
 
-  Skyline_pair skylines (to_constructor, X_AXIS);
+  Skyline_pair skylines (to_constructor);
   for (vsize i = 0; i < to_constructor.size (); i++)
     delete to_constructor[i];
 

@@ -285,7 +285,7 @@ Side_position_interface::skyline_side_position (Grob *me, Axis a,
   Skyline dim (boxes, other_axis (a), dir);
   if (skyps.size ())
     {
-      Skyline_pair merged (skyps, other_axis (a));
+      Skyline_pair merged (skyps);
       for (vsize i = 0; i < skyps.size (); i++)
         delete skyps[i];
       dim.merge (merged[dir]);

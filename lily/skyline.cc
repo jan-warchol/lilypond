@@ -397,13 +397,11 @@ Skyline::Skyline (vector<Box> const &boxes, Axis horizon_axis, Direction sky)
 }
 
 /*
-  build skyline from a set of buildings.
+  build skyline from a set of line segments.
 
   Buildings should have fatness in the horizon_axis, otherwise they are ignored.
  */
-void
-Skyline::shared_building_constructor (vector<Drul_array<Offset> > const &segments,
-                                      Axis horizon_axis, Direction sky)
+Skyline::Skyline (vector<Drul_array<Offset> > const &segments, Axis horizon_axis, Direction sky)
 {
   list<Building> buildings;
   sky_ = sky;
@@ -428,23 +426,28 @@ Skyline::shared_building_constructor (vector<Drul_array<Offset> > const &segment
   buildings_ = internal_build_skyline (&buildings);
 }
 
-Skyline::Skyline (vector<Drul_array<Offset> > const &segments, Axis horizon_axis, Direction sky)
+Skyline::Skyline (vector<Skyline_pair *> const &skypairs, Direction sky)
 {
-  shared_building_constructor (segments, horizon_axis, sky);
-}
+  sky_ = sky;
 
-Skyline::Skyline (vector<Skyline_pair *> const &skypairs, Axis horizon_axis, Direction sky)
-{
-  vector<Drul_array<Offset> > segments;
+  deque<Skyline*> partials;
   for (vsize i = 0; i < skypairs.size (); i++)
+    partials.push_back (new Skyline ((*skypairs[i])[sky]));
+
+  while (partials.size () > 1)
     {
-      if ((*skypairs[i]).is_empty ())
-        continue;
-
-      (*skypairs[i])[sky].to_drul_array_offset (segments, horizon_axis);
+      Skyline *one = partials.front ();
+      partials.pop_front ();
+      Skyline *two = partials.front ();
+      partials.pop_front ();
+ 
+      one->merge (*two);
+      delete two;
+      partials.push_back (one);
     }
-
-  shared_building_constructor (segments, horizon_axis, sky);
+ 
+  buildings_.swap (partials.front ()->buildings_);
+  delete partials.front ();
 }
 
 Skyline::Skyline (Box const &b, Axis horizon_axis, Direction sky)
@@ -685,27 +688,6 @@ Skyline::to_points (Axis horizon_axis) const
       out[i] = out[i].swapped ();
 
   return out;
-}
-
-void
-Skyline::to_drul_array_offset (vector<Drul_array<Offset> > &out, Axis horizon_axis) const
-{
-  Real start = -infinity_f;
-  for (list<Building>::const_iterator i (buildings_.begin ());
-       i != buildings_.end (); i++)
-    {
-      if (!isinf (i->y_intercept_))
-        out.push_back (Drul_array<Offset> (Offset (start, sky_ * i->height (start)),
-                                           Offset (i->end_, sky_ * i->height (i->end_))));
-      start = i->end_;
-    }
-
-  if (horizon_axis == Y_AXIS)
-    for (vsize i = 0; i < out.size (); i++)
-      {
-        out[i][LEFT] = out[i][LEFT].swapped ();
-        out[i][RIGHT] = out[i][RIGHT].swapped ();
-      }
 }
 
 Real
