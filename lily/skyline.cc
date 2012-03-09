@@ -181,8 +181,8 @@ Building::overlapping_shift_interval (Building const& other) const
 
   Real my_y1 = height (start_);
   Real my_y2 = height (end_);
-  Real his_y1 = -other.height (start_); // "-" because OTHER points down
-  Real his_y2 = -other.height (end_);
+  Real his_y1 = -other.height (other.start_); // "-" because OTHER points down
+  Real his_y2 = -other.height (other.end_);
 
   // If both buildings are infinite in the same direction,
   // the return value is either empty or full.
@@ -611,6 +611,7 @@ Skyline::shift (Real s)
   list<Building>::iterator end = buildings_.end ();
   for (list<Building>::iterator i = buildings_.begin (); i != end; i++)
     {
+      i->start_ += s;
       i->end_ += s;
       i->y_intercept_ -= s * i->slope_;
     }
