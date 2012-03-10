@@ -404,7 +404,7 @@ System::vertical_skyline_elements (SCM smob)
 
 
   System *me = dynamic_cast<System *> (me_grob);
-  Grob *align = me->get_vertical_alignment ();
+  Grob *align = unsmob_grob (me->get_object ("vertical-alignment"));
   if (!align)
     {
       SCM grobs_scm = Grob_array::make_array ();
@@ -641,7 +641,7 @@ System::get_paper_system ()
     pl->set_property ("last-in-score", SCM_BOOL_T);
 
   Interval staff_refpoints;
-  if (Grob *align = get_vertical_alignment ())
+  if (Grob *align = unsmob_grob (get_object ("vertical-alignment")))
     {
       extract_grob_set (align, "elements", staves);
       for (vsize i = 0; i < staves.size (); i++)
@@ -742,22 +742,24 @@ get_root_system (Grob *me)
   return dynamic_cast<System *> (system_grob);
 }
 
-Grob *
-System::get_vertical_alignment ()
+MAKE_SCHEME_CALLBACK (System, get_vertical_alignment, 1);
+SCM
+System::get_vertical_alignment (SCM smob)
 {
-  extract_grob_set (this, "elements", elts);
+  Grob *me = unsmob_grob (smob);
+  extract_grob_set (me, "elements", elts);
   Grob *ret = 0;
   for (vsize i = 0; i < elts.size (); i++)
     if (Align_interface::has_interface (elts[i]))
       {
         if (ret)
-          programming_error ("found multiple vertical alignments in this system");
+          me->programming_error ("found multiple vertical alignments in this system");
         ret = elts[i];
       }
 
   if (!ret)
-    programming_error ("didn't find a vertical alignment in this system");
-  return ret;
+    me->programming_error ("didn't find a vertical alignment in this system");
+  return ret->self_scm ();
 }
 
 // Finds the furthest staff in the given direction whose x-extent
@@ -765,7 +767,7 @@ System::get_vertical_alignment ()
 Grob *
 System::get_extremal_staff (Direction dir, Interval const &iv)
 {
-  Grob *align = get_vertical_alignment ();
+  Grob *align = unsmob_grob (get_object ("vertical-alignment"));
   if (!align)
     return 0;
 
@@ -789,7 +791,7 @@ System::get_extremal_staff (Direction dir, Interval const &iv)
 Grob *
 System::get_neighboring_staff (Direction dir, Grob *vertical_axis_group, Interval_t<int> bounds)
 {
-  Grob *align = get_vertical_alignment ();
+  Grob *align = unsmob_grob (get_object ("vertical-alignment"));
   if (!align)
     return 0;
 
@@ -819,7 +821,7 @@ Interval
 System::pure_refpoint_extent (vsize start, vsize end)
 {
   Interval ret;
-  Grob *alignment = get_vertical_alignment ();
+  Grob *alignment = unsmob_grob (get_object ("vertical-alignment"));
   if (!alignment)
     return Interval ();
 
@@ -846,7 +848,7 @@ System::pure_refpoint_extent (vsize start, vsize end)
 Interval
 System::part_of_line_pure_height (vsize start, vsize end, bool begin)
 {
-  Grob *alignment = get_vertical_alignment ();
+  Grob *alignment = unsmob_grob (get_object ("vertical-alignment"));
   if (!alignment)
     return Interval ();
 
@@ -981,7 +983,7 @@ static SCM
 get_maybe_spaceable_staves (SCM smob, int filter)
 {
   System *me = dynamic_cast<System *> (unsmob_grob (smob));
-  Grob *align = me->get_vertical_alignment ();
+  Grob *align = unsmob_grob (me->get_object ("vertical_alignment"));
   SCM ret = SCM_EOL;
 
   if (align)

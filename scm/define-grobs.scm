@@ -2125,7 +2125,8 @@
 				      (footnotes-after-line-breaking . ,ly:system::footnotes-after-line-breaking)
 				      (pure-relevant-grobs . ,ly:system::calc-pure-relevant-grobs)
 				      (pure-Y-common . ,ly:axis-group-interface::calc-pure-y-common)
-				      (vertical-skyline-elements . ,ly:system::vertical-skyline-elements)))
+				      (vertical-skyline-elements . ,ly:system::vertical-skyline-elements)
+                                      (vertical-alignment . ,ly:system::get-vertical-alignment)))
 		 (interfaces . (axis-group-interface
 				system-interface))))))
 
