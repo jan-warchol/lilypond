@@ -620,10 +620,9 @@ add_interior_skylines (Grob *me, Grob *x_common, Grob *y_common, vector<Skyline_
         return;
       if (maybe_pair->is_empty ())
         return;
-      Skyline_pair *s = new Skyline_pair (*maybe_pair);
-      s->shift (me->relative_coordinate (x_common, X_AXIS));
-      s->raise (me->relative_coordinate (y_common, Y_AXIS));
-      skylines->push_back (s);
+      skylines->push_back (new Skyline_pair (*maybe_pair));
+      skylines->back ()->shift (me->relative_coordinate (x_common, X_AXIS));
+      skylines->back ()->raise (me->relative_coordinate (y_common, Y_AXIS));
     }
 }
 
@@ -649,6 +648,7 @@ avoid_outside_staff_collisions (Grob *elt,
 
   Skyline_pair *vertical_skylines = use_separate_constructor_skyline ? to_pass_to_constructor : pair;
   vector<Real> bumps;
+  Real EPSILON = 0.001;
   bool dirty = false;
   do
     {
@@ -658,25 +658,24 @@ avoid_outside_staff_collisions (Grob *elt,
             continue;
           // check for horizontal edges jinnying up
           // 1
-          Real holder = Skyline (horizontal_skylines[LEFT]).shift_to_avoid (horizontal_skyline_forest[dir][j][RIGHT], padding, dir);
-          if (holder != 0.0)
+          Real holder = Skyline (horizontal_skylines[LEFT]).horizontal_distance (horizontal_skyline_forest[dir][j][RIGHT], dir, 0.0, 0.0);
+          if (holder != 0.0 && !isinf (holder))
             bumps.push_back (holder);
           // 2
-          holder = Skyline (horizontal_skylines[RIGHT]).shift_to_avoid (horizontal_skyline_forest[dir][j][LEFT], padding, dir);
-          if (elt->name () == "TextScript") printf ("DIAGNOSTICS %4.4f\n", holder);horizontal_skylines[RIGHT].print_points (); horizontal_skyline_forest[dir][j][LEFT].print_points ();
-          if (holder != 0.0)
+          holder = Skyline (horizontal_skylines[RIGHT]).horizontal_distance (horizontal_skyline_forest[dir][j][LEFT], dir, 0.0, 0.0);
+          if (holder != 0.0 && !isinf (holder))
             bumps.push_back (holder);
           // 3
           Skyline to_flip (horizontal_skylines[LEFT]);
           to_flip.invert ();
-          holder = to_flip.shift_to_avoid (horizontal_skyline_forest[dir][j][LEFT], padding, dir);
-          if (holder != 0.0)
+          holder = to_flip.horizontal_distance (horizontal_skyline_forest[dir][j][LEFT], dir, 0.0, 0.0);
+          if (holder != 0.0 && !isinf (holder))
             bumps.push_back (holder);
           // 4
           to_flip = Skyline (horizontal_skylines[RIGHT]);
           to_flip.invert ();
-          holder = to_flip.shift_to_avoid (horizontal_skyline_forest[dir][j][RIGHT], padding, dir);
-          if (holder != 0.0)
+          holder = to_flip.horizontal_distance (horizontal_skyline_forest[dir][j][RIGHT], dir, 0.0, 0.0);
+          if (holder != 0.0 && !isinf (holder))
             bumps.push_back (holder);
           }
    
@@ -685,45 +684,37 @@ avoid_outside_staff_collisions (Grob *elt,
           // check for vertical edges jinnying up.  some will be empty as a heristic
           if (!vertical_skyline_forest[dir][j][UP].is_empty ())
             {
-              Real holder = Skyline ((*pair)[DOWN]).raise_to_avoid (vertical_skyline_forest[dir][j][UP], padding, dir);
-              if (holder != 0.0)
-                bumps.push_back (holder);
+              if ((*pair)[DOWN].intersects (vertical_skyline_forest[dir][j][UP]))
+                bumps.push_back (dir * vertical_skyline_forest[dir][j][UP].distance ((*pair)[DOWN]));
               Skyline to_flip ((*vertical_skylines)[UP]);
               to_flip.invert ();
-              holder = to_flip.raise_to_avoid (vertical_skyline_forest[dir][j][UP], padding, dir);
-              if (holder != 0.0)
-                bumps.push_back (holder);
+              if (to_flip.intersects (vertical_skyline_forest[dir][j][UP]))
+                bumps.push_back (dir * vertical_skyline_forest[dir][j][UP].distance (to_flip));
             }
           if (!vertical_skyline_forest[dir][j][DOWN].is_empty ())
             {
-              Real holder = Skyline ((*pair)[UP]).raise_to_avoid (vertical_skyline_forest[dir][j][DOWN], padding, dir);
-              if (holder != 0.0)
-                bumps.push_back (holder);
-              // 3
+              if ((*pair)[UP].intersects (vertical_skyline_forest[dir][j][DOWN]))
+                bumps.push_back (dir * vertical_skyline_forest[dir][j][DOWN].distance ((*pair)[UP]));
               Skyline to_flip ((*vertical_skylines)[DOWN]);
               to_flip.invert ();
-              holder = to_flip.raise_to_avoid (vertical_skyline_forest[dir][j][DOWN], padding, dir);
-              //printf ("DIAGNOSTICS %4.4f\n", holder);to_flip.print_points (); vertical_skyline_forest[dir][j][DOWN].print_points ();
-              if (holder != 0.0)
-                bumps.push_back (holder);
+              if (to_flip.intersects (vertical_skyline_forest[dir][j][DOWN]))
+                bumps.push_back (dir * vertical_skyline_forest[dir][j][DOWN].distance (to_flip));
             }
-          //for (vsize k = 0; k < bumps.size (); k++) printf ("& & & %d %4.4f\n", k, bumps[k]);
         }
-      printf ("with VERTICAL KNACKS %d\n", bumps.size ());
-      dirty = bumps.size ();
-      if (dirty)
-        {
-          Real max_bump = -dir * infinity_f;
-          for (vsize j = 0; j < bumps.size (); j++)
-            max_bump = minmax (dir, bumps[j], max_bump);
-          printf ("raise %4.4f\n", max_bump);
-          pair->raise (max_bump);//if (elt->name () == "RehearsalMark") horizontal_skylines.print_points ();
-          horizontal_skylines.shift (max_bump);//if (elt->name () == "RehearsalMark") horizontal_skylines.print_points ();
-          if (use_separate_constructor_skyline)
-            to_pass_to_constructor->raise (max_bump);
-          elt->translate_axis (max_bump, Y_AXIS);
-        }
-      bumps.resize (0);              
+
+      Real max_bump = -dir * infinity_f;
+      for (vsize j = 0; j < bumps.size (); j++)
+        if (!isinf (bumps[j]))
+          max_bump = minmax (dir, bumps[j], max_bump);
+      if (isinf (max_bump))
+        max_bump = 0.0;
+      pair->raise (max_bump + (dir * EPSILON));
+      horizontal_skylines.shift (max_bump);
+      if (use_separate_constructor_skyline)
+        to_pass_to_constructor->raise (max_bump);
+      elt->translate_axis (max_bump, Y_AXIS);
+      bumps.resize (0);
+      dirty = abs (max_bump) > EPSILON;
     }
   while (dirty);
 }
@@ -790,13 +781,13 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
         the horizontal skylines just need one skyline
       */
   
-      Skyline_pair *pair = new Skyline_pair (construct_from_me, horizon_padding, X_AXIS);
+      Skyline_pair *pair = new Skyline_pair (construct_from_me);
       pair->shift (elements[i]->relative_coordinate (x_common, X_AXIS));
       pair->raise (elements[i]->relative_coordinate (y_common, Y_AXIS));
       Skyline_pair *to_pass_to_constructor = 0;
       if (use_separate_constructor_skyline)
         {
-          to_pass_to_constructor = new Skyline_pair (construct_from_me, 0.0, X_AXIS);
+          to_pass_to_constructor = new Skyline_pair (construct_from_me);
           to_pass_to_constructor->shift (elements[i]->relative_coordinate (x_common, X_AXIS));
           to_pass_to_constructor->raise (elements[i]->relative_coordinate (y_common, Y_AXIS));
         }
@@ -880,7 +871,7 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
             add_interior_skylines (riders->at (j), x_common, y_common, &to_constructor);
           }
 
-      skylines->merge (Skyline_pair (to_constructor, 0.0, X_AXIS));
+      skylines->merge (Skyline_pair (to_constructor));
       for (vsize j = 0; j < to_constructor.size (); j++)
         delete to_constructor[j];
       if (use_separate_constructor_skyline)
@@ -952,7 +943,7 @@ Axis_group_interface::skyline_spacing (Grob *me, vector<Grob *> elements)
         riders.push_back (elements[i]);
     }
 
-  Skyline_pair skylines (to_constructor, 0.0, X_AXIS);
+  Skyline_pair skylines (to_constructor);
   for (vsize i = 0; i < to_constructor.size (); i++)
     delete to_constructor[i];
 
@@ -1003,14 +994,7 @@ Axis_group_interface::skyline_spacing (Grob *me, vector<Grob *> elements)
       riders[j]->programming_error ("Vertical skylines will not be high enough.");
 
   skylines.shift (-me->relative_coordinate (x_common, X_AXIS));
-  Real pad = robust_scm2double (me->get_property ("skyline-horizontal-padding"), 0.0);
 
-  if (pad > 0.0)
-    {
-      vector<Skyline_pair *> temp;
-      temp.push_back (&skylines);
-      return Skyline_pair (temp, pad, X_AXIS);
-    }
   return skylines;
 }
 

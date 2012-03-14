@@ -246,8 +246,7 @@ Tie_formatting_problem::set_column_chord_outline (vector<Item *> bounds,
     }
   while (flip (&updowndir) != DOWN);
 
-  /* todo: the horizon_padding is somewhat arbitrary */
-  chord_outlines_[key] = Skyline (boxes, details_.skyline_padding_, Y_AXIS, -dir);
+  chord_outlines_[key] = Skyline (boxes, Y_AXIS, -dir);
   if (bounds[0]->break_status_dir ())
     {
       Interval iv (Axis_group_interface::staff_extent (bounds[0], x_refpoint_, X_AXIS, y_refpoint_, Y_AXIS));

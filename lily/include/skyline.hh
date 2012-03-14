@@ -32,20 +32,22 @@
 
 struct Building
 {
+  Real start_;
   Real end_;
   Real y_intercept_;
   Real slope_;
 
   void precompute (Real start, Real start_height, Real end_height, Real end);
   Building (Real start, Real start_height, Real end_height, Real end);
-  Building (Box const &b, Real horizon_padding, Axis a, Direction d);
+  Building (Box const &b, Axis a, Direction d);
   void print () const;
 
   Real height (Real x) const;
   Real intersection_x (Building const &other) const;
   void leading_part (Real chop);
   bool conceals (Building const &other, Real x) const;
-  Building sloped_neighbour (Real start, Real horizon_padding, Direction d) const;
+  Real shift_to_intersect (Real x, Real y) const;
+  Interval overlapping_shift_interval (Building const &other) const;
 };
 
 class Skyline
@@ -56,32 +58,34 @@ private:
 
   void internal_merge_skyline (list<Building>*, list<Building>*,
                                list<Building> *const result);
-  list<Building> internal_build_skyline (list<Box>*, Real, Axis, Direction);
-  list<Building> internal_build_skyline_from_buildings (list<Drul_array<Offset> >*, Real, Axis, Direction);
-  void shared_building_constructor (vector<Drul_array<Offset> > const &bldgs, Real horizon_padding, Axis a, Direction sky);
+  list<Building> internal_build_skyline (list<Building>*);
+  Real internal_distance (Skyline const &, Real horizon_padding, Real *touch_point) const;
+  Real internal_distance (Skyline const &, Real *touch_point) const;
 
   DECLARE_SIMPLE_SMOBS (Skyline);
 
 public:
   Skyline ();
   Skyline (Skyline const &src);
-  Skyline (Skyline const &src, Real horizon_padding, Axis a);
   Skyline (Direction sky);
-  Skyline (vector<Box> const &bldgs, Real horizon_padding, Axis a, Direction sky);
-  Skyline (vector<Drul_array<Offset> > const &bldgs, Real horizon_padding, Axis a, Direction sky);
-  Skyline (vector<Skyline_pair *> const &skypairs, Real horizon_padding, Axis a, Direction sky);
-  Skyline (Box const &b, Real horizon_padding, Axis a, Direction sky);
+  Skyline (vector<Box> const &bldgs, Axis a, Direction sky);
+  Skyline (vector<Drul_array<Offset> > const &bldgs, Axis a, Direction sky);
+  Skyline (vector<Skyline_pair *> const &skypairs, Direction sky);
+  Skyline (Box const &b, Axis a, Direction sky);
 
   vector<Offset> to_points (Axis) const;
-  void to_drul_array_offset (vector<Drul_array<Offset> > &out, Axis horizon_axis) const;
   void merge (Skyline const &);
-  void insert (Box const &, Real horizon_padding, Axis);
+  void insert (Box const &, Axis);
   void print () const;
   void print_points () const;
   void raise (Real);
   void shift (Real);
   void invert ();
+  bool intersects (Skyline const &) const;
   Real distance (Skyline const &, Real horizon_padding = 0) const;
+  Real horizontal_distance (Skyline const &, Direction d,
+                            Real horizon_padding = 0,
+                            Real vertical_padding = 0) const;
   Real touching_point (Skyline const &, Real horizon_padding = 0) const;
   Real shift_to_avoid (Skyline const &other, Real, Direction d, Real horizon_padding = 0);
   Real raise_to_avoid (Skyline const &other, Real, Direction d, Real horizon_padding = 0);
@@ -95,15 +99,13 @@ public:
   bool is_empty () const;
   Real left () const;
   Real right () const;
+  Skyline padded (Real horizon_padding) const;
 
   DECLARE_SCHEME_CALLBACK (get_touching_point, (SCM, SCM, SCM));
   DECLARE_SCHEME_CALLBACK (get_distance, (SCM, SCM, SCM));
   DECLARE_SCHEME_CALLBACK (get_max_height, (SCM));
   DECLARE_SCHEME_CALLBACK (get_max_height_position, (SCM));
   DECLARE_SCHEME_CALLBACK (get_height, (SCM, SCM));
-
-protected:
-  Real internal_distance (Skyline const &, Real horizon_padding, Real *touch_point) const;
 };
 
 extern bool debug_skylines;

@@ -176,7 +176,6 @@ Side_position_interface::skyline_side_position (Grob *me, Axis a,
   Direction dir = get_grob_direction (me);
 
   Skyline my_dim;
-  Real skyline_padding = 0.1;
   Skyline_pair *sp = Skyline_pair::unsmob (me->get_property ("vertical-skylines"));
   if (sp && a == Y_AXIS && !pure)
     {
@@ -200,7 +199,7 @@ Side_position_interface::skyline_side_position (Grob *me, Axis a,
       if (off[X_AXIS].is_empty () || off[Y_AXIS].is_empty ())
         return scm_from_double (0.0);
 
-      my_dim = Skyline (off, skyline_padding, other_axis (a), -dir);
+      my_dim = Skyline (off, other_axis (a), -dir);
     }
   bool include_staff
     = staff_symbol
@@ -283,10 +282,10 @@ Side_position_interface::skyline_side_position (Grob *me, Axis a,
         boxes.push_back (big);
     }
 
-  Skyline dim (boxes, skyline_padding, other_axis (a), dir);
+  Skyline dim (boxes, other_axis (a), dir);
   if (skyps.size ())
     {
-      Skyline_pair merged (skyps, skyline_padding, other_axis (a));
+      Skyline_pair merged (skyps);
       for (vsize i = 0; i < skyps.size (); i++)
         delete skyps[i];
       dim.merge (merged[dir]);

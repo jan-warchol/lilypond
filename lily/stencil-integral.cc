@@ -986,8 +986,7 @@ Grob::internal_simple_skylines_from_stencil (SCM smob, Axis a)
 
   vector<Box> boxes;
   boxes.push_back (Box (s->extent (X_AXIS), s->extent (Y_AXIS)));
-  Real pad = robust_scm2double (me->get_property (a == X_AXIS ? "skyline-horizontal-padding" : "skyline-vertical-padding"), 0.0);
-  return Skyline_pair (boxes, pad, a).smobbed_copy ();
+  return Skyline_pair (boxes, a).smobbed_copy ();
 }
 
 MAKE_SCHEME_CALLBACK (Grob, simple_vertical_skylines_from_stencil, 1);
@@ -1023,8 +1022,8 @@ Stencil::skylines_from_stencil (SCM sten, Real pad, Axis a)
   if (!boxes.size () && !buildings.size ())
     boxes.push_back (Box (s->extent (X_AXIS), s->extent (Y_AXIS)));
 
-  Skyline_pair out (boxes, pad, a);
-  out.merge (Skyline_pair (buildings, pad, a));
+  Skyline_pair out (boxes, a);
+  out.merge (Skyline_pair (buildings, a));
 
   return out.smobbed_copy ();
 }
