@@ -553,7 +553,7 @@ Skyline::Skyline (Box const &b, Axis horizon_axis, Direction sky)
   Building front (b, horizon_axis, sky);
   single_skyline (front, &buildings_);
 }
-#include <valgrind/valgrind.h>
+
 void
 Skyline::merge (Skyline const &other)
 {
@@ -858,7 +858,7 @@ Skyline::horizontal_distance (Skyline const& other,
                               Direction d,
                               Real horizon_padding,
                               Real vertical_padding) const
-{if (sky_ != other.sky_) VALGRIND_PRINTF_BACKTRACE ("bar");
+{
   // If one or both of the paddings is zero, this can
   // be optimized...
   Skyline padded_me = padded (horizon_padding);
