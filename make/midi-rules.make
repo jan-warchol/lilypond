@@ -1,7 +1,7 @@
 .SUFFIXES: .midi
 
 $(outdir)/%.ly:  %.midi
-	$(PYTHON) $(MIDI2LY) -o $(outdir) $<
+	$(PYTHON) $(MIDI2LY) --quiet -o $(outdir) $<
 
 $(outdir)/%.midi: %.ly $(LILYPOND_BINARY)
 	touch $(foreach f, $(HEADER_FIELDS), $(outdir)/$*.$f)
@@ -9,8 +9,8 @@ $(outdir)/%.midi: %.ly $(LILYPOND_BINARY)
 	cp $< $(outdir)
 
 $(outdir)/%-midi.ly: $(outdir)/%.midi $(MIDI2LY)
-	(echo '\header {'; for f in $(HEADER_FIELDS); do echo -n $$f'="'; cat $(outdir)/$*.$$f; echo '"'; done; echo '}') > $(outdir)/$*.header
-	$(PYTHON) $(MIDI2LY) $(shell cat $(outdir)/$*.options) --include-header=$(outdir)/$*.header -o $(outdir) $<
+	(echo '\header {'; for f in $(HEADER_FIELDS); do printf $$f'="'; cat $(outdir)/$*.$$f; echo '"'; done; echo '}') > $(outdir)/$*.header
+	$(PYTHON) $(MIDI2LY) $(shell cat $(outdir)/$*.options) --quiet --include-header=$(outdir)/$*.header -o $(outdir) $<
 
 $(outdir)/%.diff: %.ly $(outdir)/%-midi.ly
 	$(DIFF) -puN $(MIDI2LY_IGNORE_RES) $^ > $@ || cat $@
