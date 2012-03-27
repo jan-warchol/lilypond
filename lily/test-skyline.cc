@@ -1,3 +1,22 @@
+/*
+  This file is part of LilyPond, the GNU music typesetter.
+
+  Copyright (C) 2012 Joe Neeman <joeneeman@gmail.com>
+
+  LilyPond is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  LilyPond is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with LilyPond.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include <cstdlib>
 #include "yaffut.hh"
 #include "skyline.hh"
@@ -42,29 +61,29 @@ FUNC (skyline_distance)
   EQUAL (-infinity_f, tower.distance (teeth));
 }
 
-FUNC (skyline_horizontal_distance)
+FUNC (skyline_smallest_shift)
 {
   Skyline tower = tower_skyline (0.4);
   Skyline teeth = teeth_skyline ();
 
-  EQUAL (0.4, tower.horizontal_distance (teeth, RIGHT));
-  EQUAL (-1.4, tower.horizontal_distance (teeth, LEFT));
+  EQUAL (0.4, tower.smallest_shift (teeth, RIGHT));
+  EQUAL (-1.4, tower.smallest_shift (teeth, LEFT));
 
   tower = tower_skyline (1.0);
-  EQUAL (3, tower.horizontal_distance (teeth, RIGHT));
-  EQUAL (-4, tower.horizontal_distance (teeth, LEFT));
+  EQUAL (3, tower.smallest_shift (teeth, RIGHT));
+  EQUAL (-4, tower.smallest_shift (teeth, LEFT));
 
   // Parallel slopes
   Skyline slope1 = segment_skyline (0, 0, 1, 1, UP);
   Skyline slope2 = segment_skyline (0, 0, 1, 1, DOWN);
-  EQUAL (0, slope1.horizontal_distance (slope2, RIGHT));
-  EQUAL (0, slope1.horizontal_distance (slope2, LEFT));
+  EQUAL (0, slope1.smallest_shift (slope2, RIGHT));
+  EQUAL (0, slope1.smallest_shift (slope2, LEFT));
   slope2.shift (0.5);
-  EQUAL (0.5, slope1.horizontal_distance (slope2, RIGHT));
-  EQUAL (-0.5, slope1.horizontal_distance (slope2, LEFT));
+  EQUAL (0.5, slope1.smallest_shift (slope2, RIGHT));
+  EQUAL (-0.5, slope1.smallest_shift (slope2, LEFT));
 
   // Perpendicular slopes
   slope2 = segment_skyline (0, 1, 1, 0, DOWN);
-  EQUAL (1, slope1.horizontal_distance (slope2, RIGHT));
-  EQUAL (-1, slope1.horizontal_distance (slope2, LEFT));
+  EQUAL (1, slope1.smallest_shift (slope2, RIGHT));
+  EQUAL (-1, slope1.smallest_shift (slope2, LEFT));
 }

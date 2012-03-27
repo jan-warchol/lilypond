@@ -81,6 +81,30 @@ Skyline_pair::right ()
   return max (skylines_[UP].right (), skylines_[DOWN].right ());
 }
 
+Real
+Skyline_pair::smallest_shift (Skyline_pair const& other, Direction d,
+                              Real h_pad, Real v_pad)
+{
+  // If skylines_[UP] avoids other[DOWN] or skylines_[DOWN] avoids
+  // other[UP] then we will not intersect.
+  // Note that this is not guaranteed to return the smallest shift
+  // if one Skyline_pair is not connected: the smallest_shift left
+  // in the case of
+  // AAA
+  // BBBBBB
+  //    AAA
+  // will result in
+  //    AAA
+  // BBBBBB
+  //       AAA
+  // even though the originals did not collide.  If it becomes necessary,
+  // this case could be handled by splitting the Skyline_pairs up into
+  // their connected components.
+
+  return d * min (d * skylines_[UP].smallest_shift (other[DOWN], d, h_pad, v_pad),
+                  d * skylines_[DOWN].smallest_shift (other[UP], d, h_pad, v_pad));
+}
+
 void
 Skyline_pair::merge (Skyline_pair const &other)
 {

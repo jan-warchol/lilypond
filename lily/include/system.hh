@@ -39,7 +39,6 @@ class System : public Spanner
 
 public:
   Paper_score *paper_score () const;
-  Grob *get_vertical_alignment ();
   Grob *get_extremal_staff (Direction dir, Interval const &);
   Grob * get_neighboring_staff (Direction dir, Grob *vertical_axis_group, Interval_t<int> bounds);
   Grob *get_pure_bound (Direction dir, int start, int end);
@@ -66,6 +65,7 @@ public:
   DECLARE_SCHEME_CALLBACK (get_staves, (SCM));
   DECLARE_SCHEME_CALLBACK (get_spaceable_staves, (SCM));
   DECLARE_SCHEME_CALLBACK (get_nonspaceable_staves, (SCM));
+  DECLARE_SCHEME_CALLBACK (get_vertical_alignment, (SCM));
 
   System (SCM);
   System (System const &);

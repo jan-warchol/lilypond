@@ -674,7 +674,12 @@ Skyline::padded (Real horizon_padding) const
         }
     }
 
-  Skyline padded (pad_boxes, X_AXIS, sky_);
+  // We created pad_boxes assuming that sky_ is UP.  To get padded to use
+  // the UP side of the boxes, we need to create it pointing UP even if
+  // it doesn't really.
+  Skyline padded (pad_boxes, X_AXIS, UP);
+  padded.sky_ = sky_;
+
   padded.merge (*this);
   return padded;
 }
@@ -854,10 +859,10 @@ Skyline::to_points (Axis horizon_axis) const
 // direction which will result in THIS and OTHER not overlapping.
 // Warning: this function is O(n^2 log n). Use sparingly.
 Real
-Skyline::horizontal_distance (Skyline const& other,
-                              Direction d,
-                              Real horizon_padding,
-                              Real vertical_padding) const
+Skyline::smallest_shift (Skyline const& other,
+                         Direction d,
+                         Real horizon_padding,
+                         Real vertical_padding) const
 {
   // If one or both of the paddings is zero, this can
   // be optimized...

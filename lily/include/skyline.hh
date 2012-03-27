@@ -83,9 +83,9 @@ public:
   void invert ();
   bool intersects (Skyline const &) const;
   Real distance (Skyline const &, Real horizon_padding = 0) const;
-  Real horizontal_distance (Skyline const &, Direction d,
-                            Real horizon_padding = 0,
-                            Real vertical_padding = 0) const;
+  Real smallest_shift (Skyline const &, Direction d,
+                       Real horizon_padding = 0,
+                       Real vertical_padding = 0) const;
   Real touching_point (Skyline const &, Real horizon_padding = 0) const;
   Real shift_to_avoid (Skyline const &other, Real, Direction d, Real horizon_padding = 0);
   Real raise_to_avoid (Skyline const &other, Real, Direction d, Real horizon_padding = 0);
