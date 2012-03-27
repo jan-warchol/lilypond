@@ -640,7 +640,7 @@ Skyline::internal_distance (Skyline const &other, Real horizon_padding, Real *to
 
   // Note that it is not necessary to build a padded version of other,
   // because the same effect can be achieved just by doubling horizon_padding.
-  Skyline padded_this = padded (horizon_padding);
+  Skyline padded_this = padded (2 * horizon_padding);
   return padded_this.internal_distance (other, touch_point);
 }
 
@@ -688,13 +688,6 @@ Real
 Skyline::internal_distance (Skyline const &other, Real *touch_point) const
 {
   assert (sky_ == -other.sky_);
-
-  /*
-    For systems, padding is not added at creation time.  Padding is
-    added to AxisGroup objects when outside-staff objects are added.
-    Thus, when we want to place systems with horizontal padding,
-    we do it at distance calculation time.
-  */
 
   list<Building>::const_iterator i = buildings_.begin ();
   list<Building>::const_iterator j = other.buildings_.begin ();
@@ -889,6 +882,78 @@ Skyline::clear ()
 {
   buildings_.clear ();
   empty_skyline (&buildings_);
+}
+
+// Returns the amount of area lying between the two skylines.
+// This does not include regions where one skyline is empty; for example
+// the area counted between skylines A and B is shaded o below:
+// AAAAAAAA  AAAAAA
+// AAoAAAAo  oooooo
+// ooo AAoo  oooooo
+// BBB   BBBBBBBBBB
+// Note that the return value can be negative if the skylines overlap.
+Real
+Skyline::area_between (Skyline const& other, Real horizon_padding) const
+{
+  Real area = 0;
+  Real dummy = 0;
+  internal_area_length_between (other, horizon_padding, &area, &dummy);
+  return area;
+}
+
+void
+Skyline::internal_area_length_between (Skyline const& other, Real horizon_padding,
+                                       Real *area, Real *length) const
+{
+  Skyline padded_me = padded (horizon_padding);
+  Skyline padded_him = other.padded (horizon_padding);
+
+  if (isinf (padded_me.right ()) || isinf (padded_him.right ())
+      || isinf (padded_me.left ()) || isinf (padded_him.left ()))
+    {
+      programming_error ("asked for the area between unending skylines");
+      return;
+    }
+
+  list<Building>::const_iterator i = padded_me.buildings_.begin ();
+  list<Building>::const_iterator j = padded_him.buildings_.begin ();
+  list<Building>::const_iterator i_end = padded_me.buildings_.end ();
+  list<Building>::const_iterator j_end = padded_him.buildings_.end ();
+
+  *area = 0;
+  *length = 0;
+  Real start = -infinity_f;
+
+  while (i != i_end && j != j_end)
+    {
+      Real end = min (i->end_, j->end_);
+      Real start_dist = i->height (start) + j->height (start);
+      Real end_dist = i->height (end) + j->height (end);
+
+      if (!isinf (start_dist) && !isinf (end_dist))
+        {
+          *length += end - start;
+          *area += - (end - start) * (start_dist + end_dist) / 2;
+        }
+
+      if (i->end_ <= j->end_)
+        i++;
+      else
+        j++;
+      start = end;
+    }
+}
+
+// Returns the total amount of horizon length for which neither skyline
+// is empty. In the example preceding Skyline::area_between, the total
+// length is 11 character widths.
+Real
+Skyline::length_between (Skyline const& other, Real horizon_padding) const
+{
+  Real length = 0;
+  Real dummy = 0;
+  internal_area_length_between (other, horizon_padding, &dummy, &length);
+  return length;
 }
 
 /****************************************************************/

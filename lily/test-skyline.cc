@@ -87,3 +87,29 @@ FUNC (skyline_smallest_shift)
   EQUAL (1, slope1.smallest_shift (slope2, RIGHT));
   EQUAL (-1, slope1.smallest_shift (slope2, LEFT));
 }
+
+FUNC (area_between)
+{
+  Skyline flat = segment_skyline (-10, 0, 10, 0, UP);
+  Skyline teeth = teeth_skyline ();
+
+  EQUAL (-6, flat.area_between (teeth));
+  EQUAL (-6, teeth.area_between (flat));
+
+  flat = segment_skyline (-3, 0, -2, 0, UP);
+  EQUAL (-3, flat.area_between (teeth));
+  EQUAL (-3, teeth.area_between (flat));
+}
+
+FUNC (length_between)
+{
+  Skyline flat = segment_skyline (-10, 0, 10, 0, UP);
+  Skyline teeth = teeth_skyline ();
+
+  EQUAL (3, flat.length_between (teeth));
+  EQUAL (3, teeth.length_between (flat));
+
+  flat = segment_skyline (-3, 0, -2, 0, UP);
+  EQUAL (1, flat.length_between (teeth));
+  EQUAL (1, teeth.length_between (flat));
+}
