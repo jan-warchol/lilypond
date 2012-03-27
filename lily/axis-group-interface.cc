@@ -657,24 +657,7 @@ avoid_outside_staff_collisions (Grob *elt,
           if (exempt[j])
             continue;
           // check for horizontal edges jinnying up
-          // 1
-          Real holder = Skyline (horizontal_skylines[LEFT]).horizontal_distance (horizontal_skyline_forest[dir][j][RIGHT], dir, 0.0, 0.0);
-          if (holder != 0.0 && !isinf (holder))
-            bumps.push_back (holder);
-          // 2
-          holder = Skyline (horizontal_skylines[RIGHT]).horizontal_distance (horizontal_skyline_forest[dir][j][LEFT], dir, 0.0, 0.0);
-          if (holder != 0.0 && !isinf (holder))
-            bumps.push_back (holder);
-          // 3
-          Skyline to_flip (horizontal_skylines[LEFT]);
-          to_flip.invert ();
-          holder = to_flip.horizontal_distance (horizontal_skyline_forest[dir][j][LEFT], dir, 0.0, 0.0);
-          if (holder != 0.0 && !isinf (holder))
-            bumps.push_back (holder);
-          // 4
-          to_flip = Skyline (horizontal_skylines[RIGHT]);
-          to_flip.invert ();
-          holder = to_flip.horizontal_distance (horizontal_skyline_forest[dir][j][RIGHT], dir, 0.0, 0.0);
+          Real holder = horizontal_skylines.smallest_shift (horizontal_skyline_forest[dir][j], dir, 0.0, 0.0);
           if (holder != 0.0 && !isinf (holder))
             bumps.push_back (holder);
           }
