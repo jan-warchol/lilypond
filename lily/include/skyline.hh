@@ -81,9 +81,9 @@ public:
   void raise (Real);
   void shift (Real);
   Real distance (Skyline const &, Real horizon_padding = 0) const;
-  Real horizontal_distance (Skyline const &, Direction d,
-                            Real horizon_padding = 0,
-                            Real vertical_padding = 0) const;
+  Real smallest_shift (Skyline const &, Direction d,
+                       Real horizon_padding = 0,
+                       Real vertical_padding = 0) const;
   Real touching_point (Skyline const &, Real horizon_padding = 0) const;
   Real height (Real airplane) const;
   Real max_height () const;
