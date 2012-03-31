@@ -43,6 +43,7 @@ struct Building
   void print () const;
 
   Real height (Real x) const;
+  Real non_inf_height (Real x, Real baseline) const;
   Real intersection_x (Building const &other) const;
   void leading_part (Real chop);
   bool conceals (Building const &other, Real x) const;
@@ -61,7 +62,6 @@ private:
   list<Building> internal_build_skyline (list<Building>*);
   Real internal_distance (Skyline const &, Real horizon_padding, Real *touch_point) const;
   Real internal_distance (Skyline const &, Real *touch_point) const;
-  void internal_area_length_between (Skyline const&, Real, Real*, Real*) const;
 
   DECLARE_SIMPLE_SMOBS (Skyline);
 
@@ -85,8 +85,8 @@ public:
   Real smallest_shift (Skyline const &, Direction d,
                        Real horizon_padding = 0,
                        Real vertical_padding = 0) const;
-  Real area_between (Skyline const &, Real horizon_padding = 0) const;
-  Real length_between (Skyline const &, Real horizon_padding = 0) const;
+  Real area_between (Skyline const &, Real, Real, Real, Real,
+                     Real horizon_padding = 0) const;
   Real touching_point (Skyline const &, Real horizon_padding = 0) const;
   Real height (Real airplane) const;
   Real max_height () const;
