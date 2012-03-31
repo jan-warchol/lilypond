@@ -321,6 +321,29 @@ Page_layout_problem::add_footnotes_to_lines (SCM lines, int counter, Paper_book 
   pb->top_paper ()->set_variable (ly_symbol2scm ("number-footnote-table"), number_footnote_table);
 }
 
+void
+Page_layout_problem::area_length_between (Skyline_pair const* above, Skyline_pair const* below,
+                                          vector<Skyline_pair const*> const& between,
+                                          Real horizon_padding,
+                                          Real *area, Real *length)
+{
+  Real left = min (below->left (), above->left ());
+  Real right = max (below->right (), above->right ());
+  *length = right - left;
+
+  *area = 0;
+  Skyline_pair const* last = above;
+  for (vsize i = 0; i < between.size (); ++i)
+    {
+      Skyline_pair const* cur = between[i];
+      *area += (*last)[DOWN].area_between ((*cur)[UP], left, right, 0, 0, horizon_padding);
+      last = cur;
+    }
+
+  *area += (*last)[DOWN].area_between ((*below)[UP], left, right, 0, 0, horizon_padding);
+}
+
+
 Stencil *
 Page_layout_problem::get_footnote_separator_stencil (Output_def *paper)
 {
@@ -613,8 +636,18 @@ Page_layout_problem::append_system (System *sys, Spring const &spring, Real inde
 
           Spring spring (0.5, 0.0);
           SCM spec = elts[last_spaceable_staff]->get_property ("staff-staff-spacing");
-          alter_spring_from_spacing_spec (spec, &spring);
+          Skyline_pair *last_sky = Skyline_pair::unsmob (elts[last_spaceable_staff]->get_property ("vertical-skylines"));
+          Skyline_pair *my_sky = Skyline_pair::unsmob (elts[i]->get_property ("vertical-skylines"));
+          vector<Skyline_pair const*> loose_skys;
+          for (vsize i = 0; i < loose_lines_.size (); ++i)
+            loose_skys.push_back (Skyline_pair::unsmob (loose_lines_[i]->get_property ("vertical-skylines")));
 
+          Real area = 0;
+          Real length = 0;
+          // FIXME: horizon_padding
+          area_length_between (last_sky, my_sky, loose_skys, 20, &area, &length);
+
+          alter_spring_from_spacing_spec_with_area (spec, &spring, area, length);
           springs_.push_back (spring);
           Real min_distance = (found_spaceable_staff ? minimum_offsets_with_min_dist[last_spaceable_staff] : 0) - minimum_offsets_with_min_dist[i];
           springs_.back ().ensure_min_distance (min_distance);
@@ -632,6 +665,11 @@ Page_layout_problem::append_system (System *sys, Spring const &spring, Real inde
               manual_dists = scm_cdr (manual_dists);
             }
           last_spaceable_staff = i;
+          loose_lines_.clear ();
+        }
+      else
+        {
+          loose_lines_.push_back (elts[i]);
         }
     }
 
@@ -654,6 +692,7 @@ Page_layout_problem::append_prob (Prob *prob, Spring const &spring, Real padding
   Real minimum_distance = 0;
   bool tight_spacing = to_boolean (prob->get_property ("tight-spacing"));
 
+  // TODO: enable area-based spacing for probs.
   if (sky)
     {
       minimum_distance = (*sky)[UP].distance (bottom_skyline_);
@@ -680,6 +719,7 @@ Page_layout_problem::append_prob (Prob *prob, Spring const &spring, Real padding
 
   springs_.push_back (spring_copy);
   elements_.push_back (Element (prob, padding));
+  loose_lines_.clear ();
 }
 
 /**
@@ -1185,6 +1225,38 @@ Page_layout_problem::alter_spring_from_spacing_spec (SCM spec, Spring *spring)
 
   if (read_spacing_spec (spec, &stretch, ly_symbol2scm ("stretchability")))
     spring->set_inverse_stretch_strength (stretch);
+}
+
+void
+Page_layout_problem::alter_spring_from_spacing_spec_with_area (SCM spec, Spring *spring,
+                                                               Real area, Real length)
+{
+  Real target_area;
+  Real min_area;
+  Real space;
+  Real stretch;
+  Real min_dist;
+  if (read_spacing_spec (spec, &stretch, ly_symbol2scm ("stretchability")))
+    spring->set_inverse_stretch_strength (stretch);
+  if (read_spacing_spec (spec, &space, ly_symbol2scm ("basic-distance")))
+    spring->set_distance (space);
+  if (read_spacing_spec (spec, &target_area, ly_symbol2scm ("basic-area")))
+    {
+      // Solve this equation for dist:
+      // area + dist * length = target_area * length
+      Real dist = (target_area - area / length);
+      spring->set_distance (dist);
+      // FIXME: adjust stretch/compress force based on length?
+    }
+  if (read_spacing_spec (spec, &min_dist, ly_symbol2scm ("minimum-distance")))
+    spring->set_min_distance (min_dist);
+  if (read_spacing_spec (spec, &min_area, ly_symbol2scm ("minimum-area")))
+    {
+      Real dist = (min_area - area / length);
+      spring->ensure_min_distance (dist);
+    }
+  spring->set_default_strength ();
+
 }
 
 vector<Grob *>

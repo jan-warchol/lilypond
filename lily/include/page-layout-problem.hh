@@ -44,6 +44,10 @@ public:
   static SCM get_spacing_spec (Grob *before, Grob *after, bool pure, int start, int end);
   static Real get_fixed_spacing (Grob *before, Grob *after, int spaceable_index, bool pure, int start, int end);
   static void add_footnotes_to_footer (SCM footnotes, Stencil *foot, Paper_book *pb);
+  static void area_length_between (Skyline_pair const* above, Skyline_pair const* below,
+                                   vector<Skyline_pair const*> const& between,
+                                   Real horizon_padding,
+                                   Real *area, Real *length);
 
 protected:
   void append_system (System *, Spring const &, Real indent, Real padding);
@@ -83,13 +87,14 @@ protected:
   } Element;
 
   static SCM get_details (Element const &);
-  static SCM details_get_property (SCM details, const char *);
   static void alter_spring_from_spacing_spec (SCM spec, Spring *spring);
+  static void alter_spring_from_spacing_spec_with_area (SCM spec, Spring *spring, Real area, Real length);
   static void mark_as_spaceable (Grob *);
 
   vector<Spring> springs_;
   vector<Element> elements_;
   vector<Real> solution_;
+  vector<Grob*> loose_lines_;
   Real force_;
   Skyline bottom_skyline_;
   Real bottom_loose_baseline_;
