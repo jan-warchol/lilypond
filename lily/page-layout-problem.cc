@@ -1010,35 +1010,6 @@ Page_layout_problem::build_system_skyline (vector<Grob *> const &staves,
   down->raise (-last_spaceable_dy);
 }
 
-Interval
-Page_layout_problem::prob_extent (Prob *p)
-{
-  Stencil *sten = unsmob_stencil (p->get_property ("stencil"));
-  return sten ? sten->extent (Y_AXIS) : Interval (0, 0);
-}
-
-Interval
-Page_layout_problem::first_staff_extent (Element const &e)
-{
-  if (e.prob)
-    return prob_extent (e.prob);
-  else if (e.staves.size ())
-    return e.staves[0]->extent (e.staves[0], Y_AXIS);
-
-  return Interval (0, 0);
-}
-
-Interval
-Page_layout_problem::last_staff_extent (Element const &e)
-{
-  if (e.prob)
-    return prob_extent (e.prob);
-  else if (e.staves.size ())
-    return e.staves.back ()->extent (e.staves.back (), Y_AXIS);
-
-  return Interval (0, 0);
-}
-
 SCM
 Page_layout_problem::get_details (Element const &elt)
 {

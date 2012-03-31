@@ -82,9 +82,6 @@ protected:
     }
   } Element;
 
-  static Interval first_staff_extent (Element const &);
-  static Interval last_staff_extent (Element const &);
-  static Interval prob_extent (Prob *);
   static SCM get_details (Element const &);
   static SCM details_get_property (SCM details, const char *);
   static void alter_spring_from_spacing_spec (SCM spec, Spring *spring);
