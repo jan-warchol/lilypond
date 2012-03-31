@@ -1045,4 +1045,5 @@ ADD_INTERFACE (System,
                "in-note-stencil "
                "labels "
                "pure-Y-extent "
+               "vertical-alignment "
               );
