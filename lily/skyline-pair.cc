@@ -70,13 +70,13 @@ Skyline_pair::insert (Box const &b, Axis a)
 }
 
 Real
-Skyline_pair::left ()
+Skyline_pair::left () const
 {
   return min (skylines_[UP].left (), skylines_[DOWN].left ());
 }
 
 Real
-Skyline_pair::right ()
+Skyline_pair::right () const
 {
   return max (skylines_[UP].right (), skylines_[DOWN].right ());
 }
