@@ -659,17 +659,16 @@ Skyline
 Skyline::padded (Real horizon_padding) const
 {
   vector<Box> pad_boxes;
-  Real last_end = -infinity_f;
   for (list<Building>::const_iterator i = buildings_.begin (); i != buildings_.end (); ++i)
     {
-      if (last_end > -infinity_f)
+      if (i->start_ > -infinity_f)
         {
           // Add the box that pads the left side of the current building.
-          Real start = last_end - horizon_padding;
-          Real height = i->height (last_end);
+          Real start = i->start_ - horizon_padding;
+          Real height = i->height (i->start_);
           if (height > -infinity_f)
-            pad_boxes.push_back (Box (Interval (start, last_end),
-                                      Interval (height, height - 1)));
+            pad_boxes.push_back (Box (Interval (start, i->start_),
+                                      Interval (height - 1, height)));
         }
 
       if (i->end_ < infinity_f)
@@ -680,7 +679,7 @@ Skyline::padded (Real horizon_padding) const
           Real height = i->height (start);
           if (height > -infinity_f)
             pad_boxes.push_back (Box (Interval (start, end),
-                                      Interval (height, height - 1)));
+                                      Interval (height - 1, height)));
         }
     }
 

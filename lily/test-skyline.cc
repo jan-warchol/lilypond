@@ -97,4 +97,6 @@ FUNC (area_between)
   EQUAL (-6, teeth.area_between (flat, -3, 2, 0, 0));
   EQUAL (-3, flat.area_between (teeth, -2, 2, 0, 0));
   EQUAL (-5, flat.area_between (teeth, -2, 2, 0, -1));
+
+  EQUAL (-10, flat.area_between (teeth, -3, 2, 0, 0, 0.5));
 }
