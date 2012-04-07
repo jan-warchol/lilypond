@@ -658,8 +658,8 @@ avoid_outside_staff_collisions (Grob *elt,
             continue;
           // check for horizontal edges jinnying up
           Real holder = horizontal_skylines.smallest_shift (horizontal_skyline_forest[dir][j], dir, 0.0, 0.0);
-          if (holder != 0.0 && !isinf (holder))
-            bumps.push_back (holder);
+          if (holder != 0.0 && !isinf (holder)){message (elt->name ());horizontal_skyline_forest[dir][j].print_points (); horizontal_skylines.print_points ();
+            bumps.push_back (holder);}
           }
    
       for (vsize j = 0; j < vertical_skyline_forest[dir].size (); j++)
