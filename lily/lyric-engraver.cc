@@ -44,6 +44,7 @@ public:
 private:
   Stream_event *event_;
   Item *text_;
+  Item *stub_;
   Item *last_text_;
 
   Context *get_voice_context ();
@@ -52,6 +53,7 @@ private:
 Lyric_engraver::Lyric_engraver ()
 {
   text_ = 0;
+  stub_ = 0;
   last_text_ = 0;
   event_ = 0;
 }
