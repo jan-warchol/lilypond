@@ -4,12 +4,12 @@
 %% and then run scripts/auxiliar/makelsr.py
 %%
 %% This file is in the public domain.
-\version "2.15.25"
+\version "2.14.2"
 
 \header {
   lsrtags = "fretted-strings, tweaks-and-overrides"
 
-%% Translation of GIT committish: 6977ddc9a3b63ea810eaecb864269c7d847ccf98
+%% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   texidoces = "
 Se pueden establecer las propiedades de los diagramas de
 posiciones de acordes por medio de @code{'fret-diagram-details}.
@@ -58,6 +58,7 @@ can be omitted in property overrides.
 "
   doctitle = "Customizing fretboard fret diagrams"
 } % begin verbatim
+
 
 \include "predefined-guitar-fretboards.ly"
 \storePredefinedDiagram #default-fret-table \chordmode { c' }

@@ -49,19 +49,15 @@ avoid_staff_line (Slur_score_state const &state,
       Real p = 2 * (y - staff->relative_coordinate (state.common_[Y_AXIS], Y_AXIS))
                / state.staff_space_;
 
-      Real distance = fabs (my_round (p) - p);  //  in halfspaces
-      if (distance < 4 * state.thickness_
-          && (int) fabs (my_round (p))
-          <= 2 * Staff_symbol_referencer::staff_radius (staff) + 0.1
-          && (int (fabs (my_round (p))) % 2
-              != Staff_symbol_referencer::line_count (staff) % 2))
+      Real const round = my_round (p);
+      Real const frac = p - round;
+      if (fabs (frac) < 4 * state.thickness_
+          && Staff_symbol_referencer::on_staff_line (staff, int (round)))
         {
-          Direction resolution_dir
-            = (distance ? state.dir_ : Direction (sign (p - my_round (p))));
+          Direction resolution_dir = frac ? state.dir_ : CENTER;
 
           // TODO: parameter
-          Real newp = my_round (p) + resolution_dir
-                      * 5 * state.thickness_;
+          Real newp = round + resolution_dir * 5 * state.thickness_;
 
           Real dy = (newp - p) * state.staff_space_ / 2.0;
 
@@ -93,10 +89,8 @@ fit_factor (Offset dz_unit, Offset dz_perp, Real close_to_edge_length,
                 d * dot_product (z, dz_perp));
 
       bool close_to_edge = false;
-      Direction d = LEFT;
-      do
+      for (LEFT_and_RIGHT (d))
         close_to_edge = close_to_edge || -d * (p[X_AXIS] - curve_xext[d]) < close_to_edge_length;
-      while (flip (&d) != LEFT);
 
       if (close_to_edge)
         continue;
@@ -280,11 +274,12 @@ Slur_configuration::score_encompass (Slur_score_state const &state)
     }
   add_score (demerit, "encompass");
 
-  if (convex_head_distances.size ())
+  if (vsize n = convex_head_distances.size ())
     {
       Real avg_distance = 0.0;
       Real min_dist = infinity_f;
-      for (vsize j = 0; j < convex_head_distances.size (); j++)
+
+      for (vsize j = 0; j < n; j++)
         {
           min_dist = min (min_dist, convex_head_distances[j]);
           avg_distance += convex_head_distances[j];
@@ -294,12 +289,11 @@ Slur_configuration::score_encompass (Slur_score_state const &state)
         For slurs over 3 or 4 heads, the average distance is not a
         good normalizer.
       */
-      Real n = convex_head_distances.size ();
       if (n <= 2)
         {
           Real fact = 1.0;
           avg_distance += height_ * fact;
-          n += fact;
+          ++n;
         }
 
       /*
@@ -333,11 +327,11 @@ Slur_configuration::score_extra_encompass (Slur_score_state const &state)
         to prevent numerical inaccuracies in
         Bezier::get_other_coordinate ().
       */
-      Direction d = LEFT;
+
       bool found = false;
       Real y = 0.0;
 
-      do
+      for (LEFT_and_RIGHT (d))
         {
           /*
             We need to check for the bound explicitly, since the
@@ -358,7 +352,6 @@ Slur_configuration::score_extra_encompass (Slur_score_state const &state)
             }
 
         }
-      while (flip (&d) != LEFT);
 
       if (!found)
         {
@@ -396,11 +389,11 @@ Slur_configuration::score_extra_encompass (Slur_score_state const &state)
 void
 Slur_configuration::score_edges (Slur_score_state const &state)
 {
-  Direction d = LEFT;
+
   Offset dz = attachment_[RIGHT]
               - attachment_[LEFT];
   Real slope = dz[Y_AXIS] / dz[X_AXIS];
-  do
+  for (LEFT_and_RIGHT (d))
     {
       Real y = attachment_[d][Y_AXIS];
       Real dy = fabs (y - state.base_attachments_[d][Y_AXIS]);
@@ -419,7 +412,6 @@ Slur_configuration::score_edges (Slur_score_state const &state)
       string dir_str = d == LEFT ? "L" : "R";
       add_score (demerit, dir_str + " edge");
     }
-  while (flip (&d) != LEFT);
 }
 
 void

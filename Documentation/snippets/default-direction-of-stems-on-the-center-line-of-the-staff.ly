@@ -4,12 +4,12 @@
 %% and then run scripts/auxiliar/makelsr.py
 %%
 %% This file is in the public domain.
-\version "2.14.0"
+\version "2.14.2"
 
 \header {
   lsrtags = "editorial-annotations"
 
-%% Translation of GIT committish: 6977ddc9a3b63ea810eaecb864269c7d847ccf98
+%% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   texidoces = "
 La dirección predeterminada de las plicas sobre la tercera línea
 del pentagrama está determinada por la propiedad
@@ -34,6 +34,7 @@ by the @code{Stem} property @code{neutral-direction}.
 "
   doctitle = "Default direction of stems on the center line of the staff"
 } % begin verbatim
+
 
 \relative c'' {
   a4 b c b

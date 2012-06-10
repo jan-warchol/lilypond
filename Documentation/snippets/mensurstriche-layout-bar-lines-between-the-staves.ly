@@ -4,12 +4,12 @@
 %% and then run scripts/auxiliar/makelsr.py
 %%
 %% This file is in the public domain.
-\version "2.14.0"
+\version "2.14.2"
 
 \header {
-  lsrtags = "staff-notation, ancient-notation, contexts-and-engravers, tweaks-and-overrides"
+  lsrtags = "ancient-notation, contexts-and-engravers, staff-notation, tweaks-and-overrides"
 
-%% Translation of GIT committish: 6977ddc9a3b63ea810eaecb864269c7d847ccf98
+%% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   texidoces = "
 La disposición «mensurstriche» en que las líneas divisorias no
 están dibujadas sobre los pentagramas, sino entre ellos, se puede
@@ -36,7 +36,7 @@ Systemen werden mit der @code{transparent}-Eigenschaft ausgelöscht.
   texidocfr = "
 En musique mensurale, les barres de mesure ne traversent pas les
 portées.  Pour obtenir ce résultat avec un @code{StaffGroup} plutôt
-qu'en utilisant un @code{ChoirStaff}, il faudra rendre
+qu'en utilisant un @code{ChoirStaff}, il faudra rendre 
 @qq{transparentes} les portions de barre qui recouvrent les portées.
 
 "
@@ -52,6 +52,7 @@ the @code{transparent} property.
 "
   doctitle = "Mensurstriche layout (bar lines between the staves)"
 } % begin verbatim
+
 
 global = {
   \override Staff.BarLine #'transparent = ##t

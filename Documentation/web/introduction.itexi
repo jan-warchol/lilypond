@@ -432,7 +432,7 @@ documentation explaining how to use these features -- we can
 achieve our goal with only a fraction of the individual effort.
 
 @item
-@qq{Gift culture}: the Free Software (or @qq{Open Source})
+@qq{Gift culture}: the Free Software
 movement has created many great software projects, such as
 @uref{http://kernel.org/, GNU/Linux},
 @uref{http://www.getfirefox.com/, Mozilla Firefox}, and
@@ -441,7 +441,7 @@ benefitted from these projects, some developers want to @qq{give
 back} to the community.
 
 @item
-Work experience: contributing to open-source projects is a great way to
+Work experience: contributing to free software projects is a great way to
 practice programming, documentation writing, documentation translation,
 or design.  This experience has helped some developers gain job offers
 or scholarships.
@@ -498,13 +498,40 @@ Some highlights:
 @itemize
 
 @item
-@emph{Affaire étrangère}, an opera by
-@uref{http://valentin.villenave.net/,Valentin Villenave}
-to a French libretto by
-@uref{http://en.wikipedia.org/wiki/Lewis_Trondheim, Lewis
-Trondheim}, premiered February 1, 2009 at
-@uref{http://www.orchestre-montpellier.com/, L'Opéra National de
-Montpellier}, France.
+Mussorgsky's @emph{Pictures at an exhibition}, re-orchestrated and
+conducted by @uref{http://www.aurelienbello.com/,Aurélien Bello} with
+the @uref{http://www.junge-philharmonie-brandenburg.de/,
+Junge Philharmonie Brandenburg}
+on Oct 10 2011 and again on Apr 15-16 2012.
+
+@item
+@uref{http://www.kierenmacmillan.info/, Kieren MacMillan}, composer and
+musical director.  His many, recent works include; @emph{Go Thy Way},
+performed by the @uref{http://www.saltlakechoralartists.org/,
+Salt Lake Choral Artists} in March 2012; The
+@emph{Just Out of Reach Suite} performed
+by the
+@uref{http://www.herald-dispatch.com/news/marshall/x1883873762/Music-duo-Chrysalis-to-perform-at-Marshall-University-on-Jan-19,
+Chrysalis Duo} ; @emph{thrafsmata} performed in July 2011 by the
+@uref{http://www.pnme.org/CurrentSeason/PreviousSeasons.html, Pittsburgh
+New Music Ensemble}.
+
+
+@item
+@emph{Anonymous Student Compliment or Complaint}, by
+@uref{http://www.mikesolomon.org, Mike Solomon}, winner chosen from among
+172 entries from 22 countries of the
+@uref{http://leftcoastensemble.org/contest, 2011 Left Coast Composition Contest}.
+Other works include, Norman (age 1) for clarinet solo, performed at the
+@uref{http://emu.music.ufl.edu/fems_concerts.html, University of Florida}'s
+Electroacoustic Music Festival (FEMF), October 2010.
+
+@item
+A modern edition of the @emph{Serenata Erminia} by Alessandro Scarlatti,
+edited by Thomas Griffin, Musicologist (Rome, Italy).  Performed on 22
+October 2010 in the Galleria of the Palazzo Zevallos Stigliano, Naples,
+Italy.  @uref{http://www.ascarlatti2010.net, Alessandro Scarlatti 2010},
+in celebration of the composer's 350th birthday.
 
 @item
 @uref{http://www.mercurybaroque.org/02/02109.aspx, Mercury Baroque}'s
@@ -519,10 +546,13 @@ and his ensemble @uref{http://www.earlymusicny.org/, Early Music
 New York} (engraving by Nicolas Sceaux).
 
 @item
-Mussorgsky's @emph{Pictures at an exhibition}, re-orchestrated and
-conducted by @uref{http://www.aurelienbello.com/,Aurélien Bello} with
-the @uref{http://www.junge-philharmonie-brandenburg.de/,Junge Philharmonie Brandenburg}
-on Oct 10 2011 and again on Apr 15-16 2012.
+@emph{Affaire étrangère}, an opera by
+@uref{http://valentin.villenave.net/,Valentin Villenave}
+to a French libretto by
+@uref{http://en.wikipedia.org/wiki/Lewis_Trondheim, Lewis
+Trondheim}, premiered February 1, 2009 at
+@uref{http://www.orchestre-montpellier.com/, L'Opéra National de
+Montpellier}, France.
 
 @end itemize
 @divEnd
@@ -1044,14 +1074,13 @@ viewer with advanced point-and-click support.
 
 @sourceimage{logo-linux,,,}
 @sourceimage{logo-freebsd,,,}
+@sourceimage{logo-windows,,,}
 
 @uref{http://www.frescobaldi.org}
 
-Frescobaldi is a dedicated LilyPond music and text editor with a
-built-in PDF previewer, a powerful score wizard and many editing
-features.  It is built on top of the KDE4 libraries and runs
-currently on all flavours of Linux and other UNIX-like operating
-systems.
+Frescobaldi is lightweight, yet powerful LilyPond music and text editor
+with a built-in PDF viewer.  It is easy to use and will run on all major
+operating systems (Linux, Mac OS X and Windows).
 
 @divEnd
 

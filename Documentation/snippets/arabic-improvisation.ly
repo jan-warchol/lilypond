@@ -4,12 +4,12 @@
 %% and then run scripts/auxiliar/makelsr.py
 %%
 %% This file is in the public domain.
-\version "2.15.25"
+\version "2.15.32"
 
 \header {
   lsrtags = "world-music"
 
-%% Translation of GIT committish: 6977ddc9a3b63ea810eaecb864269c7d847ccf98
+%% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   texidoces = "
 Para las improvisaciones o @emph{taqasim} que son libres durante unos
 momentos, se puede omitir la indicación de compás y se puede usar
@@ -57,6 +57,7 @@ of what could be the start of a hijaz improvisation:
 "
   doctitle = "Arabic improvisation"
 } % begin verbatim
+
 
 \include "arabic.ly"
 

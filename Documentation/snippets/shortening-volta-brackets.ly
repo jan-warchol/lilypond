@@ -4,12 +4,12 @@
 %% and then run scripts/auxiliar/makelsr.py
 %%
 %% This file is in the public domain.
-\version "2.14.0"
+\version "2.14.2"
 
 \header {
   lsrtags = "repeats"
 
-%% Translation of GIT committish: 6977ddc9a3b63ea810eaecb864269c7d847ccf98
+%% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   texidoces = "
 De forma predeterminada, los corchetes de primera y segunda vez se
 trazan encima de los finales alternativos completos, pero es posible
@@ -51,6 +51,7 @@ lasts one measure, which is a duration of 3/4.
 "
   doctitle = "Shortening volta brackets"
 } % begin verbatim
+
 
 \relative c'' {
   \time 3/4

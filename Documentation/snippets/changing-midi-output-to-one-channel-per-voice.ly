@@ -7,9 +7,9 @@
 \version "2.15.32"
 
 \header {
-  lsrtags = "contexts-and-engravers, midi"
+  lsrtags = "real-music, contexts-and-engravers, midi"
 
-%% Translation of GIT committish: 6977ddc9a3b63ea810eaecb864269c7d847ccf98
+%% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   texidoces = "
 Al producir una salida MIDI, el comportamiento predeterminado es que
 cada pentagrama representa un canal MIDI, con todas las voces de dicho
@@ -60,6 +60,7 @@ two MIDI channels are created, each with a different
 "
   doctitle = "Changing MIDI output to one channel per voice"
 } % begin verbatim
+
 
 \score {
   \new Staff <<

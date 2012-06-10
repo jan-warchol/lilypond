@@ -3,7 +3,7 @@
 @c contributor/introduction.itely
 
 @ignore
-    Translation of GIT committish:  8cbb38db1591ab95a178643e7bf41db018aa22c0
+    Translation of GIT committish:  233fb6a8b3b6e31de1841641dbbd4c4f43423151
 
     When revising a translation, copy the HEAD committish of the
     version that you are working on.  For details, see the Contributors'
@@ -27,10 +27,10 @@ Aufgaben widmen anstatt diese einfachen Probleme zu lösen.
 @end macro
 
 
-@macro helpusTasks
+@macro helpusSimple
 @subheading Einfache Aufgaben
 
-Keine Kompilation des Quellcodes nötig!
+@strong{Keine Kentnisse im Programmieren} benötigt!
 
 @itemize
 @item
@@ -41,6 +41,11 @@ anderen Benutzern.
 Fehlerberichte: helfen Sie anderen Benutzern, richtige
 @ref{Fehlerberichte} zu erstellen und/oder schließen Sie sich dem
 Fehlerteam an, um die @rcontribnamed{Issues,Probleme} zu verwalten.
+
+@item
+@rcontrib{Grand Regression Test Checking}: Verfizieren Sie, dass LilyPond
+richtig arbeitet, indem Sie die Ausgabe der Testschnipsel überprüfen.  Ein
+Schnipsel zu überprüfen dauert weniger als eine Minute!
 
 @item
 Dokumentation: kleine Änderungen (immer zuerst auf Englisch)
@@ -61,7 +66,10 @@ diesen Diskussionen teil!
 
 @end itemize
 
+@end macro
 
+
+@macro helpusAdvanced
 @subheading Fortgeschrittene Aufgaben
 
 Diese Aufgaben setzen voraus, dass Sie die Quellen
@@ -77,6 +85,10 @@ Beitragende, die Linux oder FreBSD benutzen, können auch lilybuntu
 einsetzen, aber wenn Sie Ihre eigene Entwicklungsumgebung einrichten
 wollen, lesen Sie bitte @rcontribnamed{Working with source code,Mit dem Sourcecode arbeiten}
 und @rcontribnamed{Compiling,Kompilieren}.
+
+Beginnen Sie, indem Sie das Kapitel
+@rcontribnamed{Summary for experienced developers,Zusammenfassung für erfahrene Entwickler}
+lesen.
 
 @itemize
 @item
@@ -105,6 +117,7 @@ anzuschließen. Siehe auch
 @end macro
 
 
+@ignore
 @macro helpusProjects
 @subheading Projekte
 
@@ -163,5 +176,7 @@ Basis zu geben, sodass große Änderungen in der Zukunft einfacher
 bewerkstelligt werden können.
 
 @end macro
+
+@end ignore
 
 

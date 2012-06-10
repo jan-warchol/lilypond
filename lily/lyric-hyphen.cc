@@ -47,18 +47,14 @@ Lyric_hyphen::print (SCM smob)
   Grob *common = bounds[LEFT]->common_refpoint (bounds[RIGHT], X_AXIS);
 
   Interval span_points;
-  Direction d = LEFT;
-  do
+  for (LEFT_and_RIGHT (d))
     {
-      Interval iv = bounds[d]->break_status_dir ()
-                    ? Axis_group_interface::generic_bound_extent (bounds[d], common, X_AXIS)
-                    : robust_relative_extent (bounds[d], common, X_AXIS);
+      Interval iv = Axis_group_interface::generic_bound_extent (bounds[d], common, X_AXIS);
 
       span_points[d] = iv.is_empty ()
                        ? bounds[d]->relative_coordinate (common, X_AXIS)
                        : iv[-d];
     }
-  while (flip (&d) != LEFT);
 
   Real lt = me->layout ()->get_dimension (ly_symbol2scm ("line-thickness"));
   Real th = robust_scm2double (me->get_property ("thickness"), 1) * lt;
@@ -125,14 +121,12 @@ Lyric_hyphen::set_spacing_rods (SCM smob)
   Spanner *sp = dynamic_cast<Spanner *> (me);
 
   r.distance_ = robust_scm2double (me->get_property ("minimum-distance"), 0);
-  Direction d = LEFT;
-  do
+  for (LEFT_and_RIGHT (d))
     {
       r.item_drul_[d] = sp->get_bound (d);
       if (r.item_drul_[d])
         r.distance_ += -d * r.item_drul_[d]->extent (r.item_drul_[d], X_AXIS)[-d];
     }
-  while (flip (&d) != LEFT);
 
   if (r.item_drul_[LEFT]
       && r.item_drul_[RIGHT])

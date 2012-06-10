@@ -4,12 +4,12 @@
 %% and then run scripts/auxiliar/makelsr.py
 %%
 %% This file is in the public domain.
-\version "2.14.0"
+\version "2.14.2"
 
 \header {
-  lsrtags = "pitches, vocal-music"
+  lsrtags = "vocal-music, pitches"
 
-%% Translation of GIT committish: 6977ddc9a3b63ea810eaecb864269c7d847ccf98
+%% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   doctitlees = "Ámbitos con varias voces"
   texidoces = "
 La adición del grabador @code{Ambitus_engraver} al contexto de
@@ -54,6 +54,7 @@ voices.
 "
   doctitle = "Ambitus with multiple voices"
 } % begin verbatim
+
 
 \new Staff \with {
   \consists "Ambitus_engraver"

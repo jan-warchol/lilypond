@@ -141,10 +141,8 @@ apply for the down staff of @code{PianoStaff}.  Used by
 @code{\\autochange}.")
      (beamExceptions ,list? "An alist of exceptions to autobeam rules
 that normally end on beats.")
-     (beamHalfMeasure ,boolean? "Allow a half measure of eighth notes to
-be beamed together in 3/4 time?")
-     (beamWholeMeasure ,boolean? "Allow a whole measure of eighth notes
-to be beamed together in 3/4 time?")
+     (beamHalfMeasure ,boolean? "Whether to allow a beam to begin
+halfway through the measure in triple time, which could look like 6/8.")
      (beatStructure ,list? "List of @code{baseMoment}s that are combined
 to make beats.")
 
@@ -177,6 +175,7 @@ Values of 7 and -7 are common.")
 symbol go, measured in half staff spaces from the center of the
 staff.")
      (completionBusy ,boolean? "Whether a completion-note head is playing.")
+     (completionUnit ,ly:moment? "Sub-bar unit of completion.")
      (connectArpeggios ,boolean? "If set, connect arpeggios across
 piano staff.")
      (countPercentRepeats ,boolean? "If set, produce counters for
@@ -229,7 +228,8 @@ the symbol @samp{hihat}) as keys, and a list
 @code{(@var{notehead-style} @var{script} @var{vertical-position})} as
 values.")
 
-
+     (endRepeatType ,string? "Set the default bar line for the ending
+of repeats.")
      (explicitClefVisibility ,vector? "@samp{break-visibility}
 function for clef changes.")
      (explicitCueClefVisibility ,vector? "@samp{break-visibility}
@@ -478,6 +478,8 @@ part-combining.")
 @code{traditional}, or @code{semitone}.")
      (stanza ,markup? "Stanza @q{number} to print before the start of a
 verse.  Use in @code{Lyrics} context.")
+     (startRepeatType ,string? "Set the default bar line for the beginning
+of repeats.")
      (stemLeftBeamCount ,integer? "Specify the number of beams to draw
 on the left side of the next note.  Overrides automatic beaming.  The
 value is only used once, and then it is erased.")
@@ -582,6 +584,7 @@ are described in @rinternals{bar-line-interface}.")
      (apply translator-property-description x))
 
    `(
+     (EventClasses ,cheap-list? "The initial list of event classes.")
 
      (associatedVoiceContext ,ly:context? "The context object of the
 @code{Voice} that has the melody for this @code{Lyrics}.")

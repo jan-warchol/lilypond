@@ -4,12 +4,12 @@
 %% and then run scripts/auxiliar/makelsr.py
 %%
 %% This file is in the public domain.
-\version "2.14.0"
+\version "2.14.2"
 
 \header {
-  lsrtags = "unfretted-strings, template"
+  lsrtags = "preparing-parts, template, unfretted-strings"
 
-%% Translation of GIT committish: 6977ddc9a3b63ea810eaecb864269c7d847ccf98
+%% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   texidoces = "
 El fragmento de código @qq{Plantilla de cuarteto de cuerda} produce un
 resultado satisfactorio para el cuarteto, pero ¿y si tenemos que
@@ -124,6 +124,7 @@ Do not forget to remove specified comments when using separate files!
 "
   doctitle = "String quartet template with separate parts"
 } % begin verbatim
+
 
 %%%%% piece.ly
 %%%%% (This is the global definitions file)

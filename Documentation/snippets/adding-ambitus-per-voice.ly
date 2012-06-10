@@ -4,12 +4,12 @@
 %% and then run scripts/auxiliar/makelsr.py
 %%
 %% This file is in the public domain.
-\version "2.14.0"
+\version "2.14.2"
 
 \header {
-  lsrtags = "pitches, staff-notation, vocal-music"
+  lsrtags = "vocal-music, pitches, staff-notation"
 
-%% Translation of GIT committish: 6977ddc9a3b63ea810eaecb864269c7d847ccf98
+%% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   doctitlees = "Añadir un ámbito por voz"
   texidoces = "
 Se puede añadir un ámbito por cada voz. En este caso, el ámbito se
@@ -49,6 +49,7 @@ manually to prevent collisions.
 "
   doctitle = "Adding ambitus per voice"
 } % begin verbatim
+
 
 \new Staff <<
   \new Voice \with {

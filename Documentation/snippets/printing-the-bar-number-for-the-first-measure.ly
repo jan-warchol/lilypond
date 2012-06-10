@@ -4,12 +4,12 @@
 %% and then run scripts/auxiliar/makelsr.py
 %%
 %% This file is in the public domain.
-\version "2.14.0"
+\version "2.14.2"
 
 \header {
   lsrtags = "rhythms"
 
-%% Translation of GIT committish: 6977ddc9a3b63ea810eaecb864269c7d847ccf98
+%% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   texidoces = "
 
 De forma predeterminada se suprime el número del primer compás de una
@@ -62,6 +62,7 @@ must be inserted before the first note for this to work.
 "
   doctitle = "Printing the bar number for the first measure"
 } % begin verbatim
+
 
 \relative c' {
   \set Score.barNumberVisibility = #all-bar-numbers-visible

@@ -4,12 +4,12 @@
 %% and then run scripts/auxiliar/makelsr.py
 %%
 %% This file is in the public domain.
-\version "2.14.0"
+\version "2.14.2"
 
 \header {
-  lsrtags = "editorial-annotations, text"
+  lsrtags = "editorial-annotations, text, really-cool"
 
-%% Translation of GIT committish: 6977ddc9a3b63ea810eaecb864269c7d847ccf98
+%% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   texidoces = "
 La instrucción @code{\\whiteout} intercala un rectángulo blanco
 debajo de un elemento de marcado.  Este rectángulo blanco no tapa
@@ -28,6 +28,7 @@ white box will not overlap any other grob.
 "
   doctitle = "Blanking staff lines using the \\whiteout command"
 } % begin verbatim
+
 
 \layout { ragged-right = ##f }
 \relative c' {

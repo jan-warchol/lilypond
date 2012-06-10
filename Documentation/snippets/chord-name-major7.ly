@@ -4,12 +4,12 @@
 %% and then run scripts/auxiliar/makelsr.py
 %%
 %% This file is in the public domain.
-\version "2.14.0"
+\version "2.14.2"
 
 \header {
-  lsrtags = "chords"
+  lsrtags = "specific-notation, chords"
 
-%% Translation of GIT committish: 6977ddc9a3b63ea810eaecb864269c7d847ccf98
+%% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   texidoces = "
 La presentación del acorde de séptima mayor se
 puede ajustar mediante majorSevenSymbol.
@@ -42,6 +42,7 @@ The layout of the major 7 can be tuned with @code{majorSevenSymbol}.
 "
   doctitle = "chord name major7"
 } % begin verbatim
+
 
 \chords {
   c:7+

@@ -4,12 +4,12 @@
 %% and then run scripts/auxiliar/makelsr.py
 %%
 %% This file is in the public domain.
-\version "2.14.0"
+\version "2.14.2"
 
 \header {
-  lsrtags = "text, vocal-music"
+  lsrtags = "vocal-music, text"
 
-%% Translation of GIT committish: ea0b270e14781707ab52683acddf9302bbe337f3
+%% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   texidoces = "
 Es posible usar el modo de marcado para dar formato a sílabas
 individuales dentro de la letra.

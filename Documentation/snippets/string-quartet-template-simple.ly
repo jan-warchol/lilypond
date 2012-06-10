@@ -4,12 +4,12 @@
 %% and then run scripts/auxiliar/makelsr.py
 %%
 %% This file is in the public domain.
-\version "2.14.0"
+\version "2.14.2"
 
 \header {
-  lsrtags = "unfretted-strings, template"
+  lsrtags = "template, really-simple, unfretted-strings"
 
-%% Translation of GIT committish: 6977ddc9a3b63ea810eaecb864269c7d847ccf98
+%% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   texidoces = "
 Esta plantilla muestra un cuarteto de cuerda normal. También utiliza
 una sección @code{\\global} para el compás y la armadura
@@ -57,6 +57,7 @@ This template demonstrates a simple string quartet. It also uses a
 "
   doctitle = "String quartet template (simple)"
 } % begin verbatim
+
 
 global= {
   \time 4/4

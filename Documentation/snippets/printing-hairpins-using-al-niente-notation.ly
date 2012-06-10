@@ -4,12 +4,12 @@
 %% and then run scripts/auxiliar/makelsr.py
 %%
 %% This file is in the public domain.
-\version "2.14.0"
+\version "2.14.2"
 
 \header {
   lsrtags = "expressive-marks"
 
-%% Translation of GIT committish: 6977ddc9a3b63ea810eaecb864269c7d847ccf98
+%% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   texidoces = "
 Se pueden imprimir reguladores con un círculo en la punta (notación
 «al niente») estableciendo la propiedad @code{circled-tip} del objeto
@@ -47,6 +47,7 @@ notation) by setting the @code{circled-tip} property of the
 "
   doctitle = "Printing hairpins using al niente notation"
 } % begin verbatim
+
 
 \relative c'' {
   \override Hairpin #'circled-tip = ##t

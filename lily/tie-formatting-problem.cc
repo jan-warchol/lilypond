@@ -56,8 +56,8 @@ Interval
 Tie_formatting_problem::get_attachment (Real y, Drul_array<int> columns) const
 {
   Interval attachments (0, 0);
-  Direction d = LEFT;
-  do
+
+  for (LEFT_and_RIGHT (d))
     {
       Tuple2<int> key (columns[d], int (d));
       Chord_outline_map::const_iterator i (chord_outlines_.find (key));
@@ -66,7 +66,6 @@ Tie_formatting_problem::get_attachment (Real y, Drul_array<int> columns) const
       else
         attachments[d] = i->second.height (y);
     }
-  while (flip (&d) != LEFT);
 
   return attachments;
 }
@@ -227,8 +226,7 @@ Tie_formatting_problem::set_column_chord_outline (vector<Item *> bounds,
 
     }
 
-  Direction updowndir = DOWN;
-  do
+  for (DOWN_and_UP (updowndir))
     {
       Interval x;
       Interval y;
@@ -244,7 +242,6 @@ Tie_formatting_problem::set_column_chord_outline (vector<Item *> bounds,
       if (!x.is_empty ())
         boxes.push_back (Box (x, y));
     }
-  while (flip (&updowndir) != DOWN);
 
   chord_outlines_[key] = Skyline (boxes, Y_AXIS, -dir);
   if (bounds[0]->break_status_dir ())
@@ -339,8 +336,7 @@ Tie_formatting_problem::from_ties (vector<Grob *> const &ties)
 
   details_.from_grob (ties[0]);
 
-  Direction d = LEFT;
-  do
+  for (LEFT_and_RIGHT (d))
     {
       vector<Item *> bounds;
 
@@ -355,19 +351,17 @@ Tie_formatting_problem::from_ties (vector<Grob *> const &ties)
 
       set_chord_outline (bounds, d);
     }
-  while (flip (&d) != LEFT);
 
   for (vsize i = 0; i < ties.size (); i++)
     {
       Tie_specification spec;
       spec.from_grob (ties[i]);
 
-      do
+      for (LEFT_and_RIGHT (d))
         {
           spec.note_head_drul_[d] = Tie::head (ties[i], d);
           spec.column_ranks_[d] = Tie::get_column_rank (ties[i], d);
         }
-      while (flip (&d) != LEFT);
       specifications_.push_back (spec);
     }
 }
@@ -502,21 +496,24 @@ Tie_formatting_problem::generate_configuration (int pos, Direction dir,
         size.
 
        */
+      Interval staff_span =
+        Staff_symbol_referencer::staff_span (details_.staff_symbol_referencer_);
+      staff_span.widen (-1);
+      bool const within_staff = staff_span.contains(pos);
       if (head_positions_slice (columns[LEFT]).contains (pos)
           || head_positions_slice (columns[RIGHT]).contains (pos)
-          || abs (pos) < 2 * Staff_symbol_referencer::staff_radius (details_.staff_symbol_referencer_))
+          || within_staff)
         {
           if (h < details_.intra_space_threshold_ * 0.5 * details_.staff_space_)
             {
-              if (!Staff_symbol_referencer::on_line (details_.staff_symbol_referencer_, pos)
-                  && abs (pos) < 2 * Staff_symbol_referencer::staff_radius (details_.staff_symbol_referencer_))
-                {
-                  conf->center_tie_vertically (details_);
-                }
-              else if (Staff_symbol_referencer::on_line (details_.staff_symbol_referencer_, pos))
+              if (Staff_symbol_referencer::on_line (details_.staff_symbol_referencer_, pos))
                 {
                   conf->delta_y_ += dir *
                                     details_.tip_staff_line_clearance_ * 0.5 * details_.staff_space_;
+                }
+              else if (within_staff)
+                {
+                  conf->center_tie_vertically (details_);
                 }
             }
           else
@@ -564,8 +561,7 @@ Tie_formatting_problem::generate_configuration (int pos, Direction dir,
         It would be better to check D against HEAD-DIRECTION if
         applicable.
       */
-      Direction d = LEFT;
-      do
+      for (LEFT_and_RIGHT (d))
         {
           Real y = conf->position_ * details_.staff_space_ * 0.5 + conf->delta_y_;
           if (get_stem_extent (conf->column_ranks_[d], d, X_AXIS).is_empty ()
@@ -576,7 +572,6 @@ Tie_formatting_problem::generate_configuration (int pos, Direction dir,
             = d * min (d * conf->attachment_x_[d],
                        d * (get_stem_extent (conf->column_ranks_[d], d, X_AXIS)[-d] - d * details_.stem_gap_));
         }
-      while (flip (&d) != LEFT);
     }
   return conf;
 }
@@ -630,8 +625,7 @@ Tie_formatting_problem::score_aptitude (Tie_configuration *conf,
       penalty += p;
   }
 
-  Direction d = LEFT;
-  do
+  for (LEFT_and_RIGHT (d))
     {
       if (!spec.note_head_drul_[d])
         continue;
@@ -651,14 +645,12 @@ Tie_formatting_problem::score_aptitude (Tie_configuration *conf,
         penalty += p;
 
     }
-  while (flip (&d) != LEFT);
 
   if (ties_conf
       && ties_conf->size () == 1)
     {
-      Direction d = LEFT;
       Drul_array<Grob *> stems (0, 0);
-      do
+      for (LEFT_and_RIGHT (d))
         {
           if (!spec.note_head_drul_[d])
             continue;
@@ -668,7 +660,6 @@ Tie_formatting_problem::score_aptitude (Tie_configuration *conf,
               && Stem::is_normal_stem (stem))
             stems[d] = stem;
         }
-      while (flip (&d) != LEFT);
 
       bool tie_stem_dir_ok = true;
       bool tie_position_dir_ok = true;
@@ -729,9 +720,11 @@ Tie_formatting_problem::score_configuration (Tie_configuration *conf) const
   Real top_y = tip_y + conf->dir_ * height;
   Real top_pos = 2 * top_y / details_.staff_space_;
   Real round_top_pos = rint (top_pos);
+  Interval staff_span =
+    Staff_symbol_referencer::staff_span (details_.staff_symbol_referencer_);
   if (Staff_symbol_referencer::on_line (details_.staff_symbol_referencer_,
                                         int (round_top_pos))
-      && Staff_symbol_referencer::staff_radius (details_.staff_symbol_referencer_) > top_y)
+      && staff_span[UP] * 0.5 > top_y)
     {
       conf->add_score (details_.staff_line_collision_penalty_
                        * peak_around (0.1 * details_.center_staff_line_clearance_,
@@ -741,10 +734,11 @@ Tie_formatting_problem::score_configuration (Tie_configuration *conf) const
     }
 
   int rounded_tip_pos = int (rint (tip_pos));
+  staff_span.widen (-1);
   if (Staff_symbol_referencer::on_line (details_.staff_symbol_referencer_, rounded_tip_pos)
       && (head_positions_slice (conf->column_ranks_[LEFT]).contains (rounded_tip_pos)
           || head_positions_slice (conf->column_ranks_[RIGHT]).contains (rounded_tip_pos)
-          || abs (rounded_tip_pos) < 2 * Staff_symbol_referencer::staff_radius (details_.staff_symbol_referencer_))
+          || staff_span.contains (rounded_tip_pos))
      )
     {
       conf->add_score (details_.staff_line_collision_penalty_
@@ -1037,11 +1031,10 @@ vector<Tie_configuration_variation>
 Tie_formatting_problem::generate_extremal_tie_variations (Ties_configuration const &ties) const
 {
   vector<Tie_configuration_variation> vars;
-  Direction d = DOWN;
   for (int i = 1; i <= details_.multi_tie_region_size_; i++)
     {
       Drul_array<Tie_configuration *> configs (0, 0);
-      do
+      for (DOWN_and_UP (d))
         {
           const Tie_configuration &config = boundary (ties, d, 0);
           if (config.dir_ == d
@@ -1056,7 +1049,6 @@ Tie_formatting_problem::generate_extremal_tie_variations (Ties_configuration con
               vars.push_back (var);
             }
         }
-      while (flip (&d) != DOWN);
       if (configs[LEFT] && configs[RIGHT])
         {
           Tie_configuration_variation var;
@@ -1079,8 +1071,7 @@ Tie_formatting_problem::generate_single_tie_variations (Ties_configuration const
     sz = 1;
   for (int i = 0; i < sz; i++)
     {
-      Direction d = LEFT;
-      do
+      for (LEFT_and_RIGHT (d))
         {
           if (i == 0
               && ties[0].dir_ == d)
@@ -1099,7 +1090,6 @@ Tie_formatting_problem::generate_single_tie_variations (Ties_configuration const
               vars.push_back (var);
             }
         }
-      while (flip (&d) != LEFT);
     }
   return vars;
 }

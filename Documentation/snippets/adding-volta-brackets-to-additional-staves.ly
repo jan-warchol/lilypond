@@ -4,12 +4,12 @@
 %% and then run scripts/auxiliar/makelsr.py
 %%
 %% This file is in the public domain.
-\version "2.14.0"
+\version "2.14.2"
 
 \header {
   lsrtags = "repeats"
 
-%% Translation of GIT committish: 6977ddc9a3b63ea810eaecb864269c7d847ccf98
+%% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   texidoces = "
 El grabador @code{Volta_engraver} reside de forma predeterminada
 dentro del contexto de @code{Score}, y los corchetes de la repetición
@@ -55,6 +55,7 @@ should appear; see also the @qq{Volta multi staff} snippet.
 "
   doctitle = "Adding volta brackets to additional staves"
 } % begin verbatim
+
 
 <<
   \new Staff { \repeat volta 2 { c'1 } \alternative { c' } }

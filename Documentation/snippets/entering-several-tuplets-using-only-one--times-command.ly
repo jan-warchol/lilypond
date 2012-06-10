@@ -4,12 +4,12 @@
 %% and then run scripts/auxiliar/makelsr.py
 %%
 %% This file is in the public domain.
-\version "2.14.0"
+\version "2.14.2"
 
 \header {
-  lsrtags = "rhythms"
+  lsrtags = "syntax-and-expressions, rhythms"
 
-%% Translation of GIT committish: 6977ddc9a3b63ea810eaecb864269c7d847ccf98
+%% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
  doctitlees = "Escribir varios grupos especiales usando una sola instrucción \\times"
  texidoces = "
 La propiedad @code{tupletSpannerDuration} establece cuánto debe durar
@@ -76,6 +76,7 @@ information about @code{ly:make-moment}.
 "
   doctitle = "Entering several tuplets using only one \\times command"
 } % begin verbatim
+
 
 \relative c' {
   \time 2/4

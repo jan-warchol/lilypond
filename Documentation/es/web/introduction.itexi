@@ -1,6 +1,6 @@
 @c -*- coding: utf-8; mode: texinfo; documentlanguage: es -*-
 @ignore
-    Translation of GIT committish: b6731e900a2037112364ad328b8e3b2f7bcd1eb0
+    Translation of GIT committish: e79582f3ec94019a9f849b2855abab4eabae3172
 
     When revising a translation, copy the HEAD committish of the
     version that you are working on.  For details, see the Contributors'
@@ -455,8 +455,8 @@ podemos alcanzar nuestra meta con tan sólo una fracción del esfuerzo
 individual.
 
 @item
-La @qq{cultura del regalo}: el movimiento del Software Libre (o de
-@qq{fuente abierta}) ha creado muchos proyectos geniales de software,
+La @qq{cultura del regalo}: el movimiento del Software Libre
+ha creado muchos proyectos geniales de software,
 como @uref{http://kernel.org/, GNU/Linux},
 @uref{http://www.getfirefox.com/, Mozilla Firefox} y el juego
 @uref{http://www.wesnoth.org/, Battle for Wesnoth}.  Después de
@@ -464,7 +464,7 @@ haberse visto beneficiados por estos proyectos, algunos
 desarrolladores desean @qq{devolver} algo a la comunidad.
 
 @item
-Experiencia laboral: las contribuciones a proyectos de código abierto
+Experiencia laboral: las contribuciones a proyectos de software libre
 son una magnífica forma de practicar la programación, la escritura de
 documentación, la traducción de documentación o el diseño.  Esta
 experiencia ha ayudado a muchos programadores a encontrar trabajo en
@@ -519,20 +519,48 @@ de texto}.
 @divClass{column-left-top}
 @subheading Conciertos
 
-La música grabada con LilyPond se ha utilizado en interpretaciones y
+La música tipografiada con LilyPond se ha utilizado en interpretaciones y
 actuaciones por todo el mundo.  Algunos titulares:
 
 @divClass{keep-bullets}
 @itemize
 
 @item
-@emph{Affaire Étrangère}, ópera de
-@uref{http://valentin.villenave.net/,Valentin Villenave}, con
-libreto en francés de
-@uref{http://en.wikipedia.org/wiki/Lewis_Trondheim, Lewis Trondheim},
-estrenada el 1 de febrero de 2009 en
-@uref{http://www.opera-montpellier.com/, L'Opéra National de
-Montpellier}, en Francia.
+Los @emph{Cuadros de una exposición} de Mussorgsky, reorquestados y
+dirigidos por @uref{http://www.aurelienbello.com/,Aurélien Bello} con
+la orquesta @uref{http://www.junge-philharmonie-brandenburg.de/, Junge
+Philharmonie Brandenburg} el 10 de octubre de 2011 y otra vez los días
+15 y 16 de abril de 2012.
+
+@item
+@uref{http://www.kierenmacmillan.info/, Kieren MacMillan}, compositor
+y director musical.  Entre sus numerosas obras recientes están
+@emph{Go Thy Way}, interpretada por el coro
+@uref{http://www.saltlakechoralartists.org/, Salt Lake Choral Artists}
+en marzo de 2012; La @emph{Just Out of Reach Suite} interpretada por el
+@uref{http://www.herald-dispatch.com/news/marshall/x1883873762/Music-duo-Chrysalis-to-perform-at-Marshall-University-on-Jan-19,
+Dúo Chrysalis} ; @emph{thrafsmata} interpretada en julio de 2011 por
+el @uref{http://www.pnme.org/CurrentSeason/PreviousSeasons.html,
+Pittsburgh New Music Ensemble}.
+
+
+@item
+@emph{Anonymous Student Compliment or Complaint}, de
+@uref{http://www.mikesolomon.org, Mike Solomon}, ganador de entre 172
+participantes procedentes de 22 países del
+@uref{http://leftcoastensemble.org/contest, concurso de composición
+Left Coast de 2011}.  Entre otras obras están: Norman (age 1) para
+clarinete solo, interpretada en el festival de música electroacústica
+(FEMF) de la @uref{http://emu.music.ufl.edu/fems_concerts.html, Universidad
+de Florida} en octubre de 2010.
+
+@item
+Una edición moderna de la @emph{Serenata Erminia} de Alessandro
+Scarlatti, editada por el musicólogo Thomas Griffin, (Roma, Italia).
+Interpretada el 22 de octubre de 2010 en la Galleria del Palazzo
+Zevallos Stigliano de Nápoles.  @uref{http://www.ascarlatti2010.net,
+Alessandro Scarlatti 2010}, durante las conmemoraciones de los 350
+años del nacimiento del compositor.
 
 @item
 La interpretación de
@@ -547,10 +575,12 @@ Renz y su conjunto @uref{http://www.earlymusicny.org/, Early Music New
 York} (realización tipográfica de Nicolas Sceaux).
 
 @item
-Los @emph{Cuadros de una exposición} de Mussorgsky, reorquestados y
-dirigidos por @uref{http://www.aurelienbello.com/,Aurélien Bello} con
-la orquesta @uref{http://www.junge-philharmonie-brandenburg.de/,Junge Philharmonie Brandenburg}
-el 10 de octubre de 2011 y otra vez los días 15 y 16 de abril de 2012.
+@emph{Affaire Étrangère}, ópera de
+@uref{http://valentin.villenave.net/,Valentin Villenave}, con libreto
+en francés de @uref{http://en.wikipedia.org/wiki/Lewis_Trondheim,
+Lewis Trondheim}, estrenada el 1 de febrero de 2009 en
+@uref{http://www.opera-montpellier.com/, L'Opéra National de
+Montpellier}, en Francia.
 
 @end itemize
 @divEnd
@@ -1091,14 +1121,13 @@ una imagen más grande),frescobaldi-lilypond-editor,png,right}
 
 @sourceimage{logo-linux,,,}
 @sourceimage{logo-freebsd,,,}
+@sourceimage{logo-windows,,,}
 
 @uref{http://www.frescobaldi.org}
 
-Frescobaldi es un editor dedicado de texto y música para LilyPond con
-un visor de PDF incorporado, un potente asistente de partituras y
-muchas funcionalidades de edición.  Está construido alrededor de las
-bibliotecas de KDE4 y se ejecuta actualmente en todos los sabores de
-Linux y otros sistemas operativos del tipo UNIX.
+Frescobaldi es un editor ligero y potente de texto y música para LilyPond con
+un visor de PDF incorporado.  Es muy fácil de utilizar y funciona en todos
+los principales sistemas operativos (Linux, Mac OS X y Windows).
 
 @divEnd
 

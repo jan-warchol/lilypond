@@ -16,7 +16,7 @@
 %%%% You should have received a copy of the GNU General Public License
 %%%% along with LilyPond.  If not, see <http://www.gnu.org/licenses/>.
 
-\version "2.15.20"
+\version "2.15.39"
 
 \context {
   \name "Global"
@@ -26,6 +26,7 @@
   \defaultchild "Score"
   \description "Hard coded entry point for LilyPond.  Cannot be tuned."
   \grobdescriptions #all-grob-descriptions
+  EventClasses = #all-event-classes
 }
 
 \context {
@@ -229,7 +230,6 @@ multiple voices on the same staff."
   \consists "Dots_engraver"
   \consists "Rest_engraver"
   \consists "Tweak_engraver"
-  \consists "Footnote_engraver"
 
   %% switch on to make stem directions interpolate for the
   %% center line.
@@ -434,6 +434,7 @@ printing of a single line of lyrics."
   \consists "Lyric_engraver"
   \consists "Extender_engraver"
   \consists "Hyphen_engraver"
+  \consists "Tweak_engraver"
   \consists "Stanza_number_engraver"
   \consists "Instrument_name_engraver"
   \consists "Font_size_engraver"
@@ -554,6 +555,7 @@ automatically when an output definition (a @code{\score} or
   \consists "Parenthesis_engraver"
   \consists "Concurrent_hairpin_engraver"
   \consists "Beam_collision_engraver"
+  \consists "Footnote_engraver"
 
   \defaultchild "Staff"
 
@@ -601,6 +603,8 @@ automatically when an output definition (a @code{\score} or
 
   defaultBarType = #"|"
   doubleRepeatType = #":|:"
+  startRepeatType = #"|:"
+  endRepeatType = #":|"
   barNumberVisibility = #first-bar-number-invisible-and-no-parenthesized-bar-numbers
   barNumberFormatter = #robust-bar-number-function
   automaticBars = ##t
@@ -613,7 +617,7 @@ automatically when an output definition (a @code{\score} or
   repeatCountVisibility = #all-repeat-counts-visible
 
   timeSignatureSettings = #default-time-signature-settings
-  timeSignatureFraction = #'(4 . 4)
+  timeSignatureFraction = 4/4
 
 %% These defaults should be the same as the rules established in
 %%   scm/time-signature-settings.scm for 4/4 time
@@ -622,8 +626,7 @@ automatically when an output definition (a @code{\score} or
   beatStructure = #'(1 1 1 1)
   beamExceptions = #'((end . (((1 . 8) . (4 4))
                               ((1 . 12) . (3 3 3 3)))))
-  beamWholeMeasure = ##t
-  beamHalfMeasure = ##f
+  beamHalfMeasure = ##t
 
   autoBeaming = ##t
   autoBeamCheck = #default-auto-beam-check

@@ -4,12 +4,12 @@
 %% and then run scripts/auxiliar/makelsr.py
 %%
 %% This file is in the public domain.
-\version "2.14.0"
+\version "2.14.2"
 
 \header {
   lsrtags = "chords"
 
-%% Translation of GIT committish: 6977ddc9a3b63ea810eaecb864269c7d847ccf98
+%% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   texidoces = "
 Las alteraciones y los signos «más» pueden aparecer antes o
 después de los números, según el valor de las propiedades
@@ -47,6 +47,7 @@ depending on the @code{figuredBassAlterationDirection} and
 "
   doctitle = "Changing the positions of figured bass alterations"
 } % begin verbatim
+
 
 \figures {
   <6\+> <5+> <6 4-> r

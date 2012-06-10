@@ -4,12 +4,12 @@
 %% and then run scripts/auxiliar/makelsr.py
 %%
 %% This file is in the public domain.
-\version "2.14.0"
+\version "2.14.2"
 
 \header {
   lsrtags = "staff-notation, tweaks-and-overrides"
 
-%% Translation of GIT committish: 6977ddc9a3b63ea810eaecb864269c7d847ccf98
+%% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   texidoces = "
 Si hay un solo pentagrama en un de los tipos de sistema
 @code{ChoirStaff} o @code{StaffGroup}, el comportamiento
@@ -69,6 +69,7 @@ property has to be set, as shown on the second system in the example.
 "
   doctitle = "Display bracket with only one staff in a system"
 } % begin verbatim
+
 
 \markup \left-column {
   \score {

@@ -4,12 +4,12 @@
 %% and then run scripts/auxiliar/makelsr.py
 %%
 %% This file is in the public domain.
-\version "2.14.0"
+\version "2.14.2"
 
 \header {
-  lsrtags = "expressive-marks"
+  lsrtags = "workaround, expressive-marks"
 
-%% Translation of GIT committish: 6977ddc9a3b63ea810eaecb864269c7d847ccf98
+%% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   texidoces = "
 La función @code{\\parenthesize} es un truco especial que encierra
 objetos entre paréntesis.  El grob asociado es @code{ParenthesesItem}.
@@ -25,6 +25,7 @@ objects in parentheses.  The associated grob is @code{ParenthesesItem}.
 "
   doctitle = "Adding parentheses around an expressive mark or chordal note"
 } % begin verbatim
+
 
 \relative c' {
   c2-\parenthesize ->

@@ -4,12 +4,12 @@
 %% and then run scripts/auxiliar/makelsr.py
 %%
 %% This file is in the public domain.
-\version "2.15.25"
+\version "2.15.32"
 
 \header {
-  lsrtags = "rhythms, tweaks-and-overrides"
+  lsrtags = "tweaks-and-overrides, rhythms"
 
-%% Translation of GIT committish: 6977ddc9a3b63ea810eaecb864269c7d847ccf98
+%% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   texidoces = "
 
 La disposición de las expresiones de adorno se puede cambiar a lo
@@ -61,6 +61,7 @@ up, and changes the default note heads to crosses.
 "
   doctitle = "Tweaking grace layout within music"
 } % begin verbatim
+
 
 \relative c'' {
   \new Staff {

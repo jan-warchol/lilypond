@@ -4,12 +4,12 @@
 %% and then run scripts/auxiliar/makelsr.py
 %%
 %% This file is in the public domain.
-\version "2.14.0"
+\version "2.14.2"
 
 \header {
-  lsrtags = "rhythms, tweaks-and-overrides"
+  lsrtags = "tweaks-and-overrides, rhythms"
 
-%% Translation of GIT committish: 6977ddc9a3b63ea810eaecb864269c7d847ccf98
+%% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
 
   texidoces = "
 El comportamiento predeterminado de la visibilidad de los corchetes de
@@ -49,6 +49,7 @@ bracket), @code{#f} (never print a bracket) or @code{#'if-no-beam}
 "
   doctitle = "Controlling tuplet bracket visibility"
 } % begin verbatim
+
 
 music = \relative c'' {
   \times 2/3 { c16[ d e } f8]

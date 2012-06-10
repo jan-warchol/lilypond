@@ -4,12 +4,12 @@
 %% and then run scripts/auxiliar/makelsr.py
 %%
 %% This file is in the public domain.
-\version "2.14.0"
+\version "2.14.2"
 
 \header {
   lsrtags = "vocal-music, tweaks-and-overrides, spacing"
 
-%% Translation of GIT committish: 6977ddc9a3b63ea810eaecb864269c7d847ccf98
+%% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   texidoces = "
 Este fragmento de código muestra el uso de las propiedades de
 contexto @code{alignBelowContext} y @code{alignAboveContext} para
@@ -46,6 +46,7 @@ positioning of lyrics and ossias.
 "
   doctitle = "Vertically aligning ossias and lyrics"
 } % begin verbatim
+
 
 \paper {
   ragged-right = ##t

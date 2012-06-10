@@ -4,12 +4,12 @@
 %% and then run scripts/auxiliar/makelsr.py
 %%
 %% This file is in the public domain.
-\version "2.14.0"
+\version "2.14.2"
 
 \header {
   lsrtags = "simultaneous-notes"
 
-%% Translation of GIT committish: 6977ddc9a3b63ea810eaecb864269c7d847ccf98
+%% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   texidoces = "
 Al utilizar la posibilidad de combinación automática de partes, se
 puede modificar el texto que se imprime para las secciones de solo
@@ -44,6 +44,7 @@ the solo and unison sections may be changed:
 "
   doctitle = "Changing partcombine texts"
 } % begin verbatim
+
 
 \new Staff <<
   \set Staff.soloText = #"girl"

@@ -39,6 +39,8 @@ class Dispatcher
 public:
   Dispatcher ();
   void broadcast (Stream_event *ev);
+  bool is_listened_class (SCM);
+  SCM listened_types ();
   void add_listener (Listener, SCM event_class);
   void remove_listener (Listener, SCM event_class);
   void register_as_listener (Dispatcher *dist);

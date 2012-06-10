@@ -4,12 +4,12 @@
 %% and then run scripts/auxiliar/makelsr.py
 %%
 %% This file is in the public domain.
-\version "2.14.0"
+\version "2.14.2"
 
 \header {
   lsrtags = "pitches, tweaks-and-overrides"
 
-%% Translation of GIT committish: 6977ddc9a3b63ea810eaecb864269c7d847ccf98
+%% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   texidoces = "
 Se puede variar la longitud de las plicas de las figuras unidas por
 una barra mediante la sobreescritura de la propiedad
@@ -39,6 +39,7 @@ of the final argument.  Non-integer arguments may also be used.
 "
   doctitle = "Altering the length of beamed stems"
 } % begin verbatim
+
 
 \relative c'' {
   \override Stem #'(details beamed-lengths) = #'(2)

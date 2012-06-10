@@ -4,12 +4,12 @@
 %% and then run scripts/auxiliar/makelsr.py
 %%
 %% This file is in the public domain.
-\version "2.14.0"
+\version "2.14.2"
 
 \header {
   lsrtags = "editorial-annotations"
 
-%% Translation of GIT committish: 6977ddc9a3b63ea810eaecb864269c7d847ccf98
+%% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   texidoces = "
 Se pueden trazar líneas verticales normales entre pentagramas para
 mostrar la relación entre notas; sin embargo, en caso de música
@@ -28,6 +28,7 @@ this snippet.
 "
   doctitle = "Grid lines: emphasizing rhythms and notes synchronization"
 } % begin verbatim
+
 
 \score {
   \new ChoirStaff {

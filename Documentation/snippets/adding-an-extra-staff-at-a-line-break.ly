@@ -4,12 +4,12 @@
 %% and then run scripts/auxiliar/makelsr.py
 %%
 %% This file is in the public domain.
-\version "2.14.0"
+\version "2.14.2"
 
 \header {
-  lsrtags = "staff-notation, contexts-and-engravers, breaks"
+  lsrtags = "workaround, breaks, contexts-and-engravers, staff-notation"
 
-%% Translation of GIT committish: 6977ddc9a3b63ea810eaecb864269c7d847ccf98
+%% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   texidoces = "
 Al añadir un pentagrama nuevo en un salto de línea, por desgracia
 se añade un espacio adicional al final de la línea antes del salto
@@ -32,6 +32,7 @@ workaround is to add a setting of
 "
   doctitle = "Adding an extra staff at a line break"
 } % begin verbatim
+
 
 \score {
   \new StaffGroup \relative c'' {

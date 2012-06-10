@@ -7,7 +7,7 @@
     Guide, node Updating translation committishes..
 @end ignore
 
-@c \version "2.15.18"
+@c \version "2.15.39"
 
 @node Rhythms
 @section Rhythms
@@ -312,13 +312,15 @@ block, as discussed in @rlearning{Voices contain music}.
 @cindex scaling durations
 @cindex durations, scaling
 
-You can alter the duration of single notes, rests or chords by a
+The duration of single notes, rests or chords may be multiplied by a
 fraction @code{N/M} by appending @code{*N/M} (or @code{*N} if @code{M}
 is 1) to the duration.  This will not affect the appearance of the
 notes or rests produced, but the altered duration will be used in
 calculating the position within the measure and setting the duration
-in the MIDI output.  Multiplying factors may be combined such as
-@code{*L*M/N}.
+in the MIDI output.  Multiplying factors may be combined like
+@code{*L*M/N}.  Factors are part of the duration: if a duration is
+not specified for subsequent notes, the default duration taken from
+the preceding note will include any scaling factor.
 
 In the following example, the first three notes take up exactly
 two beats, but no triplet bracket is printed.
@@ -326,16 +328,16 @@ two beats, but no triplet bracket is printed.
 @lilypond[quote,relative=2,verbatim]
 \time 2/4
 % Alter durations to triplets
-a4*2/3 gis4*2/3 a4*2/3
+a4*2/3 gis a
 % Normal durations
-a4 a4
+a4 a
 % Double the duration of chord
 <a d>4*2
 % Duration of quarter, appears like sixteenth
 b16*4 c4
 @end lilypond
 
-The duration of spacing notes may also be modified by
+The duration of spacer rests may also be modified by
 a multiplier.  This is useful for skipping many measures, e.g.,
 @code{s1*23}.
 
@@ -349,20 +351,19 @@ Longer stretches of music may be compressed by a fraction in the
 same way, as if every note, chord or rest had the fraction as a
 multiplier.  This leaves the appearance of the music unchanged but
 the internal duration of the notes will be multiplied by the
-fraction @emph{num}/@emph{den}.  The spaces around the dot are
-required.  Here is an example showing how music can be compressed
-and expanded:
+fraction @emph{num}/@emph{den}.  Here is an example showing how music
+can be compressed and expanded:
 
 @lilypond[quote,relative=2,verbatim]
 \time 2/4
 % Normal durations
 <c a>4 c8 a
 % Scale music by *2/3
-\scaleDurations #'(2 . 3) {
+\scaleDurations 2/3 {
   <c a f>4. c8 a f
 }
 % Scale music by *2
-\scaleDurations #'(2 . 1) {
+\scaleDurations 2/1 {
   <c' a>4 c8 b
 }
 @end lilypond
@@ -1061,8 +1062,8 @@ be changed, or new default values can be added:
   \new Staff {
     \relative c' {
       \overrideTimeSignatureSettings
-        #'(4 . 4)  % timeSignatureFraction
-        #'(1 . 4)  % baseMomentFraction
+        4/4        % timeSignatureFraction
+        1/4        % baseMomentFraction
         #'(3 1)    % beatStructure
         #'()       % beamExceptions
       \time 4/4
@@ -1077,11 +1078,11 @@ be changed, or new default values can be added:
 @enumerate
 
 @item
-@code{@var{timeSignatureFraction}}, a Scheme pair describing the
+@code{@var{timeSignatureFraction}}, a fraction describing the
 time signature.
 
 @item
-@code{@var{baseMomentFraction}}, a Scheme pair containing the numerator
+@code{@var{baseMomentFraction}}, a fraction containing the numerator
 and denominator of the basic timing unit for the time signature.
 
 @item
@@ -1105,8 +1106,8 @@ instantiated or there must be music in the context before the
   \relative c' {
     % This call will fail because the context isn't yet instantiated
     \overrideTimeSignatureSettings
-      #'(4 . 4)  % timeSignatureFraction
-      #'(1 . 4)  % baseMomentFraction
+      4/4        % timeSignatureFraction
+      1/4        % baseMomentFraction
       #'(3 1)    % beatStructure
       #'()       % beamExceptions
     \time 4/4
@@ -1114,8 +1115,8 @@ instantiated or there must be music in the context before the
     \repeat unfold 7 { c8 } |
     % This call will succeed
     \overrideTimeSignatureSettings
-      #'(4 . 4)  % timeSignatureFraction
-      #'(1 . 4)  % baseMomentFraction
+      4/4        % timeSignatureFraction
+      1/4        % baseMomentFraction
       #'(3 1)    % beatStructure
       #'()       % beamExceptions
     \time 4/4
@@ -1138,13 +1139,13 @@ to the original values:
   \relative c' {
     \repeat unfold 8 { c8 } |
     \overrideTimeSignatureSettings
-      #'(4 . 4)  % timeSignatureFraction
-      #'(1 . 4)  % baseMomentFraction
+      4/4        % timeSignatureFraction
+      1/4        % baseMomentFraction
       #'(3 1)    % beatStructure
       #'()       % beamExceptions
     \time 4/4
     \repeat unfold 8 { c8 } |
-    \revertTimeSignatureSettings #'(4 . 4)
+    \revertTimeSignatureSettings 4/4
     \time 4/4
     \repeat unfold 8 { c8 } |
   }
@@ -1161,8 +1162,8 @@ for different staves by moving the @code{Timing_translator} and the
   \new StaffGroup <<
      \new Staff {
         \overrideTimeSignatureSettings
-          #'(4 . 4)  % timeSignatureFraction
-          #'(1 . 4)  % baseMomentFraction
+          4/4        % timeSignatureFraction
+          1/4        % baseMomentFraction
           #'(3 1)    % beatStructure
           #'()       % beamExceptions
         \time 4/4
@@ -1170,8 +1171,8 @@ for different staves by moving the @code{Timing_translator} and the
      }
      \new Staff {
         \overrideTimeSignatureSettings
-          #'(4 . 4)  % timeSignatureFraction
-          #'(1 . 4)  % baseMomentFraction
+          4/4        % timeSignatureFraction
+          1/4        % baseMomentFraction
           #'(1 3)    % beatStructure
           #'()       % beamExceptions
         \time 4/4
@@ -1401,21 +1402,35 @@ r8 e,8 | a4 c8 b[ c b] |
 @node Unmetered music
 @unnumberedsubsubsec Unmetered music
 
-@cindex bar lines, turning off
-@cindex bar numbering, turning off
 @cindex cadenza
+@cindex cadenza, beams
+@cindex cadenza, accidentals
+@cindex cadenza, bar lines
+@cindex cadenza, bar numbers
 @cindex unmetered music
+@cindex unmetered music, beams
+@cindex unmetered music, accidentals
+@cindex unmetered music, bar lines
+@cindex unmetered music, bar numbers
+@cindex accidentals, cadenzas
+@cindex accidentals, unmetered music
+@cindex bar lines, cadenzas
+@cindex bar lines, unmetered music
+@cindex bar numbers, cadenzas
+@cindex bar numbers, unmetered music
+@cindex beams, cadenzas
+@cindex beams, unmetered music
 
 @funindex \cadenzaOn
 @funindex cadenzaOn
 @funindex \cadenzaOff
 @funindex cadenzaOff
 
-Bar lines and bar numbers are calculated automatically.  For
-unmetered music (some cadenzas, for example), this is not desirable.
-To turn off automatic calculation of bar lines and bar numbers,
-use the command @code{\cadenzaOn}, and use @code{\cadenzaOff}
-to turn them on again.
+In metered music bar lines are inserted and bar numbers are calculated
+automatically. In unmetered music (i.e. cadenzas), this is not
+desirable and can be @q{switched off} using the command
+@code{\cadenzaOn}, then @q{switched back on} at the appropriate place
+using @code{\cadenzaOff}.
 
 @lilypond[verbatim,relative=2,quote]
 c4 d e d
@@ -1426,8 +1441,7 @@ c4 c d8[ d d] f4 g4.
 d4 e d c
 @end lilypond
 
-Bar numbering is resumed at the end of the cadenza as if the
-cadenza were not there:
+Bar numbering is resumed at the end of the cadenza.
 
 @lilypond[verbatim,relative=2,quote]
 % Show all bar numbers
@@ -1440,29 +1454,37 @@ c4 c d8[ d d] f4 g4.
 d4 e d c
 @end lilypond
 
-@cindex beams, in cadenzas
-@cindex beams, in unmetered music
-@cindex cadenza, with beams
-@cindex unmetered music, with beams
+A new bar is never started within a cadenza, even if one or more
+@code{\bar} commands are inserted within it.  Therefore, reminder
+accidentals will need to be added manually.  See @ref{Accidentals}.
 
-Automatic beaming is disabled by @code{\cadenzaOn} and enabled
-by @code{\cadenzaOff}.  Therefore, all beaming in cadenzas
-must be entered manually (@ref{Manual beams}).
+@lilypond[verbatim,relative=2,quote]
+c4 d e d
+\cadenzaOn
+cis4 d cis d
+\bar "|"
+cis4 d cis! d
+\cadenzaOff
+\bar "|"
+@end lilypond
+
+Automatic beaming is disabled by @code{\cadenzaOn}. Therefore, all
+beaming in cadenzas must be entered manually. See @ref{Manual beams}.
 
 @lilypond[verbatim,relative=2,quote]
 \repeat unfold 8 { c8 }
 \cadenzaOn
-\repeat unfold 5 { c8 }
+cis8 c c c c
 \bar"|"
+c8 c c
 \cadenzaOff
 \repeat unfold 8 { c8 }
 @end lilypond
 
-Note that these predefined commands affect all staves in the
-score, even when they are placed in just one @code{Voice}
-context.  To change this, move the @code{Timing_translator}
-from the @code{Score} context to the @code{Staff} context, as
-shown in @ref{Polymetric notation}.
+These predefined commands affect all staves in the score, even when
+placed in just one @code{Voice} context.  To change this, move the
+@code{Timing_translator} from the @code{Score} context to the
+@code{Staff} context.  See @ref{Polymetric notation}.
 
 @predefined
 @code{\cadenzaOn},
@@ -1476,35 +1498,33 @@ Music Glossary:
 Notation Reference:
 @ref{Visibility of objects},
 @ref{Polymetric notation},
-@ref{Manual beams}.
+@ref{Manual beams},
+@ref{Accidentals}.
 
 Snippets:
 @rlsr{Rhythms}.
 
-@cindex cadenza line breaks
-@cindex cadenza page breaks
+@cindex cadenza, line breaks
+@cindex cadenza, page breaks
 @cindex unmetered music, line breaks
 @cindex unmetered music, page breaks
 @cindex breaks in unmetered music
-@cindex line breaks in cadenzas
-@cindex page breaks in cadenzas
-@cindex line breaks in unmetered music
-@cindex page breaks in unmetered music
+@cindex line breaks, cadenzas
+@cindex page breaks, cadenzas
+@cindex line breaks, unmetered music
+@cindex page breaks, unmetered music
 
 @knownissues
-LilyPond will insert line breaks and page breaks only at a
-bar line.  Unless the unmetered music ends before the end of the
-staff line, you will need to insert invisible bar lines with
+Automatic line and page breaks are inserted only at bar lines, so
+@q{invisible} bar lines will need to be inserted manually in long
+stretches of unmetered music to permit breaking:
 
 @example
 \bar ""
 @end example
 
-@noindent
-to indicate where breaks can occur.
-
-You should explicitly create a @code{Voice} context when starting a
-piece with @code{\cadenzaOn}, otherwise strange errors may occur.
+Explicitly create a @code{Voice} context when starting a piece with
+@code{\cadenzaOn}, else unexpected errors may occur.
 
 @example
 \new Voice @{
@@ -1566,14 +1586,14 @@ affect the autobeaming rules.
   }
   \new Staff {
     \time 3/4
-    \set Staff.timeSignatureFraction = #'(9 . 8)
-    \scaleDurations #'(2 . 3)
+    \set Staff.timeSignatureFraction = 9/8
+    \scaleDurations 2/3
       \repeat unfold 6 { c8[ c c] }
   }
   \new Staff {
     \time 3/4
-    \set Staff.timeSignatureFraction = #'(10 . 8)
-    \scaleDurations #'(3 . 5) {
+    \set Staff.timeSignatureFraction = 10/8
+    \scaleDurations 3/5 {
       \repeat unfold 2 { c8[ c c] }
       \repeat unfold 2 { c8[ c] } |
       c4. c \times 2/3 { c8[ c c] } c4
@@ -2129,30 +2149,30 @@ if @code{beamExceptions} is not reset.
 \repeat unfold 8 {c8}
 @end lilypond
 
-In traditional engraving, eighth notes can have special beaming rules.
-A measure consisting of only eighth notes can be beamed in one.  This rule is
-controlled by the context property @code{beamWholeMeasure}:
+In a similar fashion, eighth notes in 3/4 time are beamed as a full
+measure by default.  To beam eighth notes in 3/4 time on the beat,
+reset @code{beamExceptions}.
 
 @lilypond[quote,verbatim,relative=2]
 \time 3/4
-% By default we beam in one
-\repeat unfold 6 { a8 }
-% We can avoid beaming in one
-\set Timing.beamWholeMeasure = ##f
-\repeat unfold 6 { a8 }
+% by default we beam in (3) due to beamExceptions
+\repeat unfold 6 {a8} |
+% This will beam (1 1 1) due to beatLength
+\set Timing.beamExceptions = #'()
+\repeat unfold 6 {a8}
 @end lilypond
 
-In some engraving from the Romantic and Classical periods,
-a half-measure of eighth notes can be beamed
-together even though this violates the general rule (see Gould, p. 153).
-This behavior is controlled by the context property @code{beamHalfMeasure}:
+In engraving from the Romantic and Classical periods,
+beams often begin midway through the measure in 3/4 time,
+but modern practice is to avoid the false impression of 6/8 time
+(see Gould, p. 153).  Similar situations arise in 3/8 time.
+This behavior is controlled by the context property @code{beamHalfMeasure},
+which has effect only in time signatures with 3 in the numerator:
 
 @lilypond[quote,verbatim,relative=2]
 \time 3/4
-% By default we avoid half-measure beams
 r4. a8 a a |
-% We can allow half-measure beams
-\set Timing.beamHalfMeasure = ##t
+\set Timing.beamHalfMeasure = ##f
 r4. a8 a a |
 @end lilypond
 
@@ -2272,8 +2292,8 @@ beaming settings for a time signature are described in
 <<
   \new Staff {
     \overrideTimeSignatureSettings
-      #'(3 . 4)         % timeSignatureFraction
-      #'(1 . 8)         % baseMomentFraction
+      3/4               % timeSignatureFraction
+      1/8               % baseMomentFraction
       #'(1 5)           % beatStructure
       #'()		% beamExceptions
     \time 3/4
@@ -3302,7 +3322,7 @@ becomes:
 Or explicitly change the musical duration:
 
 @example
-\acciaccatura @{ \scaleDurations #' (1 . 2) @{ c'8[ d' e' f' g'] @} @}
+\acciaccatura @{ \scaleDurations 1/2 @{ c'8[ d' e' f' g'] @} @}
 @end example
 
 See @ref{Scaling durations}.

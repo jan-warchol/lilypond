@@ -4,12 +4,12 @@
 %% and then run scripts/auxiliar/makelsr.py
 %%
 %% This file is in the public domain.
-\version "2.14.0"
+\version "2.14.2"
 
 \header {
   lsrtags = "pitches, staff-notation"
 
-%% Translation of GIT committish: 6977ddc9a3b63ea810eaecb864269c7d847ccf98
+%% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   texidoces = "
 Los pasajes citados tienen en cuenta la transposición de la fuente
 tanto como la del destino.  En este ejemplo, todos los
@@ -58,6 +58,7 @@ quoted ones) are transposed.
 "
   doctitle = "Quoting another voice with transposition"
 } % begin verbatim
+
 
 \addQuote clarinet {
   \transposition bes

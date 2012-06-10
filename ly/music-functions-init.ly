@@ -178,7 +178,7 @@ barNumberCheck =
 					 cbn n))))))
 
 bendAfter =
-#(define-music-function (parser location delta) (real?)
+#(define-event-function (parser location delta) (real?)
    (_i "Create a fall or doit of pitch interval @var{delta}.")
    (make-music 'BendAfterEvent
 	       'delta-step delta))
@@ -342,23 +342,46 @@ featherDurations=
      argument))
 
 footnote =
-#(define-music-function (parser location text offset grob-name footnote)
-   ((markup?) number-pair? (symbol? '()) markup?)
-   (_i "Attach @var{text} at @var{offset} with @var{text} referring to
-@var{footnote}.  If @var{text} is given as @code{\\default}, use
-autonumbering instead.  Note that, for this to take effect,
-auto-numbering must be turned on in the paper block.  Otherwise, no
-number will appear.  Footnotes are applied like articulations.  If a
-symbol @var{grob-name} is specified, all grobs of that kind at the
-current time step are affected.")
-   (make-music
-    'FootnoteEvent
-    'X-offset (car offset)
-    'Y-offset (cdr offset)
-    'automatically-numbered (not text)
-    'text (or text (make-null-markup))
-    'footnote-text footnote
-    'symbol grob-name))
+#(define-music-function (parser location mark offset grob-name footnote music)
+   ((markup?) number-pair? (symbol?) markup? (ly:music?))
+   (_i "Make the markup @var{footnote} a footnote on @var{music}.  The
+footnote is marked with a markup @var{mark} moved by @var{offset} with
+respect to the marked music.
+
+If @var{mark} is not given or specified as @var{\\default}, it is
+replaced by an automatically generated sequence number.  If a symbol
+@var{grob-name} is specified, then grobs of that type will be marked
+if they have @var{music} as their ultimate cause; by default all grobs
+having @var{music} as their @emph{direct} cause will be marked,
+similar to the way @code{\\tweak} works.
+
+If @var{music} is given as @code{\\default}, a footnote event
+affecting @emph{all} grobs matching @var{grob-name} at a given time
+step is generated.  This may be required for creating footnotes on
+time signatures, clefs, and other items not cooperating with
+@code{\\tweak}.
+
+Like with @code{\\tweak}, if you use a footnote on a following
+post-event, the @code{\\footnote} command itself needs to be attached
+to the preceding note or rest as a post-event with @code{-}.")
+   (let ((mus (make-music
+	       'FootnoteEvent
+	       'X-offset (car offset)
+	       'Y-offset (cdr offset)
+	       'automatically-numbered (not mark)
+	       'text (or mark (make-null-markup))
+	       'footnote-text footnote
+	       'symbol (or grob-name '()))))
+     (if music
+	 (begin
+	   (set! (ly:music-property music 'tweaks)
+		 (acons (if grob-name
+			    (cons grob-name 'footnote-music)
+			    'footnote-music)
+			mus
+			(ly:music-property music 'tweaks)))
+	   music)
+	 mus)))
 
 grace =
 #(def-grace-function startGraceMusic stopGraceMusic
@@ -952,7 +975,7 @@ for time signatures of @var{time-signature}.")
    (revert-time-signature-setting time-signature))
 
 rightHandFinger =
-#(define-music-function (parser location finger) (number-or-string?)
+#(define-event-function (parser location finger) (number-or-string?)
    (_i "Apply @var{finger} as a fingering indication.")
 
    (make-music
@@ -1011,6 +1034,48 @@ a context modification duplicating their effect.")
 		    (for-each musicop (callback m))))))))
      (musicop music)
      mods))
+
+shape =
+#(define-music-function (parser location grob offsets)
+   (string? list?)
+   (_i "Offset control-points of @var{grob} by @var{offsets}.  The argument
+is a list of number pairs or list of such lists.  Each element of a pair
+represents an offset to one of the coordinates of a control-point.")
+   (define ((shape-curve offsets) grob)
+     (let* ((orig (ly:grob-original grob))
+            (siblings (if (ly:spanner? grob)
+                          (ly:spanner-broken-into orig) '()))
+            (total-found (length siblings))
+            (function (assoc-get 'control-points
+                                 (reverse (ly:grob-basic-properties grob))))
+            (coords (function grob)))
+
+       (define (offset-control-points offsets)
+         (if (null? offsets)
+             coords
+             (map
+               (lambda (x y) (coord-translate x y))
+               coords offsets)))
+
+       (define (helper sibs offs)
+         (if (pair? offs)
+             (if (eq? (car sibs) grob)
+                 (offset-control-points (car offs))
+                 (helper (cdr sibs) (cdr offs)))
+             coords))
+
+       ;; we work with lists of lists
+       (if (or (null? offsets)
+               (not (list? (car offsets))))
+           (set! offsets (list offsets)))
+
+       (if (>= total-found 2)
+           (helper siblings offsets)
+           (offset-control-points (car offsets)))))
+
+   #{
+     \once \override $grob #'control-points = #(shape-curve offsets)
+   #})
 
 shiftDurations =
 #(define-music-function (parser location dur dots arg)
@@ -1119,21 +1184,27 @@ transposition =
     'Staff))
 
 tweak =
-#(define-music-function (parser location sym val arg)
-   (symbol? scheme? ly:music?)
-   (_i "Add @code{sym . val} to the @code{tweaks} property of @var{arg}.")
-
-   (if (equal? (object-property sym 'backend-type?) #f)
+#(define-music-function (parser location grob prop value music)
+   ((string?) symbol? scheme? ly:music?)
+   (_i "Add a tweak to the following @var{music}.
+Layout objects created by @var{music} get their property @var{prop}
+set to @var{value}.  If @var{grob} is specified, like with
+@example
+\\tweak Accidental #'color #red cis'
+@end example
+an indirectly created grob (@samp{Accidental} is caused by
+@samp{NoteHead}) can be tweaked; otherwise only directly created grobs
+are affected.")
+   (if (not (object-property prop 'backend-type?))
        (begin
-	 (ly:input-warning location (_ "cannot find property type-check for ~a") sym)
+	 (ly:input-warning location (_ "cannot find property type-check for ~a") prop)
 	 (ly:warning (_ "doing assignment anyway"))))
    (set!
-    (ly:music-property arg 'tweaks)
-    (acons sym val
-	   (ly:music-property arg 'tweaks)))
-   arg)
-
-
+    (ly:music-property music 'tweaks)
+    (acons (if grob (cons (string->symbol grob) prop) prop)
+	   value
+	   (ly:music-property music 'tweaks)))
+   music)
 
 unfoldRepeats =
 #(define-music-function (parser location music) (ly:music?)

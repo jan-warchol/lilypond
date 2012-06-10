@@ -4,12 +4,12 @@
 %% and then run scripts/auxiliar/makelsr.py
 %%
 %% This file is in the public domain.
-\version "2.14.0"
+\version "2.14.2"
 
 \header {
-  lsrtags = "expressive-marks, tweaks-and-overrides"
+  lsrtags = "tweaks-and-overrides, expressive-marks"
 
-%% Translation of GIT committish: 6977ddc9a3b63ea810eaecb864269c7d847ccf98
+%% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   texidoces = "
 Los reguladores pueden imprimirse en uno cualquiera de los estilos de
 @code{line-interface}: discontinuo, punteado, línea, trino o zig-zag.
@@ -26,6 +26,7 @@ dotted-line, line, trill or zigzag.
 "
   doctitle = "Hairpins with different line styles"
 } % begin verbatim
+
 
 \relative c' {
   c2\< c\!

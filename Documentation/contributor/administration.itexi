@@ -91,7 +91,7 @@ Bug Meister: trains new Bug Squad volunteers, organizes who works
 on which part of their job, checks to make sure that everything is
 running smoothly, and has final say on our policy for Issues.
 
-Currently: Phil
+Currently: Colin H
 
 @item
 Doc Meister: trains new doc editors/writers, organizes who works
@@ -188,15 +188,22 @@ export LILYPOND_GIT=~/lilypond-git
 then logging out and in.
 
 @item
-Run patchy once to set up config files.  Cancel this build
-(ctrl-c).
+Run patchy once to set up config files, answer @q{@code{n}} when it
+asks for going on, unless the default config file happens to suit your
+setup:
+@example
+cd PATH/TO/lilypond-extra.git/patches
+lilypond-patchy-staging.py
+@end example
+Following calls of @code{lilypond-patchy-staging.py} need not be made
+from the directory where it stands.
 
 @item
-Edit @file{$HOME/.lilypond-patchy-config} to provide working
-directories for your build directory, your results directory,
-compiler options and notification method.  If you don't want to
-use email notification, then delete everything after
-@code{smtp_command:}.
+Edit @file{$HOME/.lilypond-patchy-config} to provide the location of
+your local lilypond Git repository, working directories for your build
+directory, your results directory, compiler options and notification
+method.  If you don't want to use email notification, then delete
+everything after @code{smtp_command:}.
 
 @item
 Ensure that your new user has git push access.  Follow the
@@ -208,7 +215,7 @@ to run patchy unattended.
 
 @subheading lilypond-patchy-staging.py
 
-lilypond-patchy-staging.py is run with
+@code{lilypond-patchy-staging.py} is run with
 @example
 python lilypond-patchy-staging.py
 @end example
@@ -394,7 +401,7 @@ We often receive reports of typos and minor text updates to the
 documentation. It would be great if somebody could create
 properly-formatted patches for these corrections.
 
-Technical requirements: ability to run @ref{Lilydev}.
+Technical requirements: ability to run @ref{LilyDev}.
 
 @item LSR editor:
 LSR contains many useful examples of lilypond, but some snippets
@@ -411,7 +418,7 @@ chapters 1 and 2 (or be willing to read the docs to find out).
 often find them in Ponds of Lilies) and new feature implementors.
 
 Technical requirements: development environment (such as
-@ref{Lilydev}), ability to read+write scheme and/or C++ code.
+@ref{LilyDev}), ability to read+write scheme and/or C++ code.
 
 @end itemize
 
@@ -958,11 +965,11 @@ area}, reason to move this to a different type.
 @item
 anything which stops contributors from helping out (e.g.
 lily-git.tcl not working, source tree(s) not being available,
-lilydev being unable to compile git master, inaccurate
+LilyDev being unable to compile git master, inaccurate
 instructions in the Contributor's Guide 2 Quick start).
 
 To limit this scope of this point, we will assume that the
-contributor is using the latest lilydev and has read the relevant
+contributor is using the latest LilyDev and has read the relevant
 part(s) of the Contributor's Guide.  Problems in other chapters of
 the CG are not sufficient to qualify as Type-Critical.
 

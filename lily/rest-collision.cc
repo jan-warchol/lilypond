@@ -146,13 +146,11 @@ Rest_collision::calc_positioning_done (SCM smob)
             rests[d]->warning (_ ("cannot resolve rest collision: rest direction not set"));
         }
 
-      Direction d = LEFT;
-      do
+      for (LEFT_and_RIGHT (d))
         vector_sort (ordered_rests[d], rest_shift_less);
-      while (flip (&d) != LEFT)
-        ;
 
-      do
+
+      for (LEFT_and_RIGHT (d))
         {
           if (ordered_rests[d].size () < 1)
             {
@@ -162,7 +160,6 @@ Rest_collision::calc_positioning_done (SCM smob)
               return SCM_BOOL_T;
             }
         }
-      while (flip (&d) != LEFT);
 
       Grob *common = common_refpoint_of_array (ordered_rests[DOWN], me, Y_AXIS);
       common = common_refpoint_of_array (ordered_rests[UP], common, Y_AXIS);
@@ -182,7 +179,7 @@ Rest_collision::calc_positioning_done (SCM smob)
                              2 * int (ceil (diff)));
         }
 
-      do
+      for (LEFT_and_RIGHT (d))
         {
           for (vsize i = ordered_rests[d].size () - 1; i-- > 0;)
             {
@@ -194,7 +191,6 @@ Rest_collision::calc_positioning_done (SCM smob)
                 Rest::translate (ordered_rests[d][i], d * (int) ceil (diff) * 2);
             }
         }
-      while (flip (&d) != LEFT);
     }
   else
     {
@@ -254,19 +250,14 @@ Rest_collision::calc_positioning_done (SCM smob)
           Real y = dir * max (0.0,
                               -dir * restdim[-dir] + dir * notedim[dir] + minimum_dist);
 
-          int stafflines = Staff_symbol_referencer::line_count (me);
-          if (!stafflines)
-            {
-              programming_error ("no staff line count");
-              stafflines = 5;
-            }
-
           // move discretely by half spaces.
           int discrete_y = dir * int (ceil (y / (0.5 * dir * staff_space)));
 
+          Interval staff_span = Staff_symbol_referencer::staff_span (rest);
+          staff_span.widen (1);
           // move by whole spaces inside the staff.
-          if (fabs (Staff_symbol_referencer::get_position (rest)
-                    + discrete_y) < stafflines + 1)
+          if (staff_span.contains
+              (Staff_symbol_referencer::get_position (rest) + discrete_y))
             {
               discrete_y = dir * int (ceil (dir * discrete_y / 2.0) * 2.0);
             }

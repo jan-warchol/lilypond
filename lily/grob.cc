@@ -803,6 +803,7 @@ ADD_INTERFACE (Grob,
                "extra-X-extent "
                "extra-Y-extent "
                "extra-offset "
+               "footnote-music "
                "forced-spacing "
                "horizontal-skylines "
                "interfaces "

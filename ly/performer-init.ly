@@ -16,7 +16,7 @@
 %%%% You should have received a copy of the GNU General Public License
 %%%% along with LilyPond.  If not, see <http://www.gnu.org/licenses/>.
 
-\version "2.14.0"
+\version "2.15.39"
 
 %%
 %% setup for Request->Element conversion.
@@ -31,10 +31,45 @@
   \consists "Staff_performer"
   \consists "Key_performer"
 }
+
 \context {
   \name Global
   \accepts Score
   \description "Hard coded entry point for LilyPond.  Cannot be tuned."
+  EventClasses = #all-event-classes
+}
+
+\context {
+  \type "Performer_group"
+  \name KievanStaff
+  \denies Voice
+  \accepts KievanVoice
+  \defaultchild KievanVoice
+  \alias Staff
+  \consists "Staff_performer"
+  \consists "Key_performer"
+}
+
+\context {
+  \type "Performer_group"
+  \name VaticanaStaff
+  \alias Staff
+  \denies Voice
+  \accepts VaticanaVoice
+  \defaultchild VaticanaVoice
+  \consists "Staff_performer"
+  \consists "Key_performer"
+}
+
+\context {
+  \type "Performer_group"
+  \name MensuralStaff
+  \denies Voice
+  \accepts MensuralVoice
+  \defaultchild MensuralVoice
+  \alias Staff
+  \consists "Staff_performer"
+  \consists "Key_performer"
 }
 
 \context {
@@ -63,9 +98,36 @@
 }
 
 \context {
-  \Voice
+  \type "Performer_group"
   \name VaticanaVoice
   \alias Voice
+  \consists "Dynamic_performer"
+  \consists "Tie_performer"
+  \consists "Note_performer"
+  \consists "Beam_performer"
+  \consists "Slur_performer"
+}
+
+\context {
+  \type "Performer_group"
+  \name KievanVoice
+  \alias Voice
+  \consists "Dynamic_performer"
+  \consists "Tie_performer"
+  \consists "Note_performer"
+  \consists "Beam_performer"
+  \consists "Slur_performer"
+}
+
+\context {
+  \type "Performer_group"
+  \name MensuralVoice
+  \alias Voice
+  \consists "Dynamic_performer"
+  \consists "Tie_performer"
+  \consists "Note_performer"
+  \consists "Beam_performer"
+  \consists "Slur_performer"
 }
 
 \context {
@@ -122,15 +184,6 @@
 }
 
 \context {
-  \type "Performer_group"
-  \name "VaticanaStaff"
-  \alias "Staff"
-  \denies "Voice"
-  \accepts "VaticanaVoice"
-  \defaultchild "VaticanaVoice"
-}
-
-\context {
   \type "Score_performer"
 
   \name Score
@@ -156,6 +209,8 @@
   \accepts FretBoards
   \accepts Lyrics
   \accepts VaticanaStaff
+  \accepts KievanStaff
+  \accepts MensuralStaff
 
   \consists "Time_signature_performer"
   \consists "Control_track_performer"
@@ -170,7 +225,7 @@
   %% Timing variables in layout definitions before any
   %% Timing_translator has been run.
 
-  timeSignatureFraction = #'(4 . 4)
+  timeSignatureFraction = 4/4
 
 %% These defaults should be the same as the rules established in
 %%   scm/time-signature-settings.scm for 4/4 time

@@ -7,9 +7,9 @@
 \version "2.15.32"
 
 \header {
-  lsrtags = "rhythms, percussion"
+  lsrtags = "preparing-parts, specific-notation, percussion, really-simple, rhythms"
 
-%% Translation of GIT committish: 6977ddc9a3b63ea810eaecb864269c7d847ccf98
+%% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   texidoces = "
 Mediante la utilización de las potentes herramientas preconfiguradas
 como la función @code{\\drummode} y el contexto @code{DrumStaff}, la
@@ -48,6 +48,7 @@ lines is possible.
 "
   doctitle = "Adding drum parts"
 } % begin verbatim
+
 
 drh = \drummode { cymc4.^"crash" hhc16^"h.h." hh hhc8 hho hhc8 hh16 hh hhc4 r4 r2 }
 drl = \drummode { bd4 sn8 bd bd4 << bd ss >>  bd8 tommh tommh bd toml toml bd tomfh16 tomfh }

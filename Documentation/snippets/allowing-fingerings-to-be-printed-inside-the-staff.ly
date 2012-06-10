@@ -4,12 +4,12 @@
 %% and then run scripts/auxiliar/makelsr.py
 %%
 %% This file is in the public domain.
-\version "2.14.0"
+\version "2.14.2"
 
 \header {
-  lsrtags = "editorial-annotations, fretted-strings, spacing"
+  lsrtags = "specific-notation, editorial-annotations, fretted-strings, spacing"
 
-%% Translation of GIT committish: 6977ddc9a3b63ea810eaecb864269c7d847ccf98
+%% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
 
   texidoces = "
 Las cifras de digitación orientadas verticalmente se colocan de forma
@@ -47,6 +47,7 @@ chord construct <>, even if it is only a single note.
 "
   doctitle = "Allowing fingerings to be printed inside the staff"
 } % begin verbatim
+
 
 \relative c' {
   <c-1 e-2 g-3 b-5>2

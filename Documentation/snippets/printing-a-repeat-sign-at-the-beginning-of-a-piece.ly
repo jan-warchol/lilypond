@@ -4,12 +4,12 @@
 %% and then run scripts/auxiliar/makelsr.py
 %%
 %% This file is in the public domain.
-\version "2.14.0"
+\version "2.14.2"
 
 \header {
   lsrtags = "repeats, tweaks-and-overrides"
 
-%% Translation of GIT committish: 6977ddc9a3b63ea810eaecb864269c7d847ccf98
+%% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   texidoces = "
 Se puede imprimir una línea divisoria de la forma @code{|:} al
 principio de la pieza, sobreescribiendo la propiedad correspondiente:
@@ -43,6 +43,7 @@ overriding the relevant property:
 "
   doctitle = "Printing a repeat sign at the beginning of a piece"
 } % begin verbatim
+
 
 \relative c'' {
   \once \override Score.BreakAlignment #'break-align-orders =
