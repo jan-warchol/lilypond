@@ -23,11 +23,36 @@
 class Lyric_text
 {
 public:
+  DECLARE_SCHEME_CALLBACK (calc_x_offset, (SCM));
   DECLARE_GROB_INTERFACE ();
 };
+
+/* Restrict position of default-aligned long syllables
+ * so that they don't start earlier than minimum-X-offset from the note.
+ * (doesn't affect syllables with explicitly specified X-alignment)
+ */
+MAKE_SCHEME_CALLBACK (Lyric_text, calc_x_offset, 1);
+SCM
+Lyric_text::calc_x_offset (SCM smob)
+{
+  Grob *me = unsmob_grob (smob);
+  SCM align_prop (me->get_property (ly_symbol2scm ("X-alignment")));
+
+  Real restriction = (align_prop != SCM_EOL)
+                     ? -infinity_f
+                     : robust_scm2double (me->get_property ("minimum-X-offset"), -2.2);
+
+  if (align_prop == SCM_EOL)
+    me->set_property ("X-alignment", me->get_property ("default-X-alignment"));
+
+  Real offset = scm_to_double (Self_alignment_interface::general_x_alignment (smob));
+  return scm_from_double (max (offset, restriction));
+}
 
 ADD_INTERFACE (Lyric_text,
                "blah.",
 
                /* properties */
+               "default-X-alignment "
+               "minimum-X-offset "
               );
