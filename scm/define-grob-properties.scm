@@ -222,6 +222,7 @@ an ending t-value, a @code{dash-fraction}, and a @code{dash-period}.")
 whitespace.  If negative, no line is drawn at all.")
      (default-direction ,ly:dir? "Direction determined by note head
 positions.")
+     (default-X-alignment ,list? "Default X alignment of an object.")
      (default-staff-staff-spacing ,list? "The settings to use for
 @code{staff-staff-spacing} when it is unset, for ungrouped staves
 and for grouped staves that do not have the relevant
@@ -614,6 +615,8 @@ as fraction of note head size.")
 should move (after padding).")
      (minimum-X-extent ,number-pair? "Minimum size of an object in
 X@tie{}dimension, measured in @code{staff-space} units.")
+     (minimum-X-offset ,number? "long lyric syllables shouldn't stick
+more than this to the left of the syllable.")
      (minimum-Y-extent ,number-pair? "Minimum size of an object in
 Y@tie{}dimension, measured in @code{staff-space} units.")
 
