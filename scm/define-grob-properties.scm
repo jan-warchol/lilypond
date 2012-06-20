@@ -1010,6 +1010,14 @@ texts.")
 ;;
 ;; x
 ;;
+     (X-alignment ,list? "3-element list specifying how an object is
+aligned to its parent.  First element defines reference point of the
+object, second element defines reference point of the parent and the
+third element is an extra offset.  Reference points should be defined
+as pairs: first value is the name of the extent property that should
+be used (for example @code{X-extent}) and the second value is a number
+- @code{-1} means left edge of the extent, @code{0} means center, and
+@code{1} means right edge.  Other numerical values may also be used.")
      (X-extent ,number-pair? "Hard coded extent in X@tie{}direction.")
      (X-offset ,number? "The horizontal amount that this object is
 moved relative to its X-parent.")
@@ -1021,6 +1029,14 @@ in the form @code{(@var{left} . @var{right})}, where both @var{left} and
 ;;
 ;; y
 ;;
+     (Y-alignment ,list? "3-element list specifying how an object is
+aligned to its parent.  First element defines reference point of the
+object, second element defines reference point of the parent and the
+third element is an extra offset.  Reference points should be defined
+as pairs: first value is the name of the extent property that should
+be used (for example @code{Y-extent}) and the second value is a number
+- @code{-1} means bottom of the extent, @code{0} means center, and
+@code{1} means top.  Other numerical values may also be used.")
      (Y-extent ,number-pair? "Hard coded extent in Y@tie{}direction.")
      (Y-offset ,number? "The vertical amount that this object is moved
 relative to its Y-parent.")
