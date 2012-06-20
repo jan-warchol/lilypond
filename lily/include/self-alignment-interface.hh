@@ -30,6 +30,7 @@ struct Self_alignment_interface
   static SCM aligned_on_self (Grob *me, Axis a, bool pure, int start, int end);
   static SCM centered_on_object (Grob *me, Axis a);
   static SCM aligned_on_parent (Grob *me, Axis a);
+  static SCM general_alignment (Grob *me, Axis a);
   static void set_center_parent (Grob *me, Axis a);
   static void set_align_self (Grob *me, Axis a);
 
@@ -44,5 +45,7 @@ struct Self_alignment_interface
   DECLARE_SCHEME_CALLBACK (x_centered_on_y_parent, (SCM element));
   DECLARE_SCHEME_CALLBACK (aligned_on_x_parent, (SCM element));
   DECLARE_SCHEME_CALLBACK (aligned_on_y_parent, (SCM element));
+  DECLARE_SCHEME_CALLBACK (general_x_alignment, (SCM element));
+  DECLARE_SCHEME_CALLBACK (general_y_alignment, (SCM element));
 };
 #endif
