@@ -492,6 +492,40 @@ Grob::extent (Grob *refp, Axis a) const
 }
 
 Interval
+Grob::core_extent (Grob *refp, Axis a) const
+{
+  Real offset = relative_coordinate (refp, a);
+  Interval real_ext;
+  if (dim_cache_[a].core_extent_)
+    {
+      real_ext = *dim_cache_[a].core_extent_;
+    }
+  else
+    {
+      /*
+        Order is significant: ?-extent may trigger suicide.
+       */
+      SCM ext_sym
+        = (a == X_AXIS)
+          ? ly_symbol2scm ("X-core-extent")
+          : ly_symbol2scm ("Y-core-extent");
+
+      SCM ext = internal_get_property (ext_sym);
+      if (is_number_pair (ext))
+        real_ext.unite (ly_scm2interval (ext));
+
+      ((Grob *)this)->dim_cache_[a].core_extent_ = new Interval (real_ext);
+    }
+
+  // We never want nan, so we avoid shifting infinite values.
+  for (LEFT_and_RIGHT (d))
+    if (!isinf (real_ext[d]))
+      real_ext[d] += offset;
+
+  return real_ext;
+}
+
+Interval
 Grob::pure_height (Grob *refp, int start, int end)
 {
   SCM iv_scm = get_pure_property ("Y-extent", start, end);

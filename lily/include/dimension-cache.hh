@@ -28,6 +28,7 @@
 class Dimension_cache
 {
   Interval *extent_;
+  Interval *core_extent_;
   Real *offset_;
   Grob *parent_;
   void init ();

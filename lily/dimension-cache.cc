@@ -28,6 +28,7 @@ Dimension_cache::Dimension_cache (Dimension_cache const &d)
   offset_ = d.offset_ ? new Real (*d.offset_) : 0;
   parent_ = d.parent_;
   extent_ = d.extent_ ? new Interval (*d.extent_) : 0;
+  core_extent_ = d.core_extent_ ? new Interval (*d.core_extent_) : 0;
 }
 
 Dimension_cache &
@@ -50,6 +51,7 @@ Dimension_cache::init ()
 {
   offset_ = 0;
   extent_ = 0;
+  core_extent_ = 0;
   parent_ = 0;
 }
 
@@ -62,7 +64,9 @@ void
 Dimension_cache::clear ()
 {
   delete extent_;
+  delete core_extent_;
   delete offset_;
   extent_ = 0;
+  core_extent_ = 0;
   offset_ = 0;
 }
