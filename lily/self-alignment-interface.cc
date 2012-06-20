@@ -168,6 +168,86 @@ Self_alignment_interface::aligned_on_parent (Grob *me, Axis a)
   return scm_from_double (x);
 }
 
+MAKE_SCHEME_CALLBACK (Self_alignment_interface, general_x_alignment, 1)
+SCM
+Self_alignment_interface::general_x_alignment (SCM smob)
+{
+  return general_alignment (unsmob_grob (smob), X_AXIS);
+}
+
+MAKE_SCHEME_CALLBACK (Self_alignment_interface, general_y_alignment, 1)
+SCM
+Self_alignment_interface::general_y_alignment (SCM smob)
+{
+  return general_alignment (unsmob_grob (smob), Y_AXIS);
+}
+
+SCM
+Self_alignment_interface::general_alignment (Grob *me, Axis a)
+{
+  Grob *parent = me->get_parent (a);
+  Real offset = 0.0;
+
+  SCM which_alignment = (a == X_AXIS)
+                        ? ly_symbol2scm ("X-alignment")
+                        : ly_symbol2scm ("Y-alignment");
+
+  SCM alignment_property_list (me->internal_get_property (which_alignment));
+
+  // which_*_extent allows to choose a property used for calculating extents.
+  // If this remains SCM_EOL, the reference point of the stencil will be used.
+  SCM which_grob_extent = SCM_EOL;
+  SCM which_parent_extent = SCM_EOL;
+  Real grob_alignment = 0;
+  Real parent_alignment = 0;
+  Real extra_offset = 0;
+
+  if (alignment_property_list == SCM_EOL)
+    return scm_from_int (0);
+  else
+    {
+      SCM grob_pair = robust_list_ref (0, alignment_property_list);
+      if (scm_is_pair (grob_pair))
+        {
+          which_grob_extent = scm_car (grob_pair);
+          grob_alignment = robust_scm2double (scm_cdr (grob_pair), 0.0);
+        }
+
+      SCM parent_pair = robust_list_ref (1, alignment_property_list);
+      if (scm_is_pair (parent_pair))
+        {
+          which_parent_extent = scm_car (parent_pair);
+          parent_alignment = robust_scm2double (scm_cdr (parent_pair), 0.0);
+        }
+
+      extra_offset += scm_to_double (robust_list_ref (2, alignment_property_list));
+    }
+
+  // PaperColumn extents are weird, so we don't use them.
+  if (Paper_column::has_interface (parent))
+    which_parent_extent = SCM_EOL;
+
+  SCM grob_property = me->get_property (which_grob_extent);
+  Interval grob_extent = (scm_is_pair (grob_property))
+                         ? ly_scm2interval (grob_property)
+                         : me->extent (me, a);
+
+  if (!grob_extent.is_empty () && (which_grob_extent != SCM_EOL))
+    offset -= grob_extent.linear_combination (grob_alignment);
+
+  SCM parent_property = parent->get_property (which_parent_extent);
+  Interval parent_extent = (scm_is_pair (parent_property))
+                           ? ly_scm2interval (parent_property)
+                           : parent->extent (parent, a);
+
+  if (!parent_extent.is_empty () && (which_parent_extent != SCM_EOL))
+    offset += parent_extent.linear_combination (parent_alignment);
+
+  offset += extra_offset;
+
+  return scm_from_double (offset);
+}
+
 void
 Self_alignment_interface::set_center_parent (Grob *me, Axis a)
 {
@@ -196,6 +276,10 @@ ADD_INTERFACE (Self_alignment_interface,
                "@item Self_alignment_interface::centered_on_[xy]_parent\n"
                "Shift the object so its own reference point is centered on"
                " the extent of the parent\n"
+               "@item Self_alignment_interface::general_[xy]_alignment\n"
+               "Align object's reference point on parent's reference point;\n"
+               " reference points are taken from @code{X-alignment} or\n"
+               " @code{Y-alignment} properties, respectively\n"
                "@end table\n",
 
                /* properties */
@@ -204,6 +288,8 @@ ADD_INTERFACE (Self_alignment_interface,
                "potential-X-colliding-grobs "
                "self-alignment-X "
                "self-alignment-Y "
+               "X-alignment "
+               "Y-alignment "
                "X-colliding-grobs "
                "Y-colliding-grobs "
               );
