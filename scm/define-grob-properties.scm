@@ -1011,6 +1011,8 @@ texts.")
 ;; x
 ;;
      (X-extent ,number-pair? "Hard coded extent in X@tie{}direction.")
+     (X-core-extent ,number-pair? "Extent of grob's inner portion
+in X@tie{}direction.")
      (X-offset ,number? "The horizontal amount that this object is
 moved relative to its X-parent.")
      (X-positions ,number-pair? "Pair of X staff coordinates of a spanner
@@ -1022,6 +1024,8 @@ in the form @code{(@var{left} . @var{right})}, where both @var{left} and
 ;; y
 ;;
      (Y-extent ,number-pair? "Hard coded extent in Y@tie{}direction.")
+     (Y-core-extent ,number-pair? "Extent of grob's inner portion
+in Y@tie{}direction.")
      (Y-offset ,number? "The vertical amount that this object is moved
 relative to its Y-parent.")
 
