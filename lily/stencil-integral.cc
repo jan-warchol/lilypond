@@ -1078,9 +1078,23 @@ Grob::internal_skylines_from_element_stencils (SCM smob, Axis a)
             Here, copying is essential.  Otherwise, the skyline pair will
             get doubly shifted!
           */
+          /*
+            It took Mike about 6 months of his life to add the `else' clause
+            below.  For horizontal skylines, the raise and shift calls need
+            to be reversed.  This is what was causing the problems in the
+            shifting with all of the tests. RIP 6 months!
+          */
           Skyline_pair copy = Skyline_pair (*skyp);
-          copy.shift (x_pos[i] - my_x);
-          copy.raise (y_pos[i] - my_y);
+          if (a == X_AXIS)
+            {
+              copy.shift (x_pos[i] - my_x);
+              copy.raise (y_pos[i] - my_y);
+            }
+          else
+            {
+              copy.raise (x_pos[i] - my_x);
+              copy.shift (y_pos[i] - my_y);
+            }
           res.merge (copy);
         }
     }

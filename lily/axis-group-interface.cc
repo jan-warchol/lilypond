@@ -19,6 +19,7 @@
 
 #include "axis-group-interface.hh"
 
+
 #include "align-interface.hh"
 #include "directional-element-interface.hh"
 #include "grob-array.hh"
@@ -656,8 +657,8 @@ avoid_outside_staff_collisions (Grob *elt,
             continue;
           // check for horizontal edges jinnying up
           Real holder = horizontal_skylines.smallest_shift (horizontal_skyline_forest[dir][j], dir, 0.0, 0.0);
-          if (holder != 0.0 && !isinf (holder)){message (elt->name ());horizontal_skyline_forest[dir][j].print_points (); horizontal_skylines.print_points ();
-            bumps.push_back (holder);}
+          if (holder != 0.0 && !isinf (holder))
+            bumps.push_back (holder);
           }
    
       for (vsize j = 0; j < vertical_skyline_forest[dir].size (); j++)
@@ -696,6 +697,7 @@ avoid_outside_staff_collisions (Grob *elt,
       elt->translate_axis (max_bump, Y_AXIS);
       bumps.resize (0);
       dirty = abs (max_bump) > EPSILON;
+
     }
   while (dirty);
 }
@@ -774,7 +776,7 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
         }
       Skyline_pair horizontal_skylines (*Skyline_pair::unsmob (elements[i]->get_property ("horizontal-skylines")));
       horizontal_skylines.raise (elements[i]->relative_coordinate (x_common, X_AXIS));
-      horizontal_skylines.shift (elements[i]->relative_coordinate (y_common, Y_AXIS));//message (elements[i]->name ()); horizontal_skylines.print_points ();
+
       Interval hs_width (horizontal_skylines[LEFT].max_height (), horizontal_skylines[RIGHT].max_height ());
 
       /*
@@ -804,7 +806,7 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
       for (vsize j = 0; j < horizontal_skyline_forest[dir].size (); j++)
         exempt.push_back (hs_width[LEFT] > horizontal_skyline_forest_max_widths[dir][j][RIGHT]
                           || hs_width[RIGHT] < horizontal_skyline_forest_max_widths[dir][j][LEFT]);
-//message (elements[i]->name ()); horizontal_skylines.print_points ();
+
       avoid_outside_staff_collisions (elements[i],
                                       exempt,
                                       horizontal_skylines,
