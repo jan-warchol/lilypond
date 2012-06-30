@@ -652,7 +652,7 @@ automatically when an output definition (a @code{\\score} or
   stringNumberOrientations = #'(up down)
   strokeFingerOrientations = #'(right)
 
-  lyricMelismaAlignment = #LEFT
+  lyricMelismaAlignment = #'((X-core-extent . -1)(X-core-extent . -1) 0)
   markFormatter = #format-mark-letters
   rehearsalMark = #1
   subdivideBeams = ##f
