@@ -690,13 +690,14 @@ avoid_outside_staff_collisions (Grob *elt,
           max_bump = minmax (dir, bumps[j], max_bump);
       if (isinf (max_bump))
         max_bump = 0.0;
-      pair->raise (max_bump + (dir * EPSILON));
+      dirty = abs (max_bump) > EPSILON;
+      max_bump = max_bump + (dir * (dirty ? EPSILON + padding : 0.0));
+      pair->raise (max_bump);
       horizontal_skylines.shift (max_bump);
       if (use_separate_constructor_skyline)
         to_pass_to_constructor->raise (max_bump);
       elt->translate_axis (max_bump, Y_AXIS);
       bumps.resize (0);
-      dirty = abs (max_bump) > EPSILON;
 
     }
   while (dirty);
