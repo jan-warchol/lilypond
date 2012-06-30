@@ -7,7 +7,17 @@
 \version "2.14.2"
 
 \header {
-  lsrtags = "editorial-annotations, staff-notation, tweaks-and-overrides, expressive-marks, scheme-language"
+  lsrtags = "expressive-marks, tweaks-and-overrides, staff-notation, scheme-language, editorial-annotations"
+
+%% Translation of GIT committish: 1cda7b7b8219cb97399b8e7b56c1115aaf82c002
+  texidocfr = "
+Il est impossible, par défaut, de noter un doigté sur deux caractères --
+autrement dit supérieur à 9.  C'est gravé dans le marbre.
+
+Voici cependant deux méthodes pour créer des doigtés plus grands que 9.
+
+"
+  doctitlefr = "Création de doigtés sur deux caractères"
 
   texidoc = "
 By default you cannot make double-digit fingering notation (i.e.

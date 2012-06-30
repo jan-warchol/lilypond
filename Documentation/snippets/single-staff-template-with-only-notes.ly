@@ -7,7 +7,7 @@
 \version "2.14.2"
 
 \header {
-  lsrtags = "template, really-simple"
+  lsrtags = "really-simple, template"
 
 %% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   texidoces = "
@@ -26,7 +26,7 @@ un archivo, escriba las notas y ¡ya está!
 "
 
 
-%% Translation of GIT committish: c3b519f0dd5ff0f8ccfc9a39ed1fe8df8b43741c
+%% Translation of GIT committish: 6ae36b6f8a7cf2df5f4e46c3c06820fccd9f35e1
   texidocit = "
 Questo modello molto semplice mette a disposizione un rigo con delle note ed è
 quindi adatto per uno strumento non accompagnato o per un frammento

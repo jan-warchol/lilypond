@@ -66,6 +66,7 @@ struct Bound_info
   Grob *slur_head_;
   Grob *staff_;
   Grob *stem_;
+  Grob *flag_;
   Interval slur_head_x_extent_;
   Real staff_space_;
 
@@ -119,7 +120,7 @@ struct Slur_score_state
   vector<Extra_collision_info> get_extra_encompass_infos () const;
   Real move_away_from_staffline (Real y, Grob *on_staff) const;
 
-  Grob *breakable_bound_item (Direction) const;
+  Interval breakable_bound_extent (Direction) const;
 };
 
 void set_slur_control_points (Grob *me);

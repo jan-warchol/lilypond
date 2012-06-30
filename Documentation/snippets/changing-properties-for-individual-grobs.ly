@@ -7,7 +7,15 @@
 \version "2.14.2"
 
 \header {
-  lsrtags = "really-cool, tweaks-and-overrides, scheme-language"
+  lsrtags = "tweaks-and-overrides, scheme-language, really-cool"
+
+%% Translation of GIT committish: 1cda7b7b8219cb97399b8e7b56c1115aaf82c002
+  texidocfr = "
+La commande @code{\\applyOutput} permet de personnaliser n'importe quel
+objet de rendu.  Elle requiert une fonction Scheme à trois arguments.
+
+"
+  doctitlefr = "Modification des propriétés d'objets particuliers"
 
   texidoc = "
 The @code{\\applyOutput} command allows the tuning of any layout

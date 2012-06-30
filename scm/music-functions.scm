@@ -299,8 +299,10 @@ through MUSIC."
 				 1))
 	       (tremolo-type (ash 1 duration-log)))
 	  (set! (ly:music-property r 'tremolo-type) tremolo-type)
-	  (if (not (integer?  mult))
-              (ly:warning (_ "invalid tremolo repeat count: ~a") times))
+	  (if (not (and (integer? mult) (= (logcount mult) 1)))
+	      (ly:music-warning
+	       main
+	       (ly:format (_ "invalid tremolo repeat count: ~a") times)))
 	  ;; Adjust the time of the notes
 	  (ly:music-compress r (ly:make-moment 1 children))
 	  ;; Adjust the displayed note durations
@@ -344,32 +346,35 @@ beats to be distinguished."
   (let ((es (ly:music-property music 'elements))
 	(e (ly:music-property music 'element)))
 
-    (if (memq 'repeated-music (ly:music-property music 'types))
+    (if (music-is-of-type? music 'repeated-music)
 	(let* ((props (ly:music-mutable-properties music))
 	       (old-name (ly:music-property music 'name))
 	       (flattened (flatten-alist props)))
 	  (set! music (apply make-music (cons 'UnfoldedRepeatedMusic
 					      flattened)))
 
-	  (if (equal? old-name 'TremoloRepeatedMusic)
-	      (let* ((seq-arg? (memq 'sequential-music
-				     (ly:music-property e 'types)))
-		     (count (ly:music-property music 'repeat-count))
-		     (dot-shift (if (= 0 (remainder count 3))
-				    -1 0))
-		     (child-count (if seq-arg?
-				      (length (ly:music-property e 'elements))
-				      0)))
+	  (if (and (equal? old-name 'TremoloRepeatedMusic)
+		   (pair? (extract-named-music e '(EventChord NoteEvent))))
+	      ;; This works for single-note and multi-note tremolos!
+	      (let* ((children (if (music-is-of-type? e 'sequential-music)
+				   ;; \repeat tremolo n { ... }
+				   (length (extract-named-music e '(EventChord
+								       NoteEvent)))
+				   ;; \repeat tremolo n c4
+				   1))
+		     (times (ly:music-property music 'repeat-count))
 
-		(if (= 0 -1)
-		    (set! count (* 2 (quotient count 3))))
+		     ;; # of dots is equal to the 1 in bitwise representation (minus 1)!
+		     (dots (1- (logcount (* times children))))
+		     ;; The remaining missing multiplicator to scale the notes by
+		     ;; times * children
+		     (mult (/ (* times children (ash 1 dots)) (1- (ash 2 dots))))
+		     (shift (- (ly:intlog2 (floor mult)))))
 
-		(shift-duration-log music (+ (if (= 2 child-count)
-						 1 0)
-					     (ly:intlog2 count)) dot-shift)
-
-		(if seq-arg?
-		    (ly:music-compress e (ly:make-moment child-count 1)))))))
+		;; Adjust the time of the notes
+		(ly:music-compress music (ly:make-moment children 1))
+		;; Adjust the displayed note durations
+		(shift-duration-log music (- shift) (- dots))))))
 
     (if (pair? es)
 	(set! (ly:music-property music 'elements)
@@ -966,40 +971,42 @@ set to the @code{location} parameter."
 
   (if (vector? (ly:music-property quote-music 'quoted-events))
       (let* ((dir (ly:music-property quote-music 'quoted-voice-direction))
-	     (clef (ly:music-property quote-music 'quoted-music-clef))
-	     (main-voice (if (eq? 1 dir) 1 0))
-	     (cue-voice (if (eq? 1 dir) 0 1))
+	     (clef (ly:music-property quote-music 'quoted-music-clef #f))
+	     (main-voice (case dir ((1) 1) ((-1) 0) (else #f)))
+	     (cue-voice (and main-voice (- 1 main-voice)))
 	     (main-music (ly:music-property quote-music 'element))
 	     (return-value quote-music))
 
-	(if (or (eq? 1 dir) (eq? -1 dir))
+	(if main-voice
+	    (set! (ly:music-property quote-music 'element)
+		  (make-sequential-music
+		   (list
+		    (make-voice-props-override main-voice)
+		    main-music
+		    (make-voice-props-revert)))))
 
-	    ;; if we have stem dirs, change both quoted and main music
-	    ;; to have opposite stems.
-	    (begin
-	      (set! return-value
-		    ;; cannot context-spec Quote-music, since context
-		    ;; for the quotes is determined in the iterator.
-		    (make-sequential-music
-		     (list
-		      (if (null? clef)
-		          (make-music 'Music)
-		          (make-cue-clef-set clef))
-		      (context-spec-music (make-voice-props-override cue-voice) 'CueVoice "cue")
-		      quote-music
-		      (context-spec-music (make-voice-props-revert) 'CueVoice "cue")
-		      (if (null? clef)
-		          (make-music 'Music)
-		          (make-cue-clef-unset)))))
-	      (set! main-music
-		    (make-sequential-music
-		     (list
-		      (make-voice-props-override main-voice)
-		      main-music
-		      (make-voice-props-revert))))
-	      (set! (ly:music-property quote-music 'element) main-music)))
+	;; if we have stem dirs, change both quoted and main music
+	;; to have opposite stems.
 
-	return-value)
+	;; cannot context-spec Quote-music, since context
+	;; for the quotes is determined in the iterator.
+
+	(make-sequential-music
+	 (delq! #f
+		(list
+		 (and clef (make-cue-clef-set clef))
+
+		 ;; Need to establish CueVoice context even in #CENTER case
+		 (context-spec-music
+		  (if cue-voice
+		      (make-voice-props-override cue-voice)
+		      (make-music 'Music))
+		  'CueVoice "cue")
+		 quote-music
+		 (and cue-voice
+		      (context-spec-music
+		       (make-voice-props-revert) 'CueVoice "cue"))
+		 (and clef (make-cue-clef-unset))))))
       quote-music))
 
 (define-public ((quote-substitute quote-tab) music)

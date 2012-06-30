@@ -7,7 +7,7 @@
 \version "2.14.2"
 
 \header {
-  lsrtags = "template, vocal-music, keyboards, really-simple"
+  lsrtags = "really-simple, keyboards, vocal-music, template"
 
 %% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   texidoces = "
@@ -23,7 +23,7 @@ melodía y la letra, y el acompañamiento de piano por debajo.
 これは一般的な歌曲のフォーマットです: 旋律と歌詞を持つ譜表と、その下にピアノ伴奏譜があります。
 "
 
-%% Translation of GIT committish: c3b519f0dd5ff0f8ccfc9a39ed1fe8df8b43741c
+%% Translation of GIT committish: 6ae36b6f8a7cf2df5f4e46c3c06820fccd9f35e1
   texidocit = "
 Ecco un tipico formato per canzoni: un rigo con linea melodica e testo,
 e sotto l'accompagnamento per pianoforte.

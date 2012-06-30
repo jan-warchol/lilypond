@@ -7,7 +7,7 @@
 \version "2.14.2"
 
 \header {
-  lsrtags = "template, vocal-music"
+  lsrtags = "vocal-music, template"
 
 %% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   texidoces = "
@@ -19,7 +19,7 @@ codifican en estilos diferentes para ilustrar más posibilidades.
 "
   doctitlees = "Plantilla de salmo del canto anglicano"
 
-%% Translation of GIT committish: c3b519f0dd5ff0f8ccfc9a39ed1fe8df8b43741c
+%% Translation of GIT committish: 6ae36b6f8a7cf2df5f4e46c3c06820fccd9f35e1
   texidocit = "
 Questo modello presenta un modo di impostare un salmo anglicano.  Mostra
 anche come le strofe possono essere aggiunte come testo separato al di sotto

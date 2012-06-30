@@ -7,7 +7,16 @@
 \version "2.14.2"
 
 \header {
-  lsrtags = "editorial-annotations, really-cool, pitches"
+  lsrtags = "pitches, really-cool, editorial-annotations"
+
+%% Translation of GIT committish: 1cda7b7b8219cb97399b8e7b56c1115aaf82c002
+  texidocfr = "
+Les têtes de note peuvent adopter une couleur différenete selon leur
+hauteur ou leur nom : la fonction utilisée ici fait même la distinction
+entre enharmoniques.
+
+"
+  doctitlefr = "Coloration des notes selon leur hauteur"
 
   texidoc = "
 It is possible to color note heads depending on their pitch and/or

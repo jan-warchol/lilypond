@@ -32,18 +32,20 @@ LY_DEFINE (ly_pitch_transpose, "ly:pitch-transpose",
   return t->transposed (*d).smobbed_copy ();
 }
 
-/* Should add optional args.  */
 LY_DEFINE (ly_make_pitch, "ly:make-pitch",
            2, 1, 0, (SCM octave, SCM note, SCM alter),
            "@var{octave} is specified by an integer, zero for the octave"
-           " containing middle@tie{}C. @var{note} is a number indexing the"
+           " containing middle@tie{}C.  @var{note} is a number indexing the"
            " global default scale, with 0 corresponding to pitch@tie{}C"
-           " and 6 usually corresponding to pitch@tie{}B. @var{alter} is"
+           " and 6 usually corresponding to pitch@tie{}B."
+           "  Optional @var{alter} is"
            " a rational number of 200-cent whole tones for alteration.")
 
 {
   LY_ASSERT_TYPE (scm_is_integer, octave, 1);
   LY_ASSERT_TYPE (scm_is_integer, note, 2);
+  if (SCM_UNBNDP (alter))
+    alter = SCM_INUM0;
   LY_ASSERT_TYPE (scm_is_rational, alter, 3);
 
   Pitch p (scm_to_int (octave), scm_to_int (note),
@@ -92,7 +94,7 @@ LY_DEFINE (ly_pitch_alteration, "ly:pitch-alteration",
   return ly_rational2scm (q);
 }
 
-LY_DEFINE (pitch_notename, "ly:pitch-notename",
+LY_DEFINE (ly_pitch_notename, "ly:pitch-notename",
            1, 0, 0, (SCM pp),
            "Extract the note name from pitch @var{pp}.")
 {
@@ -101,6 +103,16 @@ LY_DEFINE (pitch_notename, "ly:pitch-notename",
   int q = p->get_notename ();
   return scm_from_int (q);
 }
+
+LY_DEFINE (ly_pitch_tones, "ly:pitch-tones",
+	   1, 0, 0, (SCM pp),
+           "Calculate the number of tones of@tie{}@var{pp} from"
+           " middle@tie{}C as a rational number.")
+{
+  LY_ASSERT_SMOB (Pitch, pp, 1);
+  return ly_rational2scm (unsmob_pitch (pp)->tone_pitch ());
+}
+
 
 LY_DEFINE (ly_pitch_quartertones, "ly:pitch-quartertones",
            1, 0, 0, (SCM pp),
@@ -174,5 +186,5 @@ LY_DEFINE (ly_set_middle_C_x, "ly:set-middle-C!",
     clef_pos = robust_scm2int (cue_pos, 0);
 
   c->set_property (ly_symbol2scm ("middleCPosition"), scm_from_int (clef_pos + offset));
-  return SCM_UNDEFINED;
+  return SCM_UNSPECIFIED;
 }

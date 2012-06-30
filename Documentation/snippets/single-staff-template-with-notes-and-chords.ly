@@ -7,7 +7,7 @@
 \version "2.14.2"
 
 \header {
-  lsrtags = "template, chords, really-simple"
+  lsrtags = "really-simple, chords, template"
 
 %% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   texidoces = "
@@ -24,7 +24,7 @@ doctitlees = "Plantilla de pentagrama único con música y acordes"
 旋律とコードを持つリード譜を欲しくはありませんか？他を見る必要はありません！
 "
 
-%% Translation of GIT committish: c3b519f0dd5ff0f8ccfc9a39ed1fe8df8b43741c
+%% Translation of GIT committish: 6ae36b6f8a7cf2df5f4e46c3c06820fccd9f35e1
   texidocit = "
 Vuoi preparare uno spartito semplificato (lead sheet) con melodia e
 accordi?  La tua ricerca è finita!

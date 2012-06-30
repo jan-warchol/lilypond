@@ -7,7 +7,17 @@
 \version "2.14.2"
 
 \header {
-  lsrtags = "paper-and-layout, staff-notation, tweaks-and-overrides"
+  lsrtags = "tweaks-and-overrides, paper-and-layout, staff-notation"
+
+%% Translation of GIT committish: 1cda7b7b8219cb97399b8e7b56c1115aaf82c002
+  texidocfr = "
+Bien que le meilleur moyen de définir la taille des portées consiste à
+utiliser @code{#(set-global-staff-size xx)}, une portée en particulier
+peut se redimensionner en affectant d'un coefficient ses propriétés
+@code{'staff-space} et @code{fontSize}.
+
+"
+  doctitlefr = "Modification de la taille d'une portée"
 
   texidoc = "
 Though the simplest way to resize staves is to use

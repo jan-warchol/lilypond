@@ -43,21 +43,19 @@ diese Einstellung für alle Systeme gemacht werden.
 
   doctitlede = "Zeichen an verschiedenen Notationsobjekten ausrichten"
 
-%% Translation of GIT committish: 3b125956b08d27ef39cd48bfa3a2f1e1bb2ae8b4
+%% Translation of GIT committish: f5cfaf8ef4ac347702f554af0944ef0d8396e73a
   texidocfr = "
 Les indications textuelles peuvent s'aligner par rapport à d'autres
 objets que des barres de mesure, tels que @code{ambitus},
 @code{breathing-sign}, @code{clef}, @code{custos}, @code{staff-bar},
-@code{left-edge}, @code{key-cancellation}, @code{key-signature}, ou
+@code{left-edge}, @code{key-cancellation}, @code{key-signature} ou
 @code{time-signature}.
 
-
-Par défaut, les indications textuelles sont alignées avec le milieu
+Par défaut, les indications textuelles sont alignées sur le milieu
 des objets de notation.  Bien entendu, vous pouvez modifier les
-propriétés des objets en question pour obtenir un autre
-résultat comme l'illustre la deuxième ligne de l'exemple.  Dans le cas
-de portées multiples, ces réglages doivent être faits pour chacune
-d'entre elles.
+propriétés des objets en question pour obtenir un autre résultat comme
+l'illustre la deuxième ligne de l'exemple.  Dans le cas de portées
+multiples, ces réglages doivent être faits pour chacune d'entre elles.
 
 "
   doctitlefr = "Alignement des indications par rapport à divers objets de notation"
@@ -83,7 +81,6 @@ be done for all the staves).
   doctitle = "Aligning marks with various notation objects"
 } % begin verbatim
 
-
 \relative c' {
   e1
 
@@ -91,7 +88,7 @@ be done for all the staves).
   \override Score.RehearsalMark #'break-align-symbols = #'(clef)
   \key a \major
   \clef treble
-  \mark "↓"
+  \mark \markup { \char ##x2193 }
   e1
 
   % the RehearsalMark will be centered above the TimeSignature

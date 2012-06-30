@@ -7,7 +7,7 @@
 \version "2.14.2"
 
 \header {
-  lsrtags = "template, vocal-music, keyboards, automatic-notation"
+  lsrtags = "automatic-notation, keyboards, vocal-music, template"
 
 %% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   texidoces = "
@@ -31,7 +31,7 @@ entonces los cambios se aplicarán también a la reducción de piano.
 の音符) に変更が加えられた場合、その変更はピアノ譜にも適用されます。
 "
 
-%% Translation of GIT committish: c3b519f0dd5ff0f8ccfc9a39ed1fe8df8b43741c
+%% Translation of GIT committish: 6ae36b6f8a7cf2df5f4e46c3c06820fccd9f35e1
   texidocit = "
 Questo modello aggiunge una riduzione automatica per pianoforte alla tipica
 partitura vocale SATB illustrata in @qq{Modello per complesso vocale}. Si

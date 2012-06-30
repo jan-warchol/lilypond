@@ -16,6 +16,14 @@ Las indicaciones de compás también se pueden grabar en estilo antiguo.
 "
   doctitlees = "Indicaciones de compás antiguas"
 
+%% Translation of GIT committish: 85394d425536d267ed0cb71d17023849f1611180
+  texidocfr = "
+La métrique peut s'imprimer dans un style ancien.
+
+"
+  doctitlefr = "Métrique ancienne"
+
+
   texidoc = "
 Time signatures may also be engraved in an old style.
 

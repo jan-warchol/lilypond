@@ -7,7 +7,7 @@
 \version "2.14.2"
 
 \header {
-  lsrtags = "vocal-music, pitches"
+  lsrtags = "pitches, vocal-music"
 
 %% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   doctitlees = "Ámbitos con varias voces"
@@ -19,7 +19,7 @@ pentagramas con varias voces.
 "
 
 
-%% Translation of GIT committish: bbf8fd2b5a3ebf20a1fdc91613dc49045a53a270
+%% Translation of GIT committish: 6ae36b6f8a7cf2df5f4e46c3c06820fccd9f35e1
   texidocit = "
 Se si aggiunge l'incisore @code{Ambitus_engraver} al contesto @code{Staff} viene
 creato un solo ambitus per il rigo, anche nel caso di righi che hanno più

@@ -7,7 +7,7 @@
 \version "2.14.2"
 
 \header {
-  lsrtags = "template, keyboards, text, really-simple"
+  lsrtags = "really-simple, keyboards, text, template"
 
 %% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   texidoces = "
@@ -23,7 +23,7 @@ se puede centrar entre los pentagramas de un sistema de piano.
 旋律と歌詞のための譜表を持つ代わりに、歌詞をピアノ譜の 2 つの譜の間に置くことができます。
 "
 
-%% Translation of GIT committish: c3b519f0dd5ff0f8ccfc9a39ed1fe8df8b43741c
+%% Translation of GIT committish: 6ae36b6f8a7cf2df5f4e46c3c06820fccd9f35e1
   texidocit = "
 Invece di destinare un rigo a parte alla linea melodica e al suo testo, è
 possibile collocare il testo al centro di un doppio pentagramma per pianoforte.

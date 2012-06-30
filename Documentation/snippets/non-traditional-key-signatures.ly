@@ -7,7 +7,7 @@
 \version "2.14.2"
 
 \header {
-  lsrtags = "version-specific, really-cool, pitches, contemporary-notation, staff-notation"
+  lsrtags = "version-specific, pitches, contemporary-notation, staff-notation, really-cool"
 
 %% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   doctitlees = "Armaduras de tonalidad no tradicionales"
@@ -38,7 +38,7 @@ exátona:
 "
 
 
-%% Translation of GIT committish: d76b338302374164acc9b62a0d628d4d230bfa95
+%% Translation of GIT committish: 6ae36b6f8a7cf2df5f4e46c3c06820fccd9f35e1
   texidocit = "
 Il comando @code{\\key} comunemente usato imposta la proprietà
 @code{keySignature}, che fa parte del contesto @code{Staff}.
@@ -49,19 +49,14 @@ una lista:
 
 @code{\\set Staff.keySignature = #`(((ottava . grado) . alterazione) ((ottava
 . grado) . alterazione) ...)} dove, per ogni elemento della lista,
-@code{ottava} indica l'ottava (0 è l'ottava dal Do centrale
+@code{ottava} indica l'ottava (0@tie{}è l'ottava dal Do@tie{}centrale
 al Si precedente), @code{grado} indica la nota all'interno
-dell'ottava (0 significa Do e 6 significa Si) e @code{alterazione}
+dell'ottava (0@tie{}significa@tie{}Do e 6@tie{}significa@tie{}Si) e @code{alterazione}
 può essere @code{,SHARP ,FLAT ,DOUBLE-SHARP} etc.  (Si noti la virgola iniziale.)
-Le alterazioni nell'armatura di chiave appariranno nell'ordine inverso
-a quello in cui sono sono specificate.
 
 Altrimenti, usando, per ogni elemento della lista, il formato breve
 @code{(grado . alterazione)}, ciò indica che la stessa alterazione deve
 essere presente in tutte le ottave.
-
-Per le scale microtonali in cui un @qq{diesis} non equivale a cento centesimi, @code{alter}
-si riferisce all'alterazione come a una proporzione di un duecentesimo di tono intero.
 
 Ecco un esempio di una possibile armatura per generare una scala
 a tono intero:
@@ -91,30 +86,27 @@ für alle Oktaven gelten.
 Hier ein Beispiel einer möglichen Tonart für eine Ganztonleiter:
 "
 
-%% Translation of GIT committish: 3b125956b08d27ef39cd48bfa3a2f1e1bb2ae8b4
+%% Translation of GIT committish: 57f9346bb030f49336a858fcbf1519366fe56454
   texidocfr = "
 La commande @code{\\key} détermine la propriété @code{keySignature} d'un
 contexte @code{Staff}.
 
 Des armures inhabituelles peuvent être spécifiées en modifiant
-directement cette propriété. Il s'agit en l'occurence de définir une
-liste@tie{}:
+directement cette propriété. Il s'agit en l'occurrence de définir une
+liste :
 
-@code{\\set Staff.keySignature = #`(((octave . pas) . altération) ((octave
-. pas) . altération) @dots{})}
+@code{\\set Staff.keySignature = #`(((octave . pas) . altération) ((octave . pas) . altération) @dots{})}
 
 dans laquelle, et pour chaque élément,
-@code{octave} spécifie l'octave (0@tie{}pour celle allant du
-do@tie{}médium au si supérieur), @code{pas} la note dans cette octave
-(0@tie{}pour@tie{}do et 6@tie{}pour@tie{}si), et @code{altération} sera
-@code{,SHARP ,FLAT ,DOUBLE-SHARP} etc.  (attention à la virgule en
-préfixe).
+@code{octave} spécifie l'octave (0 pour celle allant du do médium au si
+supérieur), @code{pas} la note dans cette octave (0 pour do et 6 pour
+si), et @code{altération} sera @code{,SHARP ,FLAT ,DOUBLE-SHARP} etc.
+(attention à la virgule en préfixe).
 
 Une formulation abrégée -- @code{(pas . altération)} -- signifie que
 l'altération de l'élément en question sera valide quel que soit l'octave.
 
-
-Voici, par exemple, comment générer une gamme par ton :
+Voici, par exemple, comment générer une gamme par ton :
 
 "
   doctitlefr = "Armures inhabituelles"

@@ -7,7 +7,7 @@
 \version "2.14.2"
 
 \header {
-  lsrtags = "template, vocal-music, pitches, staff-notation"
+  lsrtags = "pitches, staff-notation, vocal-music, template"
 
 %% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   texidoces = "
@@ -20,7 +20,7 @@ afinación de concierto.
 "
   doctitlees = "Plantilla de orquesta con coro y piano"
 
-%% Translation of GIT committish: 34607d3e36a93030690ccd780a7ffce621ca1e0f
+%% Translation of GIT committish: 6ae36b6f8a7cf2df5f4e46c3c06820fccd9f35e1
   texidocit = "
 Questo modello mostra come usare i contesti annidati @code{StaffGroup} e
 @code{GrandStaff} per creare sottogruppi degli strumenti dello stesso

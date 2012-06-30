@@ -7,16 +7,7 @@
 \version "2.14.2"
 
 \header {
-%% Translation of GIT committish: d76b338302374164acc9b62a0d628d4d230bfa95
-  texidocja = "
-いくつかの音符を持つシンプルなピアノ譜を示します。
-
-"
-  doctitleja = "ピアノ テンプレート (シンプル)"
-
-  lsrtags = "template, keyboards, really-simple"
-
-
+  lsrtags = "really-simple, keyboards, template"
 
 %% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   texidoces = "
@@ -27,7 +18,14 @@ notas.
   doctitlees = "Plantilla de piano (sencilla)"
 
 
-%% Translation of GIT committish: c3b519f0dd5ff0f8ccfc9a39ed1fe8df8b43741c
+%% Translation of GIT committish: d76b338302374164acc9b62a0d628d4d230bfa95
+  texidocja = "
+いくつかの音符を持つシンプルなピアノ譜を示します。
+
+"
+  doctitleja = "ピアノ テンプレート (シンプル)"
+
+%% Translation of GIT committish: 6ae36b6f8a7cf2df5f4e46c3c06820fccd9f35e1
   texidocit = "
 Ecco un comune doppio pentagramma per pianoforte con un po' di note.
 

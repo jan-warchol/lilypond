@@ -7,7 +7,7 @@
 \version "2.14.2"
 
 \header {
-  lsrtags = "vocal-music, text"
+  lsrtags = "text, vocal-music"
 
 %% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   texidoces = "
@@ -16,6 +16,7 @@ individuales dentro de la letra.
 
 "
   doctitlees = "Dar formato a sílabas de la letra"
+
 %%%    Translation of GIT committish: f86f00c1a8de0f034ba48506de2801c074bd5422
   texidocde = "
 Textbeschriftungsmodus kann eingesetzt werden, um individuelle Silben im Gesangstext
@@ -23,9 +24,11 @@ zu formatieren.
 
 "
   doctitlede = "Silben im Gesangstext formatieren"
-%%  Translation of GIT committish: d9d1da30361a0bcaea1ae058eb1bc8dd3a5b2e4c
+
+%%  Translation of GIT committish: 30339cb3706f6399c84607426988b25f79b4998c
   texidocfr = "
-Le mode markup permet d'individualiser la mise en forme de certaines syllabes.
+Le mode @emph{markup} permet d'individualiser la mise en forme de
+certaines syllabes.
 
 "
   doctitlefr = "Mise en forme individuelle de syllabes"

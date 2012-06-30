@@ -238,17 +238,17 @@ upgrade to these versions.
 @item
 @sourceimage{logo-fedora,,,}
 @uref{http://koji.fedoraproject.org/koji/packageinfo?packageID=2447,
-Fedora: LilyPond 2.14.1}
+Fedora: LilyPond 2.14.2}
 
 @item
 @sourceimage{logo-ubuntu,,,}
 @uref{http://packages.ubuntu.com/search?keywords=lilypond,
-Ubuntu: LilyPond 2.12.3}
+Ubuntu: LilyPond 2.14.2}
 
 @item
 @sourceimage{logo-slackware,,,}
 @uref{http://www.johannes-schoepfer.de/lilypond/,
-Slackware: LilyPond 2.14.1}
+Slackware: LilyPond 2.14.2}
 
 @item
 @sourceimage{logo-debian,,,}
@@ -358,6 +358,7 @@ Create a file called @command{lilypond} which contains
 
 @divClass{h-scroll-auto}
 @example
+#!/bin/bash
 exec @var{DIR}/LilyPond.app/Contents/Resources/bin/lilypond "$@@"
 @end example
 @divEnd

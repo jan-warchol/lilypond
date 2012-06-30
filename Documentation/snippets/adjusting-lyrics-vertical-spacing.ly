@@ -7,7 +7,7 @@
 \version "2.14.2"
 
 \header {
-  lsrtags = "correction-wanted, vocal-music, workaround, text, spacing"
+  lsrtags = "spacing, workaround, correction-wanted, text, vocal-music"
 
 %% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   texidoces = "
@@ -18,10 +18,10 @@ letra más cerca del pentagrama.
   doctitlees = "Ajuste del especiado vertical de la letra"
 
 
-%% Translation of GIT committish: 9a65042d49324f2e3dff18c4b0858def81232eea
+%% Translation of GIT committish: f5cfaf8ef4ac347702f554af0944ef0d8396e73a
   texidocfr = "
-Cet extrait illustre la manière de rapprocher la ligne de paroles
-de la portée.
+Cet extrait illustre la manière de réduire l'espace entre la ligne de
+paroles et la portée.
 
 "
   doctitlefr = "Ajustement de l'espacement vertical des paroles"

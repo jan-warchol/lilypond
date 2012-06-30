@@ -20,7 +20,7 @@ dentro de una sección @code{\\transpose}.
   doctitlees = "Plantilla para combo de jazz"
 
 
-%% Translation of GIT committish: c3b519f0dd5ff0f8ccfc9a39ed1fe8df8b43741c
+%% Translation of GIT committish: 6ae36b6f8a7cf2df5f4e46c3c06820fccd9f35e1
   texidocit = "
 Ecco un modello piuttosto complesso, per un gruppo jazz. Si noti che tutti
 gli strumenti sono in @code{\\key c \\major}. Si tratta della tonalità
@@ -41,11 +41,11 @@ sich die Noten innerhalb eines @code{\\transpose}-Abschnitts befinden.
 
   doctitlede = "Vorlage für Jazz-Combo"
 
-%% Translation of GIT committish: bdfe3dc8175a2d7e9ea0800b5b04cfb68fe58a7a
+%% Translation of GIT committish: 57f9346bb030f49336a858fcbf1519366fe56454
   texidocfr = "
 Bien que compliqué de prime abord, voici un canevas tout à fait indiqué
 pour les ensembles de jazz.  Vous noterez que tous les instruments sont
-notés en ut (@code{\\key c \major}), la tonalité de concert.  Les notes
+notés en ut (@code{\\key c \major}), la tonalité de concert.  Les notes
 seront automatiquement transposée dès lors qu'elles seront inscrites
 dans une section @code{\\transpose}.
 

@@ -7,7 +7,7 @@
 \version "2.14.2"
 
 \header {
-  lsrtags = "template, really-simple, unfretted-strings"
+  lsrtags = "really-simple, unfretted-strings, template"
 
 %% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   texidoces = "
@@ -24,7 +24,7 @@ una sección @code{\\global} para el compás y la armadura
 @code{@bs{}global} セクションを使っています。
 "
 
-%% Translation of GIT committish: c3b519f0dd5ff0f8ccfc9a39ed1fe8df8b43741c
+%% Translation of GIT committish: 6ae36b6f8a7cf2df5f4e46c3c06820fccd9f35e1
   texidocit = "
 Questo modello presenta un semplice quartetto d'archi. Impiega anche una
 sezione @code{\\global} per definire il tempo e l'armatura di chiave.

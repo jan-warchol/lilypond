@@ -31,6 +31,7 @@ README_TOP_FILES= DEDICATION THANKS
 
 IN_ITELY_FILES = $(call src-wildcard,snippets/*-intro.itely)
 SNIPPET_LY_FILES = $(call src-wildcard,snippets/*.ly)
+OUT_SNIPPET_LY_FILES = $(SNIPPET_LY_FILES:%.ly=out/%.ly)
 
 EXTRA_DIST_FILES = $(call src-wildcard,*.init) $(call src-wildcard,*.bst)
 
@@ -194,7 +195,7 @@ endif
 #########
 ### Rules
 
-$(outdir)/lilypond-%.info: $(outdir)/%.texi $(outdir)/$(INFO_IMAGES_DIR).info-images-dir-dep $(outdir)/version.itexi $(outdir)/weblinks.itexi
+$(outdir)/lilypond-%.info: $(outdir)/%.texi $(outdir)/$(INFO_IMAGES_DIR).info-images-dir-dep $(outdir)/version.itexi $(outdir)/weblinks.itexi | $(OUT_TEXINFO_MANUALS)
 	$(buildscript-dir)/run-and-check "$(MAKEINFO) -I$(src-dir) -I$(outdir) --output=$@ $<"  "$*.makeinfo.log"
 
 txt-to-html: $(OUT_TXT_FILES) $(OUT_TXT_FILES:%.txt=%.html)
@@ -253,7 +254,15 @@ $(outdir)/%/source:
 $(outdir)/%.itely: snippets/%-intro.itely snippets/%.snippet-list
 	xargs $(LYS_TO_TELY) -f doctitle,texidoc,verbatim --name=$@ --template=$< < $(filter %.snippet-list, $^)
 
-$(outdir)/snippets.texi: $(GENERATED_ITELY_FILES) $(SNIPPET_LY_FILES)
+$(outdir)/snippets.texi: $(GENERATED_ITELY_FILES) $(OUT_SNIPPET_LY_FILES)
+
+$(OUT_SNIPPET_LY_FILES): out/ly-snippets.dep
+
+out/ly-snippets.dep: $(SNIPPET_LY_FILES)
+	mkdir -p snippets/out
+	$(buildscript-dir)/makesnippets $(src-dir)/snippets snippets/out $(src-dir)
+	mkdir -p out
+	touch $@
 
 $(outdir)/%.bib: %.bib
 	ln -f $< $@

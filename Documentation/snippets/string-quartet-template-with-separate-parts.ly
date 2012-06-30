@@ -7,7 +7,7 @@
 \version "2.14.2"
 
 \header {
-  lsrtags = "preparing-parts, template, unfretted-strings"
+  lsrtags = "unfretted-strings, preparing-parts, template"
 
 %% Translation of GIT committish: b482c3e5b56c3841a88d957e0ca12964bd3e64fa
   texidoces = "
@@ -46,7 +46,7 @@ los archivos independientes!
 別々のファイルに分ける場合は、指定されたコメントを外すことを忘れないでください！
 "
 
-%% Translation of GIT committish: c3b519f0dd5ff0f8ccfc9a39ed1fe8df8b43741c
+%% Translation of GIT committish: 6ae36b6f8a7cf2df5f4e46c3c06820fccd9f35e1
   texidocit = "
 Il frammento di codice del @qq{Modello per quartetto d'archi} crea un bel
 quartetto, ma cosa fare se si ha bisogno di creare le singole parti? Questo
