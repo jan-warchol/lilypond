@@ -7,15 +7,12 @@ SUBDIRS = include
 MODULE_LIBS=$(depth)/flower
 MODULE_INCLUDES= $(depth)/flower/include
 
-TEST_MODULE_LIBS=../lily
-MAIN=main.cc
-
 # need this to convert between function pointers and member function pointers.
 MODULE_CXXFLAGS= -Wno-pmf-conversions 
 
 
 HELP2MAN_EXECS = lilypond
-STEPMAKE_TEMPLATES=c c++ executable po help2man library test
+STEPMAKE_TEMPLATES=c c++ executable po help2man
 
 OUT_DIST_FILES=$(addprefix $(outdir)/,parser.hh parser.cc)
 
