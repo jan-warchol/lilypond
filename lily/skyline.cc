@@ -260,6 +260,49 @@ Building::conceals (Building const &other, Real x) const
 }
 
 void
+Skyline::deholify ()
+{
+  bool has_anchor = false;
+  for (list<Building>::iterator i (buildings_.begin ());
+       i != buildings_.end (); i++)
+    if (!isinf (i->y_intercept_))
+      {
+        has_anchor = true;
+        break;
+      }
+
+  if (!has_anchor)
+    return;
+
+  bool dirty = false;
+
+  do
+    {
+      bool dirty = false;  
+      bool do_correction = false;
+      list<Building>::iterator center;
+      list<Building>::iterator left;
+
+      for (list<Building>::iterator i (buildings_.begin ());
+           i != buildings_.end (); i++)
+        {
+          if (do_correction)
+            {
+              dirty = true;
+              Real p1 = left->end_ * left->slope_ + left->y_intercept_;
+              Real p2 = i->start_ * i->slope_ + i->y_intercept_;
+              center->slope_ = (p2 - p1) / (center->end_ - center->start_);
+              center->y_intercept_ = p2 - (center->end_ * center->slope_);
+            }
+          do_correction = isinf (i->y_intercept_) && !(i == buildings_.begin ());
+          left = center;
+          center = i;
+        }
+    }
+  while (dirty);
+}
+
+void
 Skyline::internal_merge_skyline (list<Building> *s1, list<Building> *s2,
                                  list<Building> *const result)
 {

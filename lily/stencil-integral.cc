@@ -1025,6 +1025,7 @@ Stencil::skylines_from_stencil (SCM sten, Real pad, Axis a)
   Skyline_pair out (boxes, a);
   out.merge (Skyline_pair (buildings, a));
 
+  out.deholify ();
   return out.smobbed_copy ();
 }
 

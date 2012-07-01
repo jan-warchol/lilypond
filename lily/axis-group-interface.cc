@@ -702,20 +702,20 @@ avoid_outside_staff_collisions (Grob *elt,
           if (sii[DOWN] == sii[UP] && sii[DOWN] != NOT_ENOUGH_INFO && sii[DOWN] != INTERSECTS)
             bumps.push_back (dir * vertical_skyline_forest[dir][j][dir].distance ((*pair)[-dir]));
         }
-      Real max_bump = -dir * infinity_f;
+      Real min_bump = dir * infinity_f;
       for (vsize j = 0; j < bumps.size (); j++)
-        if (!isinf (bumps[j]))
-          max_bump = minmax (dir, bumps[j], max_bump);
-      if (isinf (max_bump))
-        max_bump = 0.0;
+        if (!isinf (bumps[j]) && (abs (bumps[j]) > EPSILON))
+          min_bump = minmax (-dir, bumps[j], min_bump);
+      if (isinf (min_bump))
+        min_bump = 0.0;
 
-      dirty = abs (max_bump) > EPSILON;
-      max_bump = max_bump + (dir * (dirty ? EPSILON + padding : 0.0));
-      pair->raise (max_bump);
-      horizontal_skylines.shift (max_bump);
+      dirty = dir * min_bump > dir * EPSILON;
+      min_bump = min_bump + (dir * (dirty ? EPSILON + padding : 0.0));
+      pair->raise (min_bump);
+      horizontal_skylines.shift (min_bump);
       if (use_separate_constructor_skyline)
-        to_pass_to_constructor->raise (max_bump);
-      elt->translate_axis (max_bump, Y_AXIS);
+        to_pass_to_constructor->raise (min_bump);
+      elt->translate_axis (min_bump, Y_AXIS);
       bumps.resize (0);
 
     }

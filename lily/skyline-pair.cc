@@ -56,6 +56,13 @@ Skyline_pair::raise (Real r)
 }
 
 void
+Skyline_pair::deholify ()
+{
+  skylines_[UP].deholify ();
+  skylines_[DOWN].deholify ();
+}
+
+void
 Skyline_pair::shift (Real r)
 {
   skylines_[UP].shift (r);

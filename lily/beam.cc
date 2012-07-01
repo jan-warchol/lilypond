@@ -1361,6 +1361,12 @@ Beam::pure_rest_collision_callback (SCM smob,
                     rest_max_pos[UP]
                    ) * ss / 2.0
                - previous;
+
+  // So that ceil below kicks in for rests that would otherwise brush
+  // up against a beam quanted to a ledger line, add a bit of space
+  // between the beam and the rest.
+  shift += 0.01;
+
   /* Always move by a whole number of staff spaces */
   shift = ceil (fabs (shift / ss)) * ss * sign (shift);
 

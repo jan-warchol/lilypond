@@ -92,7 +92,10 @@ Separation_item::calc_skylines (SCM smob)
 {
   Item *me = unsmob_item (smob);
   vector<Box> bs = boxes (me, 0);
-  return Skyline_pair (bs, Y_AXIS).smobbed_copy ();
+  Skyline_pair sp (bs, Y_AXIS);
+  sp[LEFT] = sp[LEFT].padded (10);
+  sp[RIGHT] = sp[RIGHT].padded (10);
+  return sp.smobbed_copy ();
 }
 
 /* if left is non-NULL, get the boxes corresponding to the
