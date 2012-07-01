@@ -1617,15 +1617,10 @@
 	(break-visibility . ,inherit-x-parent-visibility)
 	(font-shape . italic)
 	(font-size . -4)
-	(self-alignment-X . ,CENTER)
+	(X-alignment . ((X-extent . 0) (X-core-extent . 0) 0))
 	(staff-padding . 0.2)
 	(stencil . ,ly:text-interface::print)
-	(X-offset . ,(ly:make-simple-closure
-		      `(,+
-			,(ly:make-simple-closure
-			  (list ly:self-alignment-interface::x-aligned-on-self))
-			,(ly:make-simple-closure
-			  (list ly:self-alignment-interface::centered-on-x-parent)))))
+	(X-offset . ,ly:self-alignment-interface::general-x-alignment)
 	(Y-offset . ,side-position-interface::y-aligned-side)
 	(vertical-skylines . ,grob::always-vertical-skylines-from-stencil)
 	(Y-extent . ,grob::always-Y-extent-from-stencil)
