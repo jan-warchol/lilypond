@@ -1046,15 +1046,10 @@
     (GridLine
      . (
 	(layer . 0)
-	(self-alignment-X . ,CENTER)
+	(X-alignment . ((X-extent . 0) () 0.065)) ;; correction for half stem thickness
 	(stencil . ,ly:grid-line-interface::print)
 	(X-extent  . ,ly:grid-line-interface::width)
-	(X-offset . ,(ly:make-simple-closure
-		      `(,+
-			,(ly:make-simple-closure
-			  (list ly:self-alignment-interface::centered-on-x-parent))
-			,(ly:make-simple-closure
-			  (list ly:self-alignment-interface::x-aligned-on-self)))))
+	(X-offset . ,ly:self-alignment-interface::general-x-alignment)
 	(meta . ((class . Item)
 		 (interfaces . (grid-line-interface
 				self-alignment-interface))))))
