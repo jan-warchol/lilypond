@@ -645,7 +645,7 @@ avoid_outside_staff_collisions (Grob *elt,
 {
   Real padding = robust_scm2double (elt->get_property ("outside-staff-padding"), 0.5);
 
-  Skyline_pair *vertical_skylines = use_separate_constructor_skyline ? to_pass_to_constructor : pair;
+  //Skyline_pair *vertical_skylines = use_separate_constructor_skyline ? to_pass_to_constructor : pair;
   vector<Real> bumps;
   Real EPSILON = 0.001;
   bool dirty = false;
@@ -678,7 +678,7 @@ avoid_outside_staff_collisions (Grob *elt,
               sii[UP] = (*pair)[DOWN].intersects (vertical_skyline_forest[dir][j][UP]);
               if (sii[UP] == INTERSECTS)
                 bumps.push_back (dir * vertical_skyline_forest[dir][j][UP].distance ((*pair)[DOWN]));
-              Skyline to_flip ((*vertical_skylines)[UP]);
+              Skyline to_flip ((*pair)[UP]);
               to_flip.invert ();
               if (to_flip.intersects (vertical_skyline_forest[dir][j][UP]) == INTERSECTS)
                 bumps.push_back (dir * vertical_skyline_forest[dir][j][UP].distance (to_flip));
@@ -688,7 +688,7 @@ avoid_outside_staff_collisions (Grob *elt,
               sii[DOWN] = (*pair)[UP].intersects (vertical_skyline_forest[dir][j][DOWN]);
               if (sii[DOWN] == INTERSECTS)
                 bumps.push_back (dir * vertical_skyline_forest[dir][j][DOWN].distance ((*pair)[UP]));
-              Skyline to_flip ((*vertical_skylines)[DOWN]);
+              Skyline to_flip ((*pair)[DOWN]);
               to_flip.invert ();
               if (to_flip.intersects (vertical_skyline_forest[dir][j][DOWN]) == INTERSECTS)
                 bumps.push_back (dir * vertical_skyline_forest[dir][j][DOWN].distance (to_flip));
@@ -796,6 +796,8 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
           to_pass_to_constructor = Skyline_pair (construct_from_me);
           to_pass_to_constructor.shift (elements[i]->relative_coordinate (x_common, X_AXIS));
           to_pass_to_constructor.raise (elements[i]->relative_coordinate (y_common, Y_AXIS));
+          pair[LEFT] = pair[LEFT].padded (horizon_padding); // DOESN'T ADD PADDING FOR NOW...
+          pair[RIGHT] = pair[RIGHT].padded (horizon_padding); // DOESN'T ADD PADDING FOR NOW...
         }
       Skyline_pair horizontal_skylines (*Skyline_pair::unsmob (elements[i]->get_property ("horizontal-skylines")));
       horizontal_skylines.raise (elements[i]->relative_coordinate (x_common, X_AXIS));
