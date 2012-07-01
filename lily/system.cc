@@ -772,7 +772,10 @@ System::get_vertical_alignment (SCM smob)
       }
 
   if (!ret)
-    me->programming_error ("didn't find a vertical alignment in this system");
+    {
+      me->programming_error ("didn't find a vertical alignment in this system");
+      return SCM_EOL;
+    }
   return ret->self_scm ();
 }
 

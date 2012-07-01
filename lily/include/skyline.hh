@@ -70,7 +70,7 @@ public:
   Skyline (Direction sky);
   Skyline (vector<Box> const &bldgs, Axis a, Direction sky);
   Skyline (vector<Drul_array<Offset> > const &bldgs, Axis a, Direction sky);
-  Skyline (vector<Skyline_pair *> const &skypairs, Direction sky);
+  Skyline (vector<Skyline_pair> const &skypairs, Direction sky);
   Skyline (Box const &b, Axis a, Direction sky);
 
   vector<Offset> to_points (Axis) const;

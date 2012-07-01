@@ -523,32 +523,29 @@ Skyline::Skyline (vector<Drul_array<Offset> > const &segments, Axis horizon_axis
   buildings_ = internal_build_skyline (&buildings);
 }
 
-Skyline::Skyline (vector<Skyline_pair *> const &skypairs, Direction sky)
+Skyline::Skyline (vector<Skyline_pair> const &skypairs, Direction sky)
 {
   sky_ = sky;
 
-  deque<Skyline*> partials;
+  deque<Skyline> partials;
   for (vsize i = 0; i < skypairs.size (); i++)
-    partials.push_back (new Skyline ((*skypairs[i])[sky]));
+    partials.push_back (Skyline ((skypairs[i])[sky]));
 
   while (partials.size () > 1)
     {
-      Skyline *one = partials.front ();
+      Skyline one = partials.front ();
       partials.pop_front ();
-      Skyline *two = partials.front ();
+      Skyline two = partials.front ();
       partials.pop_front ();
  
-      one->merge (*two);
-      delete two;
+      one.merge (two);
       partials.push_back (one);
     }
 
   if (partials.size ())
-    buildings_.swap (partials.front ()->buildings_);
+    buildings_.swap (partials.front ().buildings_);
   else
     buildings_.clear ();
-
-  delete partials.front ();
 }
 
 Skyline::Skyline (Box const &b, Axis horizon_axis, Direction sky)

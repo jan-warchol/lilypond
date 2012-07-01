@@ -604,7 +604,7 @@ pure_staff_priority_less (Grob *const &g1, Grob *const &g2)
 }
 
 static void
-add_interior_skylines (Grob *me, Grob *x_common, Grob *y_common, vector<Skyline_pair *> *skylines)
+add_interior_skylines (Grob *me, Grob *x_common, Grob *y_common, vector<Skyline_pair> *skylines)
 {
   if (Grob_array *elements = unsmob_grob_array (me->get_object ("elements")))
     {
@@ -619,9 +619,9 @@ add_interior_skylines (Grob *me, Grob *x_common, Grob *y_common, vector<Skyline_
         return;
       if (maybe_pair->is_empty ())
         return;
-      skylines->push_back (new Skyline_pair (*maybe_pair));
-      skylines->back ()->shift (me->relative_coordinate (x_common, X_AXIS));
-      skylines->back ()->raise (me->relative_coordinate (y_common, Y_AXIS));
+      skylines->push_back (Skyline_pair (*maybe_pair));
+      skylines->back ().shift (me->relative_coordinate (x_common, X_AXIS));
+      skylines->back ().raise (me->relative_coordinate (y_common, Y_AXIS));
     }
 }
 
@@ -733,7 +733,7 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
                            vector<Grob *> *riders)
 {
   vector<Box> boxes;
-  vector<Skyline_pair *> to_constructor;
+  vector<Skyline_pair> to_constructor;
   
   for (vsize i = 0; i < elements.size (); i++)
     {
@@ -751,8 +751,8 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
           continue;
 
       bool use_separate_constructor_skyline = horizon_padding != 0;
-      vector<Skyline_pair *> construct_from_me;
-      construct_from_me.push_back (orig);
+      vector<Skyline_pair> construct_from_me;
+      construct_from_me.push_back (*orig);
 
       /*
         we need two skyline pairs for vertical skylines.
@@ -765,15 +765,15 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
         the horizontal skylines just need one skyline
       */
   
-      Skyline_pair *pair = new Skyline_pair (construct_from_me);
-      pair->shift (elements[i]->relative_coordinate (x_common, X_AXIS));
-      pair->raise (elements[i]->relative_coordinate (y_common, Y_AXIS));
-      Skyline_pair *to_pass_to_constructor = 0;
+      Skyline_pair pair = Skyline_pair (construct_from_me);
+      pair.shift (elements[i]->relative_coordinate (x_common, X_AXIS));
+      pair.raise (elements[i]->relative_coordinate (y_common, Y_AXIS));
+      Skyline_pair to_pass_to_constructor;
       if (use_separate_constructor_skyline)
         {
-          to_pass_to_constructor = new Skyline_pair (construct_from_me);
-          to_pass_to_constructor->shift (elements[i]->relative_coordinate (x_common, X_AXIS));
-          to_pass_to_constructor->raise (elements[i]->relative_coordinate (y_common, Y_AXIS));
+          to_pass_to_constructor = Skyline_pair (construct_from_me);
+          to_pass_to_constructor.shift (elements[i]->relative_coordinate (x_common, X_AXIS));
+          to_pass_to_constructor.raise (elements[i]->relative_coordinate (y_common, Y_AXIS));
         }
       Skyline_pair horizontal_skylines (*Skyline_pair::unsmob (elements[i]->get_property ("horizontal-skylines")));
       horizontal_skylines.raise (elements[i]->relative_coordinate (x_common, X_AXIS));
@@ -787,7 +787,7 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
       if (!scm_is_number (elements[i]->get_property ("outside-staff-priority")))
         {
           horizontal_skyline_forest[dir].push_back (horizontal_skylines);
-          vertical_skyline_forest[dir].push_back (use_separate_constructor_skyline ? *to_pass_to_constructor : *pair);
+          vertical_skyline_forest[dir].push_back (use_separate_constructor_skyline ? to_pass_to_constructor : pair);
           horizontal_skyline_forest_max_widths[dir].push_back (hs_width);
           add_interior_skylines (elements[i], x_common, y_common, &to_constructor);
           continue;
@@ -813,8 +813,8 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
                                       horizontal_skylines,
                                       horizontal_skyline_forest,
                                       vertical_skyline_forest,
-                                      pair,
-                                      to_pass_to_constructor,
+                                      &pair,
+                                      &to_pass_to_constructor,
                                       use_separate_constructor_skyline,
                                       dir);
       /*
@@ -825,7 +825,7 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
       elements[i]->set_property ("outside-staff-priority", SCM_BOOL_F);
       horizontal_skyline_forest[dir].push_back (horizontal_skylines);
       horizontal_skyline_forest_max_widths[dir].push_back (hs_width);
-      vertical_skyline_forest[dir].push_back (use_separate_constructor_skyline ? *to_pass_to_constructor : *pair);
+      vertical_skyline_forest[dir].push_back (use_separate_constructor_skyline ? to_pass_to_constructor : pair);
 
       /*
         if a grob previously had an outside staff parent but no longer does,
@@ -856,10 +856,6 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
           }
 
       skylines->merge (Skyline_pair (to_constructor));
-      for (vsize j = 0; j < to_constructor.size (); j++)
-        delete to_constructor[j];
-      if (use_separate_constructor_skyline)
-        delete pair;
       to_constructor.resize (0);
     }
 }
@@ -917,7 +913,7 @@ Axis_group_interface::skyline_spacing (Grob *me, vector<Grob *> elements)
   vsize i = 0;
   vector<Grob *> riders;
 
-  vector<Skyline_pair *> to_constructor;
+  vector<Skyline_pair> to_constructor;
   for (i = 0; i < elements.size ()
        && !scm_is_number (elements[i]->get_property ("outside-staff-priority")); i++)
     {
@@ -928,8 +924,6 @@ Axis_group_interface::skyline_spacing (Grob *me, vector<Grob *> elements)
     }
 
   Skyline_pair skylines (to_constructor);
-  for (vsize i = 0; i < to_constructor.size (); i++)
-    delete to_constructor[i];
 
   Drul_array<vector<Skyline_pair> > horizontal_skyline_forest;
   Drul_array<vector<Skyline_pair> > vertical_skyline_forest;
