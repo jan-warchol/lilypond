@@ -709,13 +709,16 @@ avoid_outside_staff_collisions (Grob *elt,
       if (isinf (min_bump))
         min_bump = 0.0;
 
-      dirty = dir * min_bump > dir * EPSILON;
-      min_bump = min_bump + (dir * (dirty ? EPSILON + padding : 0.0));
-      pair->raise (min_bump);
-      horizontal_skylines.shift (min_bump);
-      if (use_separate_constructor_skyline)
-        to_pass_to_constructor->raise (min_bump);
-      elt->translate_axis (min_bump, Y_AXIS);
+      dirty = dir * min_bump > EPSILON;
+      if (dirty)
+        {
+          min_bump = min_bump + (dir * (EPSILON + padding));
+          pair->raise (min_bump);
+          horizontal_skylines.shift (min_bump);
+          if (use_separate_constructor_skyline)
+            to_pass_to_constructor->raise (min_bump);
+          elt->translate_axis (min_bump, Y_AXIS);
+        }
       bumps.resize (0);
 
     }
