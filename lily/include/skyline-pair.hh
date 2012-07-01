@@ -45,6 +45,7 @@ public:
   void merge (Skyline_pair const &other);
   Skyline &operator [] (Direction d);
   Skyline const &operator [] (Direction d) const;
+  bool is_singleton () const;
   bool is_empty () const;
   void print () const;
   void print_points () const;

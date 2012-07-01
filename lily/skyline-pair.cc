@@ -133,6 +133,13 @@ Skyline_pair::is_empty () const
          && skylines_[DOWN].is_empty ();
 }
 
+bool
+Skyline_pair::is_singleton () const
+{
+  return skylines_[UP].is_singleton ()
+         && skylines_[DOWN].is_singleton ();
+}
+
 Skyline &
 Skyline_pair::operator [] (Direction d)
 {

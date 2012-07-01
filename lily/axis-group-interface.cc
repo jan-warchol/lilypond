@@ -655,41 +655,60 @@ avoid_outside_staff_collisions (Grob *elt,
         {
           if (exempt[j])
             continue;
-          // check for horizontal edges jinnying up
-          Real holder = horizontal_skylines.smallest_shift (horizontal_skyline_forest[dir][j], dir, 0.0, 0.0);
-          if (holder != 0.0 && !isinf (holder))
-            bumps.push_back (holder);
+          /*
+            check for horizontal edges jinnying up
+            we only bother if the horizontal skyline is complex
+            otherwise, it is likely a box and will be shifted the entirety
+            of the box height, obliterating the subtleties below
+          */
+          if (!horizontal_skylines.is_singleton ())
+            {
+              Real holder = horizontal_skylines.smallest_shift (horizontal_skyline_forest[dir][j], dir, 0.0, 0.0);
+              if (holder != 0.0 && !isinf (holder))
+                bumps.push_back (holder);
+            }
           }
    
       for (vsize j = 0; j < vertical_skyline_forest[dir].size (); j++)
         {
-          // check for vertical edges jinnying up.  some will be empty as a heristic
+          Drul_array<Skyline_intersection_info> sii (NOT_ENOUGH_INFO, NOT_ENOUGH_INFO);
+          // check for vertical edges jinnying up.
           if (!vertical_skyline_forest[dir][j][UP].is_empty ())
             {
-              if ((*pair)[DOWN].intersects (vertical_skyline_forest[dir][j][UP]))
+              sii[UP] = (*pair)[DOWN].intersects (vertical_skyline_forest[dir][j][UP]);
+              if (sii[UP] == INTERSECTS)
                 bumps.push_back (dir * vertical_skyline_forest[dir][j][UP].distance ((*pair)[DOWN]));
               Skyline to_flip ((*vertical_skylines)[UP]);
               to_flip.invert ();
-              if (to_flip.intersects (vertical_skyline_forest[dir][j][UP]))
+              if (to_flip.intersects (vertical_skyline_forest[dir][j][UP]) == INTERSECTS)
                 bumps.push_back (dir * vertical_skyline_forest[dir][j][UP].distance (to_flip));
             }
           if (!vertical_skyline_forest[dir][j][DOWN].is_empty ())
             {
-              if ((*pair)[UP].intersects (vertical_skyline_forest[dir][j][DOWN]))
+              sii[DOWN] = (*pair)[UP].intersects (vertical_skyline_forest[dir][j][DOWN]);
+              if (sii[DOWN] == INTERSECTS)
                 bumps.push_back (dir * vertical_skyline_forest[dir][j][DOWN].distance ((*pair)[UP]));
               Skyline to_flip ((*vertical_skylines)[DOWN]);
               to_flip.invert ();
-              if (to_flip.intersects (vertical_skyline_forest[dir][j][DOWN]))
+              if (to_flip.intersects (vertical_skyline_forest[dir][j][DOWN]) == INTERSECTS)
                 bumps.push_back (dir * vertical_skyline_forest[dir][j][DOWN].distance (to_flip));
             }
+          /*
+            If the vertical skylines completely encapsulate each other Russian
+            egg doll style, there will be no "intersection" because they never
+            touch but this'll result in objects being printed on top of each
+            other.  Here, LilyPond just gives up cowardly.
+          */
+          if (sii[DOWN] == sii[UP] && sii[DOWN] != NOT_ENOUGH_INFO && sii[DOWN] != INTERSECTS)
+            bumps.push_back (dir * vertical_skyline_forest[dir][j][dir].distance ((*pair)[-dir]));
         }
-
       Real max_bump = -dir * infinity_f;
       for (vsize j = 0; j < bumps.size (); j++)
         if (!isinf (bumps[j]))
           max_bump = minmax (dir, bumps[j], max_bump);
       if (isinf (max_bump))
         max_bump = 0.0;
+
       dirty = abs (max_bump) > EPSILON;
       max_bump = max_bump + (dir * (dirty ? EPSILON + padding : 0.0));
       pair->raise (max_bump);

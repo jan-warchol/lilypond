@@ -726,7 +726,7 @@ Skyline::internal_distance (Skyline const &other, Real *touch_point) const
   return dist;
 }
 
-bool
+Skyline_intersection_info
 Skyline::intersects (Skyline const &other) const
 {
   assert (sky_ == -other.sky_);
@@ -751,17 +751,17 @@ Skyline::intersects (Skyline const &other) const
       if (!isinf (start_dist))
         {
           if (start_dist == 0.0)
-            return true;
+            return INTERSECTS;
           intersections[Direction (sign (start_dist))] = true;
         }
       if (!isinf (end_dist))
         {
           if (end_dist == 0.0)
-            return true;
+            return INTERSECTS;
           intersections[Direction (sign (end_dist))] = true;
         }
       if (intersections[DOWN] && intersections[UP])
-        return true;
+        return INTERSECTS;
 
       if (i->end_ <= j->end_)
         i++;
@@ -770,7 +770,11 @@ Skyline::intersects (Skyline const &other) const
       start = end;
     }
 
-  return false;
+  if (intersections[DOWN])
+    return ALWAYS_LESS;
+  if (intersections[UP])
+    return ALWAYS_GREATER;
+  return NOT_ENOUGH_INFO;    
 }
 
 // changes the direction that the skyline is pointing
@@ -949,11 +953,33 @@ Skyline::is_empty () const
   return b.end_ == infinity_f && b.y_intercept_ == -infinity_f;
 }
 
+bool
+Skyline::is_singleton () const
+{
+  return buildings_.size () == 3;
+}
+
 void
 Skyline::clear ()
 {
   buildings_.clear ();
   empty_skyline (&buildings_);
+}
+
+string
+Skyline::intersection_info_to_string (Skyline_intersection_info sii)
+{
+  if (sii == INTERSECTS)
+    return "intersection";
+  if (sii == ALWAYS_GREATER)
+    return "alwaysGreater";
+  if (sii == ALWAYS_LESS)
+    return "alwaysLess";
+  if (sii == NOT_ENOUGH_INFO)
+    return "notEnoughInfo";
+
+  assert (1 == 0);
+  return "veryBad";
 }
 
 /****************************************************************/
