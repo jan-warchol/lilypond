@@ -542,8 +542,12 @@ Skyline::Skyline (vector<Skyline_pair *> const &skypairs, Direction sky)
       delete two;
       partials.push_back (one);
     }
- 
-  buildings_.swap (partials.front ()->buildings_);
+
+  if (partials.size ())
+    buildings_.swap (partials.front ()->buildings_);
+  else
+    buildings_.clear ();
+
   delete partials.front ();
 }
 
@@ -942,6 +946,8 @@ Skyline::right () const
 bool
 Skyline::is_empty () const
 {
+  if (!buildings_.size ())
+    return true;
   Building b = buildings_.front ();
   return b.end_ == infinity_f && b.y_intercept_ == -infinity_f;
 }
