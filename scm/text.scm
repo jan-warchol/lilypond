@@ -24,6 +24,25 @@
     ("\n" . " ")
     ("\v" . " ")))
 
+(define-public default-ignored-punctuation-list
+  '(;; ASCII
+    "!"
+    "\""
+    "'"
+    "("
+    ")"
+    ","
+    "."
+    ":"
+    ";"
+    "?"
+    "["
+    "]"
+    "_"
+    "`"
+    "{"
+    "}"))
+
 (define-public (internal-add-text-replacements props alist)
   (let* ((dummy-replacements (chain-assoc-get 'replacement-alist props '()))
          (new-replacements

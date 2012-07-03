@@ -149,6 +149,7 @@
      `((font-encoding . latin1)
        (baseline-skip . 3)
        (replacement-alist . ,default-string-replacement-alist)
+       (punctuation-list . ,default-ignored-punctuation-list)
        (word-space . 0.6)))
 
   \include "text-replacements.ly"

@@ -21,6 +21,7 @@
 #include "font-interface.hh"
 #include "output-def.hh"
 #include "stencil.hh"
+#include "international.hh"
 
 class Lyric_text
 {
@@ -47,12 +48,61 @@ Lyric_text::calc_core_extent (SCM smob)
       size_t suffix_index = lyric_text.find ('$');
 
       if ((int) prefix_index >= 0)
-        prefix = lyric_text.substr (0, prefix_index);
+        prefix = lyric_text.substr (0, prefix_index++);
+      else
+        prefix_index = 0;
+
       if ((int) suffix_index >= 0)
-        suffix = lyric_text.substr (suffix_index + 1, lyric_text.size ());
+        suffix = lyric_text.substr (suffix_index-- + 1, lyric_text.size ());
+      else
+        suffix_index = lyric_text.size () - 1;
+
+      SCM font_chain = Font_interface::text_font_alist_chain (me);
+      SCM punctuation_list = ly_chain_assoc_get (ly_symbol2scm ("punctuation-list"),
+                                                 font_chain,
+                                                 SCM_EOL);
+
+      for (vsize i = prefix_index; i < lyric_text.size (); i++)
+        {
+          string addon = "";
+          SCM punct = punctuation_list;
+          do
+            {
+              if (lyric_text.substr (i, 1) == robust_scm2string (scm_car (punct), ""))
+                {
+                  addon = lyric_text.substr (i, 1);
+                  break;
+                }
+            }
+          while ((punct = scm_cdr (punct)) != SCM_EOL);
+
+          if (addon != "")
+            prefix = prefix + addon;
+          else
+            break;
+        }
+
+      for (vsize i = suffix_index; i >= 0; i--)
+        {
+          string addon = "";
+          SCM punct = punctuation_list;
+          do
+            {
+              if (lyric_text.substr (i, 1) == robust_scm2string (scm_car (punct), ""))
+                {
+                  addon = lyric_text.substr (i, 1);
+                  break;
+                }
+            }
+          while ((punct = scm_cdr (punct)) != SCM_EOL);
+
+          if (addon != "")
+            suffix = addon + suffix;
+          else
+            break;
+        }
 
       Output_def *layout = unsmob_output_def (me->layout ()->self_scm ());
-      SCM font_chain = Font_interface::text_font_alist_chain (me);
       Font_metric *fm = select_encoded_font (layout, font_chain);
 
       Stencil prefix_stencil = fm->text_stencil (layout, prefix, false);
@@ -69,4 +119,5 @@ ADD_INTERFACE (Lyric_text,
                /* properties */
                "X-extent "
                "X-core-extent "
+               "punctuation-list "
               );

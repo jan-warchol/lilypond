@@ -737,6 +737,7 @@ positions are requested, the closest one is taken.")
      (prefer-dotted-right ,boolean? "For note collisions, prefer to
 shift dotted up-note to the right, rather than shifting just the
 dot.")
+     (punctuation-list ,list? "Punctuation ignored in lyrics.")
 
 ;;
 ;; r
