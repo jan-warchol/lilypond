@@ -234,7 +234,7 @@ Axis_group_interface::adjacent_pure_heights (SCM smob)
         continue;
 
       bool outside_staff = scm_is_number (g->get_property ("outside-staff-priority"));
-      Real padding = robust_scm2double (g->get_property ("outside-staff-padding"), 0.5);
+      Real padding = robust_scm2double (g->get_property ("outside-staff-padding"), 0.75);
 
       // When we encounter the first outside-staff grob, make a copy
       // of the current heights to use as an estimate for the staff heights.
@@ -643,7 +643,7 @@ avoid_outside_staff_collisions (Grob *elt,
                                 bool const use_separate_constructor_skyline,
                                 Direction const dir)
 {
-  Real padding = robust_scm2double (elt->get_property ("outside-staff-padding"), 0.5);
+  Real padding = robust_scm2double (elt->get_property ("outside-staff-padding"), 0.75);
 
   //Skyline_pair *vertical_skylines = use_separate_constructor_skyline ? to_pass_to_constructor : pair;
   vector<Real> bumps;
