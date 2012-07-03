@@ -304,7 +304,7 @@ Skyline::deholify ()
 
 void
 Skyline::internal_merge_skyline (list<Building> *s1, list<Building> *s2,
-                                 list<Building> *const result)
+                                 list<Building> *const result) const
 {
   if (s1->empty () || s2->empty ())
     {
@@ -450,7 +450,7 @@ public:
    and in any order.  The returned list of buildings is ordered and non-overlapping.
 */
 list<Building>
-Skyline::internal_build_skyline (list<Building> *buildings)
+Skyline::internal_build_skyline (list<Building> *buildings) const
 {
   vsize size = buildings->size ();
 
@@ -692,39 +692,53 @@ Skyline::internal_distance (Skyline const &other, Real horizon_padding, Real *to
 Skyline
 Skyline::padded (Real horizon_padding) const
 {
-  vector<Box> pad_boxes;
-  Real last_end = -infinity_f;
+  list<Building> pad_buildings;
   for (list<Building>::const_iterator i = buildings_.begin (); i != buildings_.end (); ++i)
     {
-      if (last_end > -infinity_f)
+      if (i->start_ > -infinity_f)
         {
-          // Add the box that pads the left side of the current building.
-          Real start = last_end - horizon_padding;
-          Real height = i->height (last_end);
+          Real height = i->height (i->start_);
           if (height > -infinity_f)
-            pad_boxes.push_back (Box (Interval (start, last_end),
-                                      Interval (height, height - 1)));
+           {
+              // Add the sloped building that pads the left side of the current building.
+              Real start = i->start_ - 2*horizon_padding;
+              Real end = i->start_ - horizon_padding;
+              pad_buildings.push_back (Building (start, height - horizon_padding, height, end));
+
+              // Add the flat building that pads the left side of the current building.
+              start = i->start_ - horizon_padding;
+              end = i->start_;   
+              pad_buildings.push_back (Building (start, height, height, end));           
+           }
         }
 
       if (i->end_ < infinity_f)
         {
-          // Add the box that pads the right side of the current building.
-          Real start = i->end_;
-          Real end = start + horizon_padding;
-          Real height = i->height (start);
+          Real height = i->height (i->end_);
           if (height > -infinity_f)
-            pad_boxes.push_back (Box (Interval (start, end),
-                                      Interval (height, height - 1)));
+            {
+              // Add the flat building that pads the right side of the current building.
+              Real start = i->end_;
+              Real end = start + horizon_padding;
+              pad_buildings.push_back (Building (start, height, height, end));
+
+              // Add the sloped building that pads the right side of the current building.
+              start = end;
+              end += horizon_padding;
+              pad_buildings.push_back (Building (start, height, height - horizon_padding, end));            
+            }
         }
     }
 
-  // We created pad_boxes assuming that sky_ is UP.  To get padded to use
-  // the UP side of the boxes, we need to create it pointing UP even if
-  // it doesn't really.
-  Skyline padded (pad_boxes, X_AXIS, UP);
-  padded.sky_ = sky_;
+  // The buildings may be overlapping, so resolve that.
+  list<Building> pad_skyline = internal_build_skyline (&pad_buildings);
 
-  padded.merge (*this);
+  // Merge the padding with the original, to make a new skyline.
+  Skyline padded (sky_);
+  list<Building> my_buildings = buildings_;
+  padded.buildings_.clear ();
+  internal_merge_skyline (&pad_skyline, &my_buildings, &padded.buildings_);
+
   return padded;
 }
 

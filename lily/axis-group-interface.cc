@@ -773,6 +773,7 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
           continue;
 
       bool use_separate_constructor_skyline = horizon_padding != 0;
+      //bool use_separate_constructor_skyline = false;
       vector<Skyline_pair> construct_from_me;
       construct_from_me.push_back (*orig);
 
@@ -796,8 +797,8 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
           to_pass_to_constructor = Skyline_pair (construct_from_me);
           to_pass_to_constructor.shift (elements[i]->relative_coordinate (x_common, X_AXIS));
           to_pass_to_constructor.raise (elements[i]->relative_coordinate (y_common, Y_AXIS));
-          pair[LEFT] = pair[LEFT].padded (horizon_padding); // DOESN'T ADD PADDING FOR NOW...
-          pair[RIGHT] = pair[RIGHT].padded (horizon_padding); // DOESN'T ADD PADDING FOR NOW...
+          pair[LEFT] = pair[LEFT].padded (horizon_padding);
+          pair[RIGHT] = pair[RIGHT].padded (horizon_padding);
         }
       Skyline_pair horizontal_skylines (*Skyline_pair::unsmob (elements[i]->get_property ("horizontal-skylines")));
       horizontal_skylines.raise (elements[i]->relative_coordinate (x_common, X_AXIS));

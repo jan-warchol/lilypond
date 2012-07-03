@@ -93,8 +93,9 @@ Separation_item::calc_skylines (SCM smob)
   Item *me = unsmob_item (smob);
   vector<Box> bs = boxes (me, 0);
   Skyline_pair sp (bs, Y_AXIS);
-  sp[LEFT] = sp[LEFT].padded (10);
-  sp[RIGHT] = sp[RIGHT].padded (10);
+  Real vp = robust_scm2double (me->get_property ("skyline-vertical-padding"), 0.0);
+  sp[LEFT] = sp[LEFT].padded (vp);
+  sp[RIGHT] = sp[RIGHT].padded (vp);
   return sp.smobbed_copy ();
 }
 
