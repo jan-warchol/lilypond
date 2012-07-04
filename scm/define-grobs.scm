@@ -2350,9 +2350,9 @@
 	(staff-padding . 0.5)
 	(stencil . ,ly:text-interface::print)
 	(vertical-skylines . ,grob::always-vertical-skylines-from-stencil)
-	;; todo: add X self alignment?
 	(Y-extent . ,grob::always-Y-extent-from-stencil)
-	(X-offset . ,ly:self-alignment-interface::x-aligned-on-self)
+	(X-alignment . ((X-core-extent . -1) () 0))
+	(X-offset . ,ly:self-alignment-interface::general-x-alignment)
 	(Y-offset . ,side-position-interface::y-aligned-side)
 	(meta . ((class . Item)
 		 (interfaces . (font-interface
