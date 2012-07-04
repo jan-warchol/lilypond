@@ -1025,6 +1025,9 @@ Stencil::skylines_from_stencil (SCM sten, Real pad, Axis a)
   Skyline_pair out (boxes, a);
   out.merge (Skyline_pair (buildings, a));
 
+  for (DOWN_and_UP (d))
+    out[d] = out[d].padded (pad);
+
   out.deholify ();
   return out.smobbed_copy ();
 }
@@ -1047,7 +1050,8 @@ Grob::horizontal_skylines_from_stencil (SCM smob)
 {
   Grob *me = unsmob_grob (smob);
 
-  SCM out = Stencil::skylines_from_stencil (me->get_property ("stencil"), 0.0, Y_AXIS);
+  Real pad = robust_scm2double (me->get_property ("skyline-vertical-padding"), 0.0);
+  SCM out = Stencil::skylines_from_stencil (me->get_property ("stencil"), pad, Y_AXIS);
 
   return out;
 }

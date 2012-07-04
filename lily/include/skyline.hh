@@ -112,6 +112,7 @@ public:
   Skyline padded (Real horizon_padding) const;
 
   static string intersection_info_to_string (Skyline_intersection_info);
+  static Direction intersection_info_to_direction (Skyline_intersection_info);
 
   DECLARE_SCHEME_CALLBACK (get_touching_point, (SCM, SCM, SCM));
   DECLARE_SCHEME_CALLBACK (get_distance, (SCM, SCM, SCM));

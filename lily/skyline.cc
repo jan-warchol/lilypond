@@ -1039,6 +1039,22 @@ Skyline::intersection_info_to_string (Skyline_intersection_info sii)
   return "veryBad";
 }
 
+Direction
+Skyline::intersection_info_to_direction (Skyline_intersection_info sii)
+{
+  if (sii == INTERSECTS)
+    return CENTER;
+  if (sii == ALWAYS_GREATER)
+    return UP;
+  if (sii == ALWAYS_LESS)
+    return DOWN;
+  if (sii == NOT_ENOUGH_INFO)
+    return CENTER;
+
+  assert (1 == 0);
+  return CENTER;
+}
+
 /****************************************************************/
 
 IMPLEMENT_SIMPLE_SMOBS (Skyline);
