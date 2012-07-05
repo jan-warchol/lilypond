@@ -978,7 +978,7 @@ Grob::internal_simple_skylines_from_stencil (SCM smob, Axis a)
 
   extract_grob_set (me, "elements", elts);
   if (elts.size ())
-    return vertical_skylines_from_element_stencils (smob);
+    return internal_skylines_from_element_stencils (smob, a);
 
   Stencil *s = unsmob_stencil (me->get_property ("stencil"));
   if (!s)
