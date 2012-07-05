@@ -191,12 +191,18 @@ Pango_font::pango_item_string_stencil (PangoGlyphItem const *glyph_item) const
   PangoFcFont *fcfont = PANGO_FC_FONT (pa->font);
   FT_Face ftface = pango_fc_font_lock_face (fcfont);
 
-  Box b (Interval (PANGO_LBEARING (logical_rect),
-                   PANGO_RBEARING (logical_rect)),
-         Interval (-PANGO_DESCENT (ink_rect),
-                   PANGO_ASCENT (ink_rect)));
+  Box inner_box (Interval (PANGO_LBEARING (logical_rect) + 0.21 / scale_,
+                           PANGO_RBEARING (logical_rect) - 0.24 / scale_),
+                 Interval (-PANGO_DESCENT (ink_rect),
+                           PANGO_ASCENT (ink_rect)));
 
-  b.scale (scale_);
+  Box outer_box (Interval (PANGO_LBEARING (logical_rect),
+                           PANGO_RBEARING (logical_rect)),
+                 Interval (-PANGO_DESCENT (ink_rect),
+                           PANGO_ASCENT (ink_rect)));
+
+  inner_box.scale (scale_);
+  outer_box.scale (scale_);
 
   char const *ps_name_str0 = FT_Get_Postscript_Name (ftface);
   FcPattern *fcpat = fcfont->font_pattern;
@@ -366,7 +372,7 @@ Pango_font::pango_item_string_stencil (PangoGlyphItem const *glyph_item) const
                              ly_quote_scm (glyph_exprs),
                              SCM_UNDEFINED);
 
-      return Stencil (b, expr);
+      return Stencil (outer_box, inner_box, expr);
     }
 
   warning (_ ("FreeType face has no PostScript font name"));
