@@ -109,7 +109,7 @@ Tie_column::calc_positioning_done (SCM smob)
                           base[i].dir_);
 
       problem.set_debug_scoring (base);
-    }
+    }problem.spew ();
   return SCM_BOOL_T;
 }
 
