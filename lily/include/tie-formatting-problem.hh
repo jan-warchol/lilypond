@@ -106,7 +106,6 @@ public:
   Interval get_attachment (Real, Drul_array<int>) const;
   Grob *common_x_refpoint () const;
   void set_debug_scoring (Ties_configuration const &);
-  void spew () const;
 };
 
 #endif /* TIE_FORMATTING_PROBLEM_HH */

@@ -1214,42 +1214,6 @@ Tie_formatting_problem::set_manual_tie_configuration (SCM manual_configs)
 }
 
 void
-Tie_formatting_problem::spew () const
-{
-  /*
-  Chord_outline_map chord_outlines_;
-*/
-  printf ("Here is the chord outline map.\n"); 
-  for (Chord_outline_map::const_iterator i (chord_outlines_.begin ());
-       i != chord_outlines_.end (); i++)
-    {
-      printf ("   %d %d ::\n", (*i).first.t_array[0], (*i).first.t_array[1]);
-      (*i).second.print_points ();
-    }
-  printf ("Here is the stem extent map.\n"); 
-  for (Column_extent_map::const_iterator i (stem_extents_.begin ());
-       i != stem_extents_.end (); i++)
-    printf ("   %d %d :: XL %4.4f XR %4.4f YD %4.4f YU %4.4f\n", (*i).first.t_array[0], (*i).first.t_array[1], (*i).second.x ()[LEFT], (*i).second.x ()[RIGHT], (*i).second.y ()[DOWN], (*i).second.y ()[UP]);
-  printf ("Here is the head extent map.\n"); 
-  for (Column_extent_map::const_iterator i (head_extents_.begin ());
-       i != head_extents_.end (); i++)
-    printf ("   %d %d :: XL %4.4f XR %4.4f YD %4.4f YU %4.4f\n", (*i).first.t_array[0], (*i).first.t_array[1], (*i).second.x ()[LEFT], (*i).second.x ()[RIGHT], (*i).second.y ()[DOWN], (*i).second.y ()[UP]);
-  printf ("Here is the head position map.\n"); 
-  for (Position_extent_map::const_iterator i (head_positions_.begin ());
-       i != head_positions_.end (); i++)
-    printf ("   %d :: %d %d\n", (*i).first, (*i).second[LEFT], (*i).second[RIGHT]);
-  printf ("Here are the dot positions.\n"); 
-  for (set<int>::const_iterator i (dot_positions_.begin ());
-       i != dot_positions_.end (); i++)
-    printf ("   %d\n", *i);
-  printf ("Here's the X extent of dots : (%4.4f . %4.4f)\n", dot_x_[LEFT], dot_x_[RIGHT]);
-  printf ("Are we using horizontal spacing ? %s\n", (use_horizontal_spacing_ ? "yes" : "no"));
-  printf ("Here's the X extent of dots : (%4.4f . %4.4f)\n", dot_x_[LEFT], dot_x_[RIGHT]);
-  printf ("Out of laziness, tie specifications are not being printed.  They basically hold column info.\n");
-  printf ("For information on tie configurations, use DEBUG_TIE_SCORING.\n");
-}
-
-void
 Tie_formatting_problem::set_debug_scoring (Ties_configuration const &base)
 {
 #if DEBUG_TIE_SCORING
