@@ -203,8 +203,12 @@ Pango_font::pango_item_string_stencil (PangoGlyphItem const *glyph_item) const
   //Interval ook = ly_scm2interval (eek);
   //message (_f("%f, %f", ook[LEFT], ook[RIGHT]));
 
-  Box inner_box (Interval (PANGO_LBEARING (logical_rect) + 0.21 / scale_,
-                           PANGO_RBEARING (logical_rect) - 0.24 / scale_),
+  PangoFontDescription *descr = pango_font_describe (pa->font);
+  Real size = pango_font_description_get_size (descr)
+              / (Real (PANGO_SCALE));
+
+  Box inner_box (Interval (PANGO_LBEARING (logical_rect) + 0.21 / scale_ * size / output_scale_ / 2.468,
+                           PANGO_RBEARING (logical_rect) - 0.24 / scale_ * size / output_scale_ / 2.468),
                  Interval (-PANGO_DESCENT (ink_rect),
                            PANGO_ASCENT (ink_rect)));
 
@@ -332,9 +336,6 @@ Pango_font::pango_item_string_stencil (PangoGlyphItem const *glyph_item) const
   pango_fc_font_unlock_face (fcfont);
   pango_glyph_string_free (pgs);
   pgs = 0;
-  PangoFontDescription *descr = pango_font_describe (pa->font);
-  Real size = pango_font_description_get_size (descr)
-              / (Real (PANGO_SCALE));
 
   if (!ps_name_str0)
     warning (_f ("no PostScript font name for font `%s'", file_name));
