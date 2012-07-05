@@ -40,6 +40,14 @@
 #include "all-font-metrics.hh"
 #include "program-option.hh"
 
+#include "context.hh"
+#include "engraver.hh"
+#include "item.hh"
+#include "note-head.hh"
+#include "stream-event.hh"
+#include "international.hh"
+#include "translator.icc"
+
 #if HAVE_PANGO_FT2
 #include "stencil.hh"
 
@@ -190,6 +198,10 @@ Pango_font::pango_item_string_stencil (PangoGlyphItem const *glyph_item) const
 
   PangoFcFont *fcfont = PANGO_FC_FONT (pa->font);
   FT_Face ftface = pango_fc_font_lock_face (fcfont);
+
+  SCM eek = get_property ("text-correction");
+  //Interval ook = ly_scm2interval (eek);
+  //message (_f("%f, %f", ook[LEFT], ook[RIGHT]));
 
   Box inner_box (Interval (PANGO_LBEARING (logical_rect) + 0.21 / scale_,
                            PANGO_RBEARING (logical_rect) - 0.24 / scale_),

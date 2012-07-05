@@ -535,6 +535,7 @@ the context and the string.")
      (tempoHideNote ,boolean? "Hide the note = count in tempo marks.")
      (tempoWholesPerMinute ,ly:moment? "The tempo in whole notes per
 minute.")
+     (textCorrection ,pair? "ook ook.")
      (tieWaitForNote ,boolean? "If true, tied notes do not have to
 follow each other directly.  This can be used for writing out
 arpeggios.")
