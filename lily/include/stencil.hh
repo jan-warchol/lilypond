@@ -57,12 +57,14 @@ using namespace std;
 */
 class Stencil
 {
+  Box inner_dim_;
   Box dim_;
   SCM expr_;
 
   DECLARE_SIMPLE_SMOBS (Stencil);
 public:
-  Stencil (Box, SCM s);
+  Stencil (Box, SCM s); // for backward-compatibility's sake
+  Stencil (Box, Box, SCM s);
   Stencil ();
 
   SCM expr () const;
@@ -82,7 +84,9 @@ public:
   void scale (Real, Real);
 
   Interval extent (Axis) const;
+  Interval core_extent (Axis) const;
   Box extent_box () const;
+  Box core_extent_box () const;
   bool is_empty () const;
   Stencil in_color (Real r, Real g, Real b) const;
   static SCM skylines_from_stencil (SCM, Real, Axis);

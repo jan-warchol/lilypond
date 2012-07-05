@@ -83,6 +83,12 @@ Grob::Grob (SCM basicprops)
     set_property ("Y-extent",
                   ly_make_unpure_pure_container (Grob::stencil_height_proc,
                                                  Grob::pure_stencil_height_proc));
+
+  if (get_property_data ("X-core-extent") == SCM_EOL)
+    set_property ("X-core-extent", Grob::stencil_core_width_proc);
+  if (get_property_data ("Y-core-extent") == SCM_EOL)
+    set_property ("Y-core-extent", Grob::stencil_core_height_proc);
+
   if (get_property_data ("vertical-skylines") == SCM_EOL)
     set_property ("vertical-skylines",
                   ly_make_unpure_pure_container (Grob::simple_vertical_skylines_from_extents_proc,
@@ -853,6 +859,16 @@ grob_stencil_extent (Grob *me, Axis a)
   return ly_interval2scm (e);
 }
 
+static SCM
+grob_stencil_core_extent (Grob *me, Axis a)
+{
+  Stencil *m = me->get_stencil ();
+  Interval e;
+  if (m)
+    e = m->core_extent (a);
+  return ly_interval2scm (e);
+}
+
 MAKE_SCHEME_CALLBACK (Grob, stencil_height, 1);
 SCM
 Grob::stencil_height (SCM smob)
@@ -870,7 +886,14 @@ Grob::pure_stencil_height (SCM smob, SCM /* beg */, SCM /* end */)
     return grob_stencil_extent (me, Y_AXIS);
 
   return ly_interval2scm (Interval ());
+}
 
+MAKE_SCHEME_CALLBACK (Grob, stencil_core_height, 1);
+SCM
+Grob::stencil_core_height (SCM smob)
+{
+  Grob *me = unsmob_grob (smob);
+  return grob_stencil_core_extent (me, Y_AXIS);
 }
 
 MAKE_SCHEME_CALLBACK (Grob, y_parent_positioning, 1);
@@ -904,6 +927,14 @@ Grob::stencil_width (SCM smob)
 {
   Grob *me = unsmob_grob (smob);
   return grob_stencil_extent (me, X_AXIS);
+}
+
+MAKE_SCHEME_CALLBACK (Grob, stencil_core_width, 1);
+SCM
+Grob::stencil_core_width (SCM smob)
+{
+  Grob *me = unsmob_grob (smob);
+  return grob_stencil_core_extent (me, X_AXIS);
 }
 
 Grob *

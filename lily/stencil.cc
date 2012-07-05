@@ -33,10 +33,26 @@ Stencil::Stencil ()
   set_empty (true);
 }
 
+/*
+  Until 2012 summer all stencils contained just an expression and dimension box.
+  During GSoC 2012 inner extents were introduced (in addition to old extents).
+  To handle inner extents, Stencil needs additional dimension box.
+  However, most of the code doesn't use this additional info yet, so the old
+  constructor is still available for them.
+  */
+
 Stencil::Stencil (Box b, SCM func)
 {
   expr_ = func;
   dim_ = b;
+  inner_dim_ = b;
+}
+
+Stencil::Stencil (Box outer_b, Box inner_b, SCM func)
+{
+  expr_ = func;
+  dim_ = outer_b;
+  inner_dim_ = inner_b;
 }
 
 int
@@ -64,6 +80,12 @@ Stencil::extent (Axis a) const
   return dim_[a];
 }
 
+Interval
+Stencil::core_extent (Axis a) const
+{
+  return inner_dim_[a];
+}
+
 bool
 Stencil::is_empty () const
 /* If only one of X- or Y-extent is empty; such a stencil can be useful
@@ -87,6 +109,12 @@ Stencil::extent_box () const
   return dim_;
 }
 
+Box
+Stencil::core_extent_box () const
+{
+  return inner_dim_;
+}
+
 void
 Stencil::rotate (Real a, Offset off)
 {
@@ -96,6 +124,7 @@ Stencil::rotate (Real a, Offset off)
 /*
   Rotate this stencil around the point ABSOLUTE_OFF.
 
+  TODO: this should hande inner_dim, too. --jw
  */
 void
 Stencil::rotate_degrees_absolute (Real a, Offset absolute_off)
@@ -180,7 +209,10 @@ Stencil::translate (Offset o)
                       ly_offset2scm (o),
                       expr_, SCM_UNDEFINED);
   if (!is_empty ())
-    dim_.translate (o);
+    {
+      dim_.translate (o);
+      inner_dim_.translate (o);
+    }
 }
 
 void
@@ -200,6 +232,8 @@ Stencil::scale (Real x, Real y)
                       expr_);
   dim_[X_AXIS] *= x;
   dim_[Y_AXIS] *= y;
+  inner_dim_[X_AXIS] *= x;
+  inner_dim_[Y_AXIS] *= y;
 }
 
 void
@@ -207,6 +241,7 @@ Stencil::add_stencil (Stencil const &s)
 {
   expr_ = scm_list_3 (ly_symbol2scm ("combine-stencil"), s.expr_, expr_);
   dim_.unite (s.dim_);
+  inner_dim_.unite (s.inner_dim_);
 }
 
 void
@@ -216,11 +251,15 @@ Stencil::set_empty (bool e)
     {
       dim_[X_AXIS].set_empty ();
       dim_[Y_AXIS].set_empty ();
+      inner_dim_[X_AXIS].set_empty ();
+      inner_dim_[Y_AXIS].set_empty ();
     }
   else
     {
       dim_[X_AXIS] = Interval (0, 0);
       dim_[Y_AXIS] = Interval (0, 0);
+      inner_dim_[X_AXIS] = Interval (0, 0);
+      inner_dim_[Y_AXIS] = Interval (0, 0);
     }
 }
 
@@ -234,7 +273,11 @@ Stencil::align_to (Axis a, Real x)
   translate_axis (-i.linear_combination (x), a);
 }
 
-/*  See scheme Function.  */
+/*
+  See scheme Function.
+
+  TODO: allow choosing whether to add at inner edge or outer egde? --jw
+ */
 void
 Stencil::add_at_edge (Axis a, Direction d, Stencil const &s, Real padding)
 {
