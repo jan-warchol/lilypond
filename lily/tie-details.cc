@@ -75,6 +75,7 @@ Tie_details::from_grob (Grob *me)
   outer_tie_vertical_gap_ = get_real_detail ("outer-tie-vertical-gap", 0.15);
 
   single_tie_region_size_ = get_int_detail ("single-tie-region-size", 3);
+  skyline_padding_ = get_real_detail ("skyline-padding", 0.05);
   multi_tie_region_size_ = get_int_detail ("multi-tie-region-size", 1);
 }
 
