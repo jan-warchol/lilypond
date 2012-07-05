@@ -111,12 +111,14 @@ ly_FT_get_glyph_outline (FT_Face const &face, size_t signed_idx)
   outline = &(face->glyph->outline);
   SCM out = SCM_EOL;
   Offset lastpos;
+  Offset firstpos;
   vsize j = 0;
   while (j < outline->n_points)
     {
       if (j == 0)
         {
-          lastpos = Offset (outline->points[j].x, outline->points[j].y);
+          firstpos = Offset (outline->points[j].x, outline->points[j].y);
+          lastpos = firstpos;
           j++;
         }
       else if (outline->tags[j] & 1)
@@ -189,6 +191,13 @@ ly_FT_get_glyph_outline (FT_Face const &face, size_t signed_idx)
           j += 2;
         }
     }
+
+  // just in case, close the figure
+  out = scm_cons (scm_list_4 (scm_from_double (lastpos[X_AXIS]),
+                              scm_from_double (lastpos[Y_AXIS]),
+                              scm_from_double (firstpos[X_AXIS]),
+                              scm_from_double (firstpos[Y_AXIS])),
+                  out);
 
   out = scm_reverse_x (out, SCM_EOL);
   return out;
