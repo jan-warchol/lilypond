@@ -328,7 +328,7 @@ If we give names, Bison complains.
 %token FIGURE_OPEN /* "\\<" */
 %token FIGURE_SPACE "_"
 %token HYPHEN "--"
-%token HARDHYPHEN "-="
+%token HARDHYPHEN "---"
 
 %token CHORDMODIFIERS
 %token MULTI_MEASURE_REST

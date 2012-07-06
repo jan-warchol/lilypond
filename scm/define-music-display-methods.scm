@@ -157,7 +157,7 @@ expression."
 (define-display-method HyphenEvent (event parser)
   " --")
 (define-display-method HardHyphenEvent (event parser)
-  " -=")
+  " ---")
 (define-display-method ExtenderEvent (event parser)
   " __")
 (define-display-method TieEvent (event parser)
