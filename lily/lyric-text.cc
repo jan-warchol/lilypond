@@ -18,16 +18,55 @@
 */
 
 #include "item.hh"
-#include "self-alignment-interface.hh"
+#include "font-interface.hh"
+#include "output-def.hh"
+#include "stencil.hh"
 
 class Lyric_text
 {
 public:
   DECLARE_GROB_INTERFACE ();
+  DECLARE_SCHEME_CALLBACK (calc_core_extent, (SCM element));
 };
+
+MAKE_SCHEME_CALLBACK (Lyric_text, calc_core_extent, 1)
+SCM
+Lyric_text::calc_core_extent (SCM smob)
+{
+  Grob *me = unsmob_grob (smob);
+  Interval result_extent = me->extent (me, X_AXIS);
+
+  SCM lyric_text_scm = me->get_property ("text");
+
+  if (scm_is_string (lyric_text_scm))
+    {
+      string lyric_text = ly_scm2string (lyric_text_scm);
+      string prefix = "";
+      string suffix = "";
+      size_t prefix_index = lyric_text.find ('&');
+      size_t suffix_index = lyric_text.find ('$');
+
+      if ((int) prefix_index >= 0)
+        prefix = lyric_text.substr (0, prefix_index);
+      if ((int) suffix_index >= 0)
+        suffix = lyric_text.substr (suffix_index + 1, lyric_text.size ());
+
+      Output_def *layout = unsmob_output_def (me->layout ()->self_scm ());
+      SCM font_chain = Font_interface::text_font_alist_chain (me);
+      Font_metric *fm = select_encoded_font (layout, font_chain);
+
+      Stencil prefix_stencil = fm->text_stencil (layout, prefix, false);
+      Stencil suffix_stencil = fm->text_stencil (layout, suffix, false);
+      result_extent[LEFT] += prefix_stencil.extent (X_AXIS).length ();
+      result_extent[RIGHT] -= suffix_stencil.extent (X_AXIS).length ();
+    }
+  return ly_interval2scm (result_extent);
+}
 
 ADD_INTERFACE (Lyric_text,
                "blah.",
 
                /* properties */
+               "X-extent "
+               "X-core-extent "
               );

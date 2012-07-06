@@ -1018,6 +1018,8 @@ as pairs: first value is the name of the extent property that should
 be used (for example @code{X-extent}) and the second value is a number
 - @code{-1} means left edge of the extent, @code{0} means center, and
 @code{1} means right edge.  Other numerical values may also be used.")
+     (X-core-extent ,number-pair? "extent of inner portion in
+X@tie{}direction.")
      (X-extent ,number-pair? "Hard coded extent in X@tie{}direction.")
      (X-offset ,number? "The horizontal amount that this object is
 moved relative to its X-parent.")
