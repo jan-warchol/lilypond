@@ -1341,6 +1341,8 @@
 	(extra-spacing-height . (0.2 . -0.2))
 	(font-series . medium)
 	(font-size . 1.0)
+	(X-core-extent . ,ly:lyric-text::calc-core-extent)
+	(X-alignment . ((X-core-extent . 0) (X-core-extent . 0) 0))
 	(stencil . ,lyric-text::print)
 	(text . ,(grob::calc-property-by-copy 'text))
 	(word-space . 0.6)

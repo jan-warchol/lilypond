@@ -18,6 +18,8 @@
 
 (define-public default-string-replacement-alist
   '(;; Whitespaces
+    ("&" . "")
+    ("$" . "")
     ("\t" . " ")
     ("\n" . " ")
     ("\v" . " ")))
