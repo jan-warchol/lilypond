@@ -176,6 +176,10 @@ Lyric_engraver::stop_translation_timestep ()
           if (head)
             {
               text_->set_parent (head, X_AXIS);
+              Grob *stem = unsmob_grob (text_->get_parent(X_AXIS)->get_object ("stem"));
+              string stem_log = to_string (robust_scm2int (stem->get_property ("duration-log"), 100));
+              string text_ext = to_string (text_->extent(text_, X_AXIS).length());
+              message ("durlog: "  + stem_log + ", text extent: " + text_ext);
               if (melisma_busy (voice)
                   && !to_boolean (get_property ("ignoreMelismata")))
                 text_->set_property ("self-alignment-X",
