@@ -1313,7 +1313,7 @@
 	(dash-period . 10.0)
 	(height . 0.42)
 	(length . 0.66)
-	(minimum-distance . 0.1)
+	(minimum-distance . 0.0)
 	(minimum-length . 0.3)
 	(padding . 0.07)
 	(springs-and-rods . ,ly:lyric-hyphen::set-spacing-rods)
