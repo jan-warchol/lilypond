@@ -643,6 +643,7 @@ avoid_outside_staff_collisions (Grob *elt,
                                 bool const use_separate_constructor_skyline,
                                 Direction const dir)
 {
+  // TODO: Remember the purpose of the commented line below.
   //Skyline_pair *vertical_skylines = use_separate_constructor_skyline ? to_pass_to_constructor : pair;
   vector<Real> bumps;
   Real EPSILON = 0.001;
@@ -703,7 +704,7 @@ avoid_outside_staff_collisions (Grob *elt,
 
       Real min_bump = dir * infinity_f;
       for (vsize j = 0; j < bumps.size (); j++)
-        if (!isinf (bumps[j]) && (abs (bumps[j]) > EPSILON))
+        if (!isinf (bumps[j]) && (dir * bumps[j] > EPSILON))
           min_bump = minmax (-dir, bumps[j], min_bump);
       if (isinf (min_bump))
         min_bump = 0.0;
