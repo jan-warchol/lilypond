@@ -43,7 +43,7 @@ class Footnote_engraver : public Engraver
   void finalize ();
   virtual void derived_mark () const;
 
-  void footnotify (Grob *, Stream_event *);
+  void footnotify (Grob *, SCM);
 };
 
 IMPLEMENT_TRANSLATOR_LISTENER (Footnote_engraver, footnote);
@@ -77,13 +77,13 @@ Footnote_engraver::Footnote_engraver ()
 }
 
 void
-Footnote_engraver::footnotify (Grob *g, Stream_event *event)
+Footnote_engraver::footnotify (Grob *g, SCM cause)
 {
   Spanner *s = dynamic_cast<Spanner *>(g);
 
   if (s)
     {
-      Spanner *b = make_spanner ("FootnoteSpanner", event->self_scm ());
+      Spanner *b = make_spanner ("FootnoteSpanner", cause);
       b->set_parent (s, Y_AXIS);
       b->set_parent (s, X_AXIS);
       Grob *bound = unsmob_grob (get_property ("currentMusicalColumn"));
@@ -92,7 +92,7 @@ Footnote_engraver::footnotify (Grob *g, Stream_event *event)
     }
   else
     {
-      Grob *b = make_item ("FootnoteItem", event->self_scm ());
+      Grob *b = make_item ("FootnoteItem", cause);
       b->set_parent (g, Y_AXIS);
       b->set_parent (g, X_AXIS);
     }
@@ -105,42 +105,34 @@ Footnote_engraver::acknowledge_grob (Grob_info info)
 
   if (mus)
     {
-      if (!mus->is_mus_type ("footnote-event")) {
-	mus->origin ()->programming_error (_ ("Must be footnote-event."));
-	return;
-      }
-      Stream_event *ev = mus->to_event (context ());
-      footnotify (info.grob (), ev);
-      ev->unprotect ();
+      if (!mus->is_mus_type ("footnote-event"))
+	{
+	  mus->origin ()->programming_error (_ ("Must be footnote-event."));
+	  return;
+	}
+
+      footnotify (info.grob (), mus->to_event (context ())->unprotect ());
+
+      // This grob has exhausted its footnote
+      info.grob ()->set_property ("footnote-music", SCM_EOL);
       return;
     }
 
-  // The following performance hog should eventually be removed:
-  // instead of adding a -\footnote ... \default articulation at the
-  // end of a note, you can perfectly well use \footnote ... before
-  // the note.  This is just for the sake of automatic convert-ly
-  // rules.
-
-  Stream_event *cause = info.event_cause ();
-
-  SCM arts = cause ? cause->get_property ("articulations") : SCM_EOL;
-  for (SCM s = arts; scm_is_pair (s); s = scm_cdr (s))
+  if (!events_.empty ())
     {
-      Stream_event *e = unsmob_stream_event (scm_car (s));
-      if (e->in_event_class ("footnote-event"))
-        footnotify (info.grob (), e);
-    }
+      string grobname = info.grob ()->name ();
 
-  // In contrast, the following code is only called when actual
-  // footnote events have been listened to.  It should not affect
-  // performance.
-
-  for (vsize i = 0; i < events_.size (); i++)
-    {
-      SCM name = events_[i]->get_property ("symbol");
-      if (!scm_is_symbol (name)
-	  || info.grob ()->name () == ly_symbol2string (name))
-        footnotify (info.grob (), events_[i]);
+      for (vsize i = 0; i < events_.size (); i++)
+	{
+	  SCM name = events_[i]->get_property ("symbol");
+	  if (scm_is_symbol (name)
+	      && grobname == ly_symbol2string (name))
+	    {
+	      footnotify (info.grob (), events_[i]->self_scm ());
+	      // Event has exhausted its footnote
+	      events_[i]->set_property ("symbol", SCM_EOL);
+	    }
+	}
     }
 }
 
