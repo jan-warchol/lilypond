@@ -31,6 +31,14 @@
   font.
  */
 
+Real
+Lyric_hyphen::ziomal ()
+{
+    return 2.5;
+}
+
+
+
 MAKE_SCHEME_CALLBACK (Lyric_hyphen, print, 1);
 SCM
 Lyric_hyphen::print (SCM smob)

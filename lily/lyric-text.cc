@@ -19,6 +19,7 @@
 
 #include "item.hh"
 #include "self-alignment-interface.hh"
+#include "lyric-hyphen.hh"
 
 class Lyric_text
 {
@@ -46,6 +47,9 @@ Lyric_text::calc_x_offset (SCM smob)
     me->set_property ("X-alignment", me->get_property ("default-X-alignment"));
 
   Real offset = scm_to_double (Self_alignment_interface::general_x_alignment (smob));
+  message (to_string (Lyric_hyphen::ziomal ()));
+  Grob *hyph = unsmob_grob (me->get_object ("LyricHyphen"));
+  message (hyph->name ());
   return scm_from_double (max (offset, restriction));
 }
 
