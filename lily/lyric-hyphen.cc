@@ -72,6 +72,14 @@ Lyric_hyphen::print (SCM smob)
     dash_period = 1.5 * dash_length;
 
   Real l = span_points.length ();
+  Grob *parent = me->get_parent (X_AXIS);
+  message ("me: " + me->name() + ", common: " + common->name() + ", parent: " + parent->name());
+  message ("parent extent: "
+           + to_string (parent->extent (parent, X_AXIS).length())
+           + ", text: "
+           + robust_scm2string (parent->get_property ("text"), "bleee"));
+  message ("gap: " + to_string (l) + ", left: " + to_string (span_points[LEFT]) + ", right: " + to_string (span_points[RIGHT]));
+  message (" ");
 
   int n = int (ceil (l / dash_period - 0.5));
   if (n <= 0)
