@@ -29,7 +29,6 @@ public:
   DECLARE_SCHEME_CALLBACK (set_spacing_rods, (SCM));
   DECLARE_GROB_INTERFACE ();
   DECLARE_SCHEME_CALLBACK (print, (SCM));
-  static Real ziomal ();
 };
 
 #endif // HYPHEN_SPANNER_HH
