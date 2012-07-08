@@ -50,11 +50,8 @@ Separation_item::set_distance (Item *l, Item *r, Real padding)
                                     Skyline_pair::unsmob (r->get_property ("horizontal-skylines")));
   Skyline right = conditional_skyline (r, l);
   right.merge ((*lines[RIGHT])[LEFT]);
-  Real horizon_padding =
-    robust_scm2double (l->get_property ("skyline-vertical-padding"), 0.0)
-    + robust_scm2double (r->get_property ("skyline-vertical-padding"), 0.0);
 
-  Real dist = padding + (*lines[LEFT])[RIGHT].distance (right, horizon_padding);
+  Real dist = padding + (*lines[LEFT])[RIGHT].distance (right);
   if (dist > 0)
     {
       Rod rod;
