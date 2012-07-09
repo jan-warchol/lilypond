@@ -278,7 +278,7 @@ Skyline::deholify ()
 
   do
     {
-      bool dirty = false;  
+      dirty = false;  
       bool do_correction = false;
       list<Building>::iterator center;
       list<Building>::iterator left;
