@@ -278,7 +278,7 @@ Skyline::deholify ()
 
   do
     {
-      dirty = false;  
+      dirty = false;
       bool do_correction = false;
       list<Building>::iterator center;
       list<Building>::iterator left;
@@ -580,7 +580,7 @@ Skyline::Skyline (vector<Skyline_pair> const &skypairs, Direction sky)
       partials.pop_front ();
       Skyline two = partials.front ();
       partials.pop_front ();
- 
+
       one.merge (two);
       partials.push_back (one);
     }
@@ -707,8 +707,8 @@ Skyline::padded (Real horizon_padding) const
 
               // Add the flat building that pads the left side of the current building.
               start = i->start_ - horizon_padding;
-              end = i->start_;   
-              pad_buildings.push_back (Building (start, height, height, end));           
+              end = i->start_;
+              pad_buildings.push_back (Building (start, height, height, end));
            }
         }
 
@@ -725,7 +725,7 @@ Skyline::padded (Real horizon_padding) const
               // Add the sloped building that pads the right side of the current building.
               start = end;
               end += horizon_padding;
-              pad_buildings.push_back (Building (start, height, height - horizon_padding, end));            
+              pad_buildings.push_back (Building (start, height, height - horizon_padding, end));
             }
         }
     }
@@ -831,7 +831,7 @@ Skyline::intersects (Skyline const &other) const
     return ALWAYS_LESS;
   if (intersections[UP])
     return ALWAYS_GREATER;
-  return NOT_ENOUGH_INFO;    
+  return NOT_ENOUGH_INFO;
 }
 
 // changes the direction that the skyline is pointing

@@ -423,7 +423,7 @@ System::vertical_skyline_elements (SCM smob)
     {
       SCM grobs_scm = Grob_array::make_array ();
       unsmob_grob_array (grobs_scm)->set_array (vertical_skyline_grobs);
-      return grobs_scm;      
+      return grobs_scm;
     }
 
   extract_grob_set (align, "elements", elts);

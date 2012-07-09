@@ -723,7 +723,7 @@ avoid_outside_staff_collisions (Grob *elt,
 
     }
   while (dirty);
-  
+
   // We artificially lowered the skylines before, so we reraise them.
   // Not quite sure why we need to do this after the above...but the
   // results suggest it has to be done.  TODO: figure out why.
@@ -764,7 +764,7 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
 {
   vector<Box> boxes;
   vector<Skyline_pair> to_constructor;
-  
+
   for (vsize i = 0; i < elements.size (); i++)
     {
       Direction dir = get_grob_direction (elements[i]);
@@ -795,7 +795,7 @@ add_grobs_of_one_priority (Skyline_pair *const skylines,
 
         the horizontal skylines just need one skyline
       */
-  
+
       Skyline_pair pair = Skyline_pair (construct_from_me);
       Real padding = robust_scm2double (elements[i]->get_property ("outside-staff-padding"), 0.5);
       pair.shift (elements[i]->relative_coordinate (x_common, X_AXIS));
