@@ -306,6 +306,16 @@ Spacing_spanner::generate_springs (Grob *me,
   set_column_rods (cols, padding);
 }
 
+void Spacing_spanner::foo (Grob *dad, vector<Grob *> &lyrics)
+    {
+    if (Lyric_text::has_interface (dad))
+      lyrics.push_back (dad);
+    extract_grob_set (dad, "elements", elts);
+    for (vsize i = 0; i < elts.size (); i++)
+      foo (elts[i], lyrics);
+    }
+
+
 /*
   Generate the space between two musical columns LEFT_COL and RIGHT_COL.
 */
@@ -318,6 +328,10 @@ Spacing_spanner::musical_column_spacing (Grob *me,
   Real base_note_space = note_spacing (me, left_col, right_col, options);
 
   message ("lol " + to_string(base_note_space));
+
+  vector<Grob *> lyrics;
+  foo (left_col, &lyrics);
+
   Spring spring;
 
   if (options->stretch_uniformly_)
