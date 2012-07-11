@@ -316,6 +316,8 @@ Spacing_spanner::musical_column_spacing (Grob *me,
                                          Spacing_options const *options)
 {
   Real base_note_space = note_spacing (me, left_col, right_col, options);
+
+  message ("lol " + to_string(base_note_space));
   Spring spring;
 
   if (options->stretch_uniformly_)

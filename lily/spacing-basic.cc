@@ -168,6 +168,7 @@ Spacing_spanner::note_spacing (Grob * /* me */,
 
     }
 
+  message ("ziu " + to_string (dist));
   return dist;
 }
 
