@@ -37,12 +37,14 @@ protected:
   void stop_translation_timestep ();
   void process_music ();
   DECLARE_TRANSLATOR_LISTENER (lyric);
+  DECLARE_TRANSLATOR_LISTENER (note);
 
 public:
   TRANSLATOR_DECLARATIONS (Lyric_engraver);
 
 private:
   Stream_event *event_;
+  vector<Stream_event *> notes_;
   Item *text_;
   Item *stub_;
   Item *last_text_;
@@ -63,6 +65,15 @@ void
 Lyric_engraver::listen_lyric (Stream_event *ev)
 {
   ASSIGN_EVENT_ONCE (event_, ev);
+  message ("la");
+}
+
+IMPLEMENT_TRANSLATOR_LISTENER (Lyric_engraver, note);
+void
+Lyric_engraver::listen_note (Stream_event *ev)
+{
+  message ("plum!");  // does not print - why this isn't called at all?
+  notes_.push_back (ev);
 }
 
 void
@@ -195,6 +206,8 @@ Lyric_engraver::stop_translation_timestep ()
       text_ = 0;
     }
   event_ = 0;
+
+  notes_.clear ();
 }
 
 ADD_TRANSLATOR (Lyric_engraver,
