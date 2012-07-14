@@ -90,6 +90,14 @@ Separation_item::calc_skylines (SCM smob)
   Item *me = unsmob_item (smob);
   vector<Box> bs = boxes (me, 0);
   Skyline_pair sp (bs, Y_AXIS);
+  /*
+    TODO: We need to decide if padding is 'intrinsic'
+    to a skyline or if it is something that is only added on in
+    distance calculations.  Here, we make it intrinsic, which copies
+    the behavior from the old code but no longer corresponds to how
+    vertical skylines are handled (where padding is not built into
+    the skyline).
+  */
   Real vp = robust_scm2double (me->get_property ("skyline-vertical-padding"), 0.0);
   sp[LEFT] = sp[LEFT].padded (vp);
   sp[RIGHT] = sp[RIGHT].padded (vp);

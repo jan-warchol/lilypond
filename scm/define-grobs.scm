@@ -1586,7 +1586,7 @@
 	(bound-alignment-interfaces . (note-column-interface))
 	(horizontal-skylines . ,ly:separation-item::calc-skylines)
 	(keep-inside-line . #t)
-	(skyline-vertical-padding . 0.15)
+	(skyline-vertical-padding . 0.10)
 	;; (stencil . ,ly:paper-column::print)
 	(X-extent . ,ly:axis-group-interface::width)
 
