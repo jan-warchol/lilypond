@@ -289,10 +289,9 @@ Skyline::deholify ()
           if (do_correction)
             {
               dirty = true;
-              Real p1 = left->end_ * left->slope_ + left->y_intercept_;
-              Real p2 = i->start_ * i->slope_ + i->y_intercept_;
-              center->slope_ = (p2 - p1) / (center->end_ - center->start_);
-              center->y_intercept_ = p2 - (center->end_ * center->slope_);
+              Real p1 = left->height (left->end_);
+              Real p2 = i->height (i->start_);
+              *center = Building (center->start_, p1, p2, center->end_);
             }
           do_correction = isinf (i->y_intercept_) && !(i == buildings_.begin ());
           left = center;
@@ -746,13 +745,6 @@ Real
 Skyline::internal_distance (Skyline const &other, Real *touch_point) const
 {
   assert (sky_ == -other.sky_);
-
-  /*
-    For systems, padding is not added at creation time.  Padding is
-    added to AxisGroup objects when outside-staff objects are added.
-    Thus, when we want to place systems with horizontal padding,
-    we do it at distance calculation time.
-  */
 
   list<Building>::const_iterator i = buildings_.begin ();
   list<Building>::const_iterator j = other.buildings_.begin ();
