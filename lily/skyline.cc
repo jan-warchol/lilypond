@@ -259,46 +259,50 @@ Building::conceals (Building const &other, Real x) const
          || (i > x && slope_ < other.slope_);
 }
 
+// Remove redundant empty buildings from the skyline.
+// If there are two adjacent empty buildings, they can be
+// turned into one.
+void
+Skyline::normalize ()
+{
+  bool last_empty = false;
+  list<Building>::iterator i;
+  for (i = buildings_.begin (); i != buildings_.end (); i++)
+    {
+      if (last_empty && i->y_intercept_ == -infinity_f)
+        {
+          list<Building>::iterator last = i;
+          last--;
+          last->end_ = i->end_;
+          buildings_.erase (i);
+          i = last;
+        }
+      last_empty = (i->y_intercept_ == -infinity_f);
+    }
+}
+
 void
 Skyline::deholify ()
 {
-  bool has_anchor = false;
-  for (list<Building>::iterator i (buildings_.begin ());
-       i != buildings_.end (); i++)
-    if (!isinf (i->y_intercept_))
-      {
-        has_anchor = true;
-        break;
-      }
+  // Since a skyline should always be normalized, we can
+  // assume that there are never two adjacent empty buildings.
+  // That is, if center is empty then left and right are not.
+  list<Building>::iterator left = buildings_.begin ();
+  list<Building>::iterator center = buildings_.begin ();
+  list<Building>::iterator right;
 
-  if (!has_anchor)
-    return;
-
-  bool dirty = false;
-
-  do
+  for (right = buildings_.begin (); right != buildings_.end (); right++)
     {
-      dirty = false;
-      bool do_correction = false;
-      list<Building>::iterator center;
-      list<Building>::iterator left;
-
-      for (list<Building>::iterator i (buildings_.begin ());
-           i != buildings_.end (); i++)
+      if (center != buildings_.begin () && center->y_intercept_ == -infinity_f)
         {
-          if (do_correction)
-            {
-              dirty = true;
-              Real p1 = left->height (left->end_);
-              Real p2 = i->height (i->start_);
-              *center = Building (center->start_, p1, p2, center->end_);
-            }
-          do_correction = isinf (i->y_intercept_) && !(i == buildings_.begin ());
+          Real p1 = left->height (left->end_);
+          Real p2 = right->height (right->start_);
+          *center = Building (center->start_, p1, p2, center->end_);
+
           left = center;
-          center = i;
+          center = right;
         }
     }
-  while (dirty);
 }
 
 void
@@ -533,6 +537,7 @@ Skyline::Skyline (vector<Box> const &boxes, Axis horizon_axis, Direction sky)
     }
 
   buildings_ = internal_build_skyline (&buildings);
+  normalize ();
 }
 
 /*
@@ -563,6 +568,7 @@ Skyline::Skyline (vector<Drul_array<Offset> > const &segments, Axis horizon_axis
     }
 
   buildings_ = internal_build_skyline (&buildings);
+  normalize ();
 }
 
 Skyline::Skyline (vector<Skyline_pair> const &skypairs, Direction sky)
@@ -615,6 +621,7 @@ Skyline::merge (Skyline const &other)
   list<Building> my_bld;
   my_bld.splice (my_bld.begin (), buildings_);
   internal_merge_skyline (&other_bld, &my_bld, &buildings_);
+  normalize ();
 }
 
 void
@@ -638,6 +645,7 @@ Skyline::insert (Box const &b, Axis a)
   my_bld.splice (my_bld.begin (), buildings_);
   single_skyline (Building (b, a, sky_), &other_bld);
   internal_merge_skyline (&other_bld, &my_bld, &buildings_);
+  normalize ();
 }
 
 void
@@ -737,6 +745,7 @@ Skyline::padded (Real horizon_padding) const
   list<Building> my_buildings = buildings_;
   padded.buildings_.clear ();
   internal_merge_skyline (&pad_skyline, &my_buildings, &padded.buildings_);
+  padded.normalize ();
 
   return padded;
 }
