@@ -9,6 +9,14 @@
 \header {
   lsrtags = "really-simple, tweaks-and-overrides"
 
+%% Translation of GIT committish: d5307870fe0ad47904daba73792c7e17b813737f
+  texidocfr = "
+La commande @code{\\tweak} permet de retoucher directement n'importe
+quel objet graphique.  En voici quelques exemples :
+
+"
+  doctitlefr = "Utilisation de \\tweak pour retoucher des objets particuliers"
+
   texidoc = "
 With the @code{\\tweak} command, every grob can be tuned directly.
 Here are some examples of available tweaks.

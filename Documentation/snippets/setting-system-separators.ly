@@ -21,6 +21,15 @@ predeterminada adecuada.
 
 
 
+%% Translation of GIT committish: 28097cf54698db364afeb75658e4c8e0e0ccd716
+  texidocfr = "
+La séparation entre deux systèmes consécutifs peut être mise en
+évidence par n'importe quel @emph{markup}.  LilyPond dispose à cet effet
+d'une double oblique inversée : @code{\\slashSeparator}.
+
+"
+  doctitlefr = "Séparation visuelle entre les systèmes"
+
   texidoc = "
 System separators can be inserted between systems.  Any markup can be
 used, but @code{\\slashSeparator} has been provided as a sensible

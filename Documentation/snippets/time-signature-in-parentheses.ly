@@ -9,6 +9,13 @@
 \header {
   lsrtags = "specific-notation, tweaks-and-overrides, staff-notation"
 
+%% Translation of GIT committish: d5307870fe0ad47904daba73792c7e17b813737f
+  texidocfr = "
+Une métrique peut être mise entre parenthèses.
+
+"
+  doctitlefr = "Métrique entre parenthèses"
+
   texidoc = "
 The time signature can be enclosed within parentheses.
 

@@ -23,6 +23,17 @@ barrado para las notas de adorno.
 
 
 
+%% Translation of GIT committish: 28097cf54698db364afeb75658e4c8e0e0ccd716
+  texidocfr = "
+La ligature de notes se trouvant sur des lignes supplémentaires est
+généralement centrée sur la portée.  Les notes d'ornement ayant une
+hampe raccourcie, leur ligature peut se retrouver en dehors de la portée
+lorsqu'elles sont sur des lignes supplémentaires.  LilyPond permet de
+rallonger les hampes en pareil cas.
+
+"
+  doctitlefr = "Positionnement des ligatures de notes d'ornement à la hauteur de celles des notes normales"
+
   texidoc = "
 When notes are placed on ledger lines, their beams are usually centred
 on the stave.  Grace notes beams are shorter and grace notes on ledger

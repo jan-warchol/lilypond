@@ -18,6 +18,14 @@ trastes.
 
   doctitlees = "Plantilla para un pentagrama único con música letra acordes y trastes"
 
+%% Translation of GIT committish: 28097cf54698db364afeb75658e4c8e0e0ccd716
+  texidocfr = "
+Ce canevas comporte, en plus de la mélodie, des paroles et des accords,
+les diagrammes de fret.
+
+"
+  doctitlefr = "Paroles musique accords et diagrammes de fret"
+
   texidoc = "
 Here is a simple lead sheet template with melody, lyrics, chords and
 fret diagrams.

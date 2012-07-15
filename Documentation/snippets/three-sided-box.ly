@@ -9,6 +9,15 @@
 \header {
   lsrtags = "rhythms, text, scheme-language"
 
+%% Translation of GIT committish: d5307870fe0ad47904daba73792c7e17b813737f
+  texidocfr = "
+Voici comment construire une commande de @emph{markup} chargée
+d'agrémenter du texte ou autre annotation, d'une bordure sur trois
+côtés.
+
+"
+  doctitlefr = "Encadrement sur trois côtés"
+
   texidoc = "
 This example shows how to add a markup command to get a three sided box
 around some text (or other markup).

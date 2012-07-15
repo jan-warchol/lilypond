@@ -20,6 +20,16 @@ objeto @code{DynamicLineSpanner}.
 "
   doctitlees = "Alinear verticalmente expresiones dinámicas que abarcan varias notas"
 
+%% Translation of GIT committish: d5307870fe0ad47904daba73792c7e17b813737f
+  texidocfr = "
+Des nuances qui commencent, finissent ou se produisent sur une même note
+auront le même alignement vertical.  L'augmentation de la propriété
+@code{staff-padding} de l'objet @code{DynamicLineSpanner} permet
+d'aligner différentes nuances affectées à différentes notes.
+
+"
+  doctitlefr = "Alignement vertical des nuances sur plusieurs notes"
+
   texidoc = "
 Dynamics that occur at, begin on, or end on the same note will be
 vertically aligned.  To ensure that dynamics are aligned when they do

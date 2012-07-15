@@ -20,6 +20,16 @@ Se puede alterar este comportamiento pentagrama a pentagrama.
 
 
 
+%% Translation of GIT committish: 28097cf54698db364afeb75658e4c8e0e0ccd716
+  texidocfr = "
+Les barres de mesure des regroupements @code{StaffGroup},
+@code{PianoStaff} et @code{GrandStaff} sont par défaut d'un seul tenant.
+La portion entre les portées peut néanmoins être supprimée, portée par
+portée.
+
+"
+  doctitlefr = "Suppression de la partie inter-portée des barres de mesure d'un regroupement autre que ChoirStaff"
+
   texidoc = "
 By default, bar lines in StaffGroup, PianoStaff, or GrandStaff groups
 are connected between the staves.  This behaviour can be overridden on

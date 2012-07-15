@@ -9,6 +9,17 @@
 \header {
   lsrtags = "staff-notation, text, vocal-music"
 
+%% Translation of GIT committish: 28097cf54698db364afeb75658e4c8e0e0ccd716
+  texidocfr = "
+Des paroles peuvent venir s'inscrire dans la portée même.  Ces paroles
+sont décalées par la dérogation @code{\\override LyricText
+#'extra-offset = #'(0 . dimension)} ; des commandes similaires
+s'occuperont des extenseurs et des tirets.  Le décalage optimal ne peut
+s'obtenir qu'en procédant à tâtons.
+
+"
+  doctitlefr = "Impression des paroles dans la portée"
+
   texidoc = "
 Lyrics can be moved vertically to place them inside the staff.  The
 lyrics are moved with @code{\\override LyricText #'extra-offset = #'(0

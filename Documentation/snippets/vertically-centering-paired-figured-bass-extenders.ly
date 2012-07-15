@@ -22,6 +22,18 @@ tiene el valor verdadero.
 
 
 
+%% Translation of GIT committish: d5307870fe0ad47904daba73792c7e17b813737f
+  texidocfr = "
+L'activation de la propriété @code{useBassFigureExtenders} permet
+d'afficher des lignes de prolongation pour les chiffres qui se répètent.
+Deux chiffres prolongés sur la même durée se verront affublés d'un
+unique prolongateur, verticalement centré entre eux, dès lors que la
+propriété @code{figuredBassCenterContinuations} aura elle aussi été
+activée.
+
+"
+  doctitlefr = "Prolongateur commun de basse figurée"
+
   texidoc = "
 Where figured bass extender lines are being used by setting
 @code{useBassFigureExtenders} to true, pairs of congruent figured bass
