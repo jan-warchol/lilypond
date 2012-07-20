@@ -50,14 +50,6 @@ struct Building
   Interval overlapping_shift_interval (Building const &other) const;
 };
 
-enum Skyline_intersection_info
-{
-  INTERSECTS,
-  ALWAYS_GREATER,
-  ALWAYS_LESS,
-  NOT_ENOUGH_INFO
-};
-
 class Skyline
 {
 private:
@@ -91,7 +83,6 @@ public:
   void raise (Real);
   void shift (Real);
   void invert ();
-  Skyline_intersection_info intersects (Skyline const &) const;
   Real distance (Skyline const &, Real horizon_padding = 0) const;
   Real smallest_shift (Skyline const &, Direction d,
                        Real horizon_padding = 0,
@@ -111,9 +102,6 @@ public:
   Real left () const;
   Real right () const;
   Skyline padded (Real horizon_padding) const;
-
-  static string intersection_info_to_string (Skyline_intersection_info);
-  static Direction intersection_info_to_direction (Skyline_intersection_info);
 
   DECLARE_SCHEME_CALLBACK (get_touching_point, (SCM, SCM, SCM));
   DECLARE_SCHEME_CALLBACK (get_distance, (SCM, SCM, SCM));

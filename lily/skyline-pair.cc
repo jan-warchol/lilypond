@@ -77,15 +77,25 @@ Skyline_pair::insert (Box const &b, Axis a)
 }
 
 Real
-Skyline_pair::left ()
+Skyline_pair::left () const
 {
   return min (skylines_[UP].left (), skylines_[DOWN].left ());
 }
 
 Real
-Skyline_pair::right ()
+Skyline_pair::right () const
 {
   return max (skylines_[UP].right (), skylines_[DOWN].right ());
+}
+
+// This function comes with the same caveats as smallest_shift:
+// if the skylines are not contiguous, we may report false
+// intersections.
+bool
+Skyline_pair::intersects (Skyline_pair const& other) const
+{
+  return skylines_[UP].distance (other[DOWN]) > 0
+    && other[UP].distance (skylines_[DOWN]) > 0;
 }
 
 Real

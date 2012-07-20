@@ -784,57 +784,6 @@ Skyline::internal_distance (Skyline const &other, Real *touch_point) const
   return dist;
 }
 
-Skyline_intersection_info
-Skyline::intersects (Skyline const &other) const
-{
-  assert (sky_ == -other.sky_);
-
-  /*
-    For systems, padding is not added at creation time.  Padding is
-    added to AxisGroup objects when outside-staff objects are added.
-    Thus, when we want to place systems with horizontal padding,
-    we do it at distance calculation time.
-  */
-
-  list<Building>::const_iterator i = buildings_.begin ();
-  list<Building>::const_iterator j = other.buildings_.begin ();
-
-  Real start = -infinity_f;
-  Drul_array<bool> intersections (false, false);
-  while (i != buildings_.end () && j != other.buildings_.end ())
-    {
-      Real end = min (i->end_, j->end_);
-      Real start_dist = i->height (start) + j->height (start);
-      Real end_dist = i->height (end) + j->height (end);
-      if (!isinf (start_dist))
-        {
-          if (start_dist == 0.0)
-            return INTERSECTS;
-          intersections[Direction (sign (start_dist))] = true;
-        }
-      if (!isinf (end_dist))
-        {
-          if (end_dist == 0.0)
-            return INTERSECTS;
-          intersections[Direction (sign (end_dist))] = true;
-        }
-      if (intersections[DOWN] && intersections[UP])
-        return INTERSECTS;
-
-      if (i->end_ <= j->end_)
-        i++;
-      else
-        j++;
-      start = end;
-    }
-
-  if (intersections[DOWN])
-    return ALWAYS_LESS;
-  if (intersections[UP])
-    return ALWAYS_GREATER;
-  return NOT_ENOUGH_INFO;
-}
-
 // changes the direction that the skyline is pointing
 void
 Skyline::invert ()
@@ -1022,38 +971,6 @@ Skyline::clear ()
 {
   buildings_.clear ();
   empty_skyline (&buildings_);
-}
-
-string
-Skyline::intersection_info_to_string (Skyline_intersection_info sii)
-{
-  if (sii == INTERSECTS)
-    return "intersection";
-  if (sii == ALWAYS_GREATER)
-    return "alwaysGreater";
-  if (sii == ALWAYS_LESS)
-    return "alwaysLess";
-  if (sii == NOT_ENOUGH_INFO)
-    return "notEnoughInfo";
-
-  assert (1 == 0);
-  return "veryBad";
-}
-
-Direction
-Skyline::intersection_info_to_direction (Skyline_intersection_info sii)
-{
-  if (sii == INTERSECTS)
-    return CENTER;
-  if (sii == ALWAYS_GREATER)
-    return UP;
-  if (sii == ALWAYS_LESS)
-    return DOWN;
-  if (sii == NOT_ENOUGH_INFO)
-    return CENTER;
-
-  assert (1 == 0);
-  return CENTER;
 }
 
 /****************************************************************/

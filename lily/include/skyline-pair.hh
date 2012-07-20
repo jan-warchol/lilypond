@@ -40,8 +40,9 @@ public:
   void deholify ();
   Real smallest_shift (Skyline_pair const& other, Direction d,
                        Real h_padding=0, Real v_padding=0);
-  Real left ();
-  Real right ();
+  Real left () const;
+  Real right () const;
+  bool intersects (Skyline_pair const &other) const;
   void insert (Box const &, Axis);
   void merge (Skyline_pair const &other);
   Skyline &operator [] (Direction d);
