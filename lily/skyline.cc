@@ -279,6 +279,9 @@ Skyline::normalize ()
         }
       last_empty = (i->y_intercept_ == -infinity_f);
     }
+
+  assert (buildings_.front ().start_ == -infinity_f);
+  assert (buildings_.back ().end_ == infinity_f);
 }
 
 void
@@ -316,6 +319,7 @@ Skyline::internal_merge_skyline (list<Building> *s1, list<Building> *s2,
     }
 
   Real x = -infinity_f;
+  Real last_end = -infinity_f;
   while (!s1->empty ())
     {
       if (s2->front ().conceals (s1->front (), x))
@@ -338,13 +342,14 @@ Skyline::internal_merge_skyline (list<Building> *s1, list<Building> *s2,
           s1->front ().start_ = x;
           result->splice (result->end (), *s1, s1->begin (), i);
           x = result->back ().end_;
+          last_end = x;
           continue;
         }
 
       Real end = first_intersection (b, s2, x);
       if (s2->empty ())
         {
-          b.start_ = result->back ().end_;
+          b.start_ = last_end;
           result->push_back (b);
           break;
         }
@@ -353,7 +358,8 @@ Skyline::internal_merge_skyline (list<Building> *s1, list<Building> *s2,
       if (end > x + EPS)
         {
           b.leading_part (end);
-          b.start_ = result->back ().end_;
+          b.start_ = last_end;
+          last_end = b.end_;
           result->push_back (b);
         }
 
