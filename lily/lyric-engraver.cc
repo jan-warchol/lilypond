@@ -27,6 +27,8 @@
 
 #include "translator.icc"
 
+#define LINE cerr << __FILE__ <<':'<< __LINE__ << endl;
+
 /**
    Generate texts for lyric syllables.  We only do one lyric at a time.
    Multiple copies of this engraver should be used to do multiple voices.
@@ -68,6 +70,8 @@ Lyric_engraver::listen_lyric (Stream_event *ev)
 void
 Lyric_engraver::process_music ()
 {
+  Context *voice = get_voice_to_lyrics (context ());
+  Moment now = voice->now_mom ();
   if (event_)
     {
       SCM text = event_->get_property ("text");
@@ -75,14 +79,37 @@ Lyric_engraver::process_music ()
       if (ly_is_equal (text, scm_from_locale_string (" ")))
         {
           if (last_text_)
-            last_text_->set_property ("self-alignment-X",
-                                      get_property ("lyricMelismaAlignment"));
+            {
+              last_text_->set_property ("self-alignment-X",
+                                        get_property ("lyricMelismaAlignment"));
+              //stub_ = make_item ("LyricStub", event_->self_scm ());
+            }
         }
       else
         text_ = make_item ("LyricText", event_->self_scm ());
     }
+  else
+    {
+      for (SCM s = voice->get_property ("busyGrobs");
+           scm_is_pair (s); s = scm_cdr (s))
+        {
+          Grob *g = unsmob_grob (scm_cdar (s));;
+          Moment *end_mom = unsmob_moment (scm_caar (s));
+          if (!end_mom || !g)
+            {
+              programming_error ("busyGrobs invalid");
+              continue;
+            }
 
-  Context *voice = get_voice_to_lyrics (context ());
+          if ((end_mom->main_part_ > now.main_part_)
+              && dynamic_cast<Item *> (g)
+              && Note_head::has_interface (g))
+            {
+              stub_ = make_item ("LyricStub", SCM_EOL);
+            }
+        }
+    }
+
   if (last_text_
       && voice
       && to_boolean (voice->get_property ("melismaBusy"))
@@ -140,6 +167,7 @@ Grob *
 get_current_note_head (Context *voice, bool include_grace_notes)
 {
   Moment now = voice->now_mom ();
+
   for (SCM s = voice->get_property ("busyGrobs");
        scm_is_pair (s); s = scm_cdr (s))
     {
@@ -172,6 +200,7 @@ Lyric_engraver::stop_translation_timestep ()
 
       if (voice)
         {
+          message (ly_scm2string (text_->get_property ("text")));
           bool include_grace_notes = to_boolean (get_property ("includeGraceNotes"));
           Grob *head = get_current_note_head (voice, include_grace_notes);
 
