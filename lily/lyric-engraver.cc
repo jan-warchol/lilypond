@@ -71,6 +71,8 @@ void
 Lyric_engraver::process_music ()
 {
   Context *voice = get_voice_to_lyrics (context ());
+  message (" ");
+  scm_display (get_voice_to_lyrics (context ())->get_property ("busyGrobs"), scm_current_error_port ());
   Moment now = voice->now_mom ();
   if (event_)
     {
@@ -105,6 +107,7 @@ Lyric_engraver::process_music ()
               && dynamic_cast<Item *> (g)
               && Note_head::has_interface (g))
             {
+              message (to_string (scm_to_int (g->get_property ("duration-log"))));
               stub_ = make_item ("LyricStub", SCM_EOL);
             }
         }
