@@ -71,12 +71,14 @@ void
 Lyric_engraver::process_music ()
 {
   Context *voice = get_voice_to_lyrics (context ());
-  message (" ");
-  scm_display (get_voice_to_lyrics (context ())->get_property ("busyGrobs"), scm_current_error_port ());
-  Moment now = voice->now_mom ();
+ // Moment now = voice->now_mom ();
+ // message ("current moment: " + now.main_part_.to_string() + "  busyGrobs: ");
+ // scm_display (get_voice_to_lyrics (context ())->get_property ("busyGrobs"), scm_current_error_port ());
+  
   if (event_)
     {
       SCM text = event_->get_property ("text");
+      message (ly_scm2string (text));
 
       if (ly_is_equal (text, scm_from_locale_string (" ")))
         {
@@ -84,33 +86,11 @@ Lyric_engraver::process_music ()
             {
               last_text_->set_property ("self-alignment-X",
                                         get_property ("lyricMelismaAlignment"));
-              //stub_ = make_item ("LyricStub", event_->self_scm ());
+              stub_ = make_item ("LyricStub", event_->self_scm ());
             }
         }
       else
         text_ = make_item ("LyricText", event_->self_scm ());
-    }
-  else
-    {
-      for (SCM s = voice->get_property ("busyGrobs");
-           scm_is_pair (s); s = scm_cdr (s))
-        {
-          Grob *g = unsmob_grob (scm_cdar (s));;
-          Moment *end_mom = unsmob_moment (scm_caar (s));
-          if (!end_mom || !g)
-            {
-              programming_error ("busyGrobs invalid");
-              continue;
-            }
-
-          if ((end_mom->main_part_ > now.main_part_)
-              && dynamic_cast<Item *> (g)
-              && Note_head::has_interface (g))
-            {
-              message (to_string (scm_to_int (g->get_property ("duration-log"))));
-              stub_ = make_item ("LyricStub", SCM_EOL);
-            }
-        }
     }
 
   if (last_text_
@@ -203,7 +183,6 @@ Lyric_engraver::stop_translation_timestep ()
 
       if (voice)
         {
-          message (ly_scm2string (text_->get_property ("text")));
           bool include_grace_notes = to_boolean (get_property ("includeGraceNotes"));
           Grob *head = get_current_note_head (voice, include_grace_notes);
 
@@ -226,6 +205,20 @@ Lyric_engraver::stop_translation_timestep ()
       last_text_ = text_;
       text_ = 0;
     }
+  else
+    {
+
+      Context *voice = get_voice_to_lyrics (context ());
+
+      bool include_grace_notes = to_boolean (get_property ("includeGraceNotes"));
+      Grob *head = get_current_note_head (voice, include_grace_notes);
+           if (head)
+            {
+              message ("create stub");
+              stub_ = make_item ("LyricStub", SCM_EOL);
+            }
+      }
+
   event_ = 0;
 }
 
