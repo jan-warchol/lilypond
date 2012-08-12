@@ -38,6 +38,7 @@
 #include "staff-spacing.hh"
 #include "system.hh"
 #include "warn.hh"
+#include "lyric-text.hh"
 
 vector<Grob *>
 Spacing_spanner::get_columns (Grob *me_grob)
@@ -220,6 +221,20 @@ Spacing_spanner::generate_pair_spacing (Grob *me,
     }
 }
 
+#include <set>
+
+std::set<Grob *> get_grob_X_children_NOW(Grob * g);
+
+void foo (Grob *dad, vector<Grob *> &lyrics)
+{
+if (Lyric_text::has_interface (dad))
+lyrics.push_back (dad);
+extract_grob_set (dad, "elements", elts);
+for (vsize i = 0; i < elts.size (); i++)
+foo (elts[i], lyrics);
+}
+
+
 static void
 set_column_rods (vector<Grob *> const &cols, Real padding)
 {
@@ -249,7 +264,13 @@ set_column_rods (vector<Grob *> const &cols, Real padding)
 
       Real prev_distances = 0.0;
 
+      vector <Grob *> lyrics;
+      foo (cols[i], lyrics);
+
       message (r->name());
+      std::set<Grob *> children = get_grob_X_children_NOW(cols[i]);
+      for(std::set<Grob *>::iterator it = children.begin(); it != children.end(); ++it)
+          message((*it)->name());
 
       /* This is an inner loop and hence it is potentially quadratic. However, we only continue
          as long as there is a rod to insert. Therefore, this loop will usually only execute

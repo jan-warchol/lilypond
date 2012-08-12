@@ -54,7 +54,7 @@ std::set<Grob *> get_grob_X_children_NOW(Grob * g)
 
 void register_me_in_super_duper_map(Grob* me)
 {
-    my_super_duper_X_map[me->get_parent(X_AXIS)].insert(me);
+    my_super_duper_X_map[me->get_parent(NO_AXES)].insert(me);
 }
 
 Grob *
@@ -136,7 +136,7 @@ Grob::Grob (Grob const &s)
 
 Grob::~Grob ()
 {
-    my_super_duper_X_map[get_parent(X_AXIS)].erase(this);
+    my_super_duper_X_map[get_parent(NO_AXES)].erase(this);
 }
 /****************************************************************
   STENCILS
