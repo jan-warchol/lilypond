@@ -249,6 +249,8 @@ set_column_rods (vector<Grob *> const &cols, Real padding)
 
       Real prev_distances = 0.0;
 
+      message (r->name());
+
       /* This is an inner loop and hence it is potentially quadratic. However, we only continue
          as long as there is a rod to insert. Therefore, this loop will usually only execute
          a constant number of times per iteration of the outer loop. */
