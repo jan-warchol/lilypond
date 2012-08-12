@@ -41,6 +41,22 @@
 
 #include "ly-smobs.icc"
 
+//paskudny rejestr
+#include <map>
+#include <set>
+
+static std::map<Grob*, set<Grob*> > my_super_duper_X_map;
+
+std::set<Grob *> get_grob_X_children_NOW(Grob * g)
+{
+    return my_super_duper_X_map[g];
+}
+
+void register_me_in_super_duper_map(Grob* me)
+{
+    my_super_duper_X_map[me->get_parent(X_AXIS)].insert(me);
+}
+
 Grob *
 Grob::clone () const
 {
@@ -91,6 +107,8 @@ Grob::Grob (SCM basicprops)
     set_property ("horizontal-skylines",
                   ly_make_unpure_pure_container (Grob::simple_horizontal_skylines_from_extents_proc,
                                                  Grob::pure_simple_horizontal_skylines_from_extents_proc));
+
+  register_me_in_super_duper_map(this);
 }
 
 Grob::Grob (Grob const &s)
@@ -113,10 +131,12 @@ Grob::Grob (Grob const &s)
 
   mutable_property_alist_ = ly_deep_copy (s.mutable_property_alist_);
 
+  register_me_in_super_duper_map(this);
 }
 
 Grob::~Grob ()
 {
+    my_super_duper_X_map[get_parent(X_AXIS)].erase(this);
 }
 /****************************************************************
   STENCILS
