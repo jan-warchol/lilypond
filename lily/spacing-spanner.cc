@@ -38,7 +38,22 @@
 #include "staff-spacing.hh"
 #include "system.hh"
 #include "warn.hh"
-#include "lyric-text.hh"
+
+
+
+class Lyric_text
+{
+public:
+  DECLARE_GROB_INTERFACE ();
+};
+
+ADD_INTERFACE (Lyric_text,
+               "blah.",
+
+               /* properties */
+               "x-offset "
+              );
+
 
 vector<Grob *>
 Spacing_spanner::get_columns (Grob *me_grob)
@@ -225,15 +240,16 @@ Spacing_spanner::generate_pair_spacing (Grob *me,
 
 std::set<Grob *> get_grob_X_children_NOW(Grob * g);
 
-void foo (Grob *dad, vector<Grob *> &lyrics)
+void foo (Grob *dad, vector<pair<Grob *, int> > &lyrics, int lev=0)
 {
-if (Lyric_text::has_interface (dad))
-lyrics.push_back (dad);
+// if (Lyric_text::has_interface (dad))
+lyrics.push_back (make_pair(dad, lev));
 extract_grob_set (dad, "elements", elts);
 for (vsize i = 0; i < elts.size (); i++)
-foo (elts[i], lyrics);
+foo (elts[i], lyrics, lev+1);
 }
 
+#include<iostream>
 
 static void
 set_column_rods (vector<Grob *> const &cols, Real padding)
@@ -264,10 +280,19 @@ set_column_rods (vector<Grob *> const &cols, Real padding)
 
       Real prev_distances = 0.0;
 
-      vector <Grob *> lyrics;
+      vector <pair<Grob *, int> > lyrics;
       foo (cols[i], lyrics);
+      message (to_string (lyrics.size()));
+      for (vsize i = 0; i<lyrics.size(); i++)
+      {
+          for(int k = -1; k < lyrics[i].second; ++k)
+              cerr << "   ";
+          cerr << lyrics [i].first->name () << " : ";
+          scm_display (lyrics [i].first->get_property ("X-extent"),scm_current_error_port ());
+          cerr << endl;
+      }
 
-      message (r->name());
+    //  message (r->name());
       std::set<Grob *> children = get_grob_X_children_NOW(cols[i]);
       for(std::set<Grob *>::iterator it = children.begin(); it != children.end(); ++it)
           message((*it)->name());

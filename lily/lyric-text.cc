@@ -19,15 +19,3 @@
 
 #include "item.hh"
 #include "self-alignment-interface.hh"
-
-class Lyric_text
-{
-public:
-  DECLARE_GROB_INTERFACE ();
-};
-
-ADD_INTERFACE (Lyric_text,
-               "blah.",
-
-               /* properties */
-              );
