@@ -220,6 +220,16 @@ Spacing_spanner::generate_pair_spacing (Grob *me,
     }
 }
 
+void foo (Grob *dad, vector<pair<Grob *, int> > &lyrics, int lev = 0)
+{
+  lyrics.push_back (make_pair (dad, lev));
+  extract_grob_set (dad, "elements", elts);
+  for (vsize i = 0; i < elts.size (); i++)
+    foo (elts[i], lyrics, lev + 1);
+}
+
+#include<iostream>
+
 static void
 set_column_rods (vector<Grob *> const &cols, Real padding)
 {
@@ -248,6 +258,18 @@ set_column_rods (vector<Grob *> const &cols, Real padding)
                            Separation_item::conditional_skyline (r, cols[i - 1]).max_height ());
 
       Real prev_distances = 0.0;
+
+      vector <pair<Grob *, int> > lyrics;
+      foo (cols[i], lyrics);
+      message (to_string (lyrics.size ()));
+      for (vsize i = 0; i < lyrics.size (); i++)
+        {
+          for (int k = -1; k < lyrics[i].second; ++k)
+            cerr << "   ";
+          cerr << lyrics [i].first->name () << " : ";
+          scm_display (lyrics [i].first->get_property ("X-extent"), scm_current_error_port ());
+          cerr << endl;
+        }
 
       /* This is an inner loop and hence it is potentially quadratic. However, we only continue
          as long as there is a rod to insert. Therefore, this loop will usually only execute
