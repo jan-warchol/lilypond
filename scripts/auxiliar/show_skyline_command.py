@@ -1,5 +1,3 @@
-# show_skyline_command.py -- a GDB plugin to aid in debugging skylines
-#
 # This file is part of LilyPond, the GNU music typesetter.
 #
 # Copyright (C) 2012 Joe Neeman <joeneeman@gmail.com>
@@ -17,118 +15,17 @@
 # You should have received a copy of the GNU General Public License
 # along with LilyPond.  If not, see <http://www.gnu.org/licenses/>.
 
-# To use this command, you will need a python-enabled version of
-# GDB. Copy this file to ~/.show_skyline_command.py and add
-#
-# source .show_skyline_command.py
-#
-# to your .gdbinit file.
+# A gdb plugin debugging skylines.  To use the plugin, make sure that
+# skyline_viewer.py is in your PATH, then add
+# source /path/to/show_skyline_command.py
+# to your .gdbinit file.  The 'vsky' and 'hsky' commands for
+# drawing skylines will then be available in gdb.
 
 import gdb
-from threading import Thread
+from subprocess import Popen, PIPE
 from math import isinf
-import gtk
-import gobject
-import goocanvas
 
-class GtkSkylineCanvas (goocanvas.Canvas):
-    """A Canvas for displaying skylines."""
-    def __init__ (self):
-        super (GtkSkylineCanvas, self).__init__ ()
-        self.connect ('size-allocate', GtkSkylineCanvas.rescale)
-        self.x_min = float ('inf')
-        self.x_max = float ('-inf')
-        self.y_min = float ('inf')
-        self.y_max = float ('-inf')
-
-        self.colors = ('black', 'red', 'green', 'blue', 'maroon', 'olive', 'teal')
-        self.cur_color_index = 0
-
-    def rescale (self, allocation):
-        width = (self.x_max - self.x_min + 1) * 1.1
-        height = (self.y_max - self.y_min + 1) * 1.1
-        if width <= 0 or height <= 0:
-            return
-
-        scale_x = allocation.width / width
-        scale_y = allocation.height / height
-        scale = min (scale_x, scale_y)
-        self.set_scale (scale)
-
-        center_x = (self.x_max + self.x_min) / 2
-        center_y = (self.y_max + self.y_min) / 2
-        actual_width = allocation.width / scale
-        actual_height = allocation.height / scale
-        actual_min_x = center_x - actual_width / 2
-        actual_max_x = center_x + actual_width / 2
-        actual_min_y = center_y - actual_height / 2
-        actual_max_y = center_y + actual_height / 2
-
-        self.set_bounds (actual_min_x, actual_min_y, actual_max_x, actual_max_y)
-        self.scroll_to (actual_min_x, actual_min_y)
-
-    def add_skyline (self, lines):
-        """Adds a skyline to the current canvas, in a new color.
-
-        The canvas will be rescaled, if necessary, to make room for the
-        new skyline."""
-        # Flip vertically, because goocanvas thinks higher numbers are
-        # further down, while lilypond thinks they're further up.
-        lines = [(x1, -y1, x2, -y2) for (x1, y1, x2, y2) in lines]
-
-        color = self.colors[self.cur_color_index]
-        self.cur_color_index = (self.cur_color_index + 1) % len (self.colors)
-
-        # Update the bounding box of the skylines.
-        x_vals = [s[0] for s in lines] + [s[2] for s in lines]
-        y_vals = [s[1] for s in lines] + [s[3] for s in lines]
-        self.x_min = min ([self.x_min] + x_vals)
-        self.x_max = max ([self.x_max] + x_vals)
-        self.y_min = min ([self.y_min] + y_vals)
-        self.y_max = max ([self.y_max] + y_vals)
-
-        # Add the lines to the canvas.
-        root = self.get_root_item ()
-        for (x1, y1, x2, y2) in lines:
-            goocanvas.polyline_new_line (root, x1, y1, x2, y2,
-                    stroke_color=color,
-                    line_width=0.05)
-        self.rescale (self.get_allocation ())
-
-# We want to run the gtk main loop in a separate thread so that
-# the gdb main loop is still responsive.
-class SkylineWindowThread (Thread):
-    """A thread that runs a Gtk.Window displaying a skyline."""
-
-    def run (self):
-        gtk.gdk.threads_init ()
-        self.window = None
-        self.canvas = None
-        gtk.main ()
-
-    # This should only be called from the Gtk main loop.
-    def _destroy_window (self, window):
-        self.window = None
-        self.canvas = None
-
-    # This should only be called from the Gtk main loop.
-    def _setup_window (self):
-        if self.window is None:
-            self.window = gtk.Window ()
-            self.canvas = GtkSkylineCanvas ()
-            self.window.add (self.canvas)
-            self.window.connect ("destroy", self._destroy_window)
-            self.window.show_all ()
-
-    # This should only be called from the Gtk main loop.
-    def _add_skyline (self, lines):
-        self._setup_window ()
-        self.canvas.add_skyline (lines)
-
-    def add_skyline (self, lines):
-        # Copy the lines, just in case someone modifies them.
-        gobject.idle_add (self._add_skyline, list (lines))
-
+SKYLINE_VIEWER = 'skyline_viewer.py'
 
 # Function taken from GCC
 def find_type(orig, name):
@@ -171,10 +68,6 @@ class ListIterator:
 def to_list (list_val):
     return list (ListIterator (list_val))
 
-thread = SkylineWindowThread ()
-thread.setDaemon (True)
-thread.start ()
-
 def skyline_to_lines (sky_value):
     """Turns a gdb.Value into a list of line segments."""
     sky_d = int (sky_value['sky_'])
@@ -192,6 +85,20 @@ def skyline_to_lines (sky_value):
 
     ret = map (bld_to_line, buildings)
     return [r for r in ret if r is not None]
+
+viewer = Popen(SKYLINE_VIEWER, stdin=PIPE)
+def add_skyline(lines):
+    global viewer
+    try:
+        for line in lines:
+            x1, y1, x2, y2 = line
+            viewer.stdin.write('(%f,%f) (%f,%f)\n' % (x1, y1, x2, y2))
+        viewer.stdin.write('\n')
+    except IOError:
+        # If the pipe is broken, it probably means that someone closed
+        # the viewer window. Open another one.
+        viewer = Popen(SKYLINE_VIEWER, stdin=PIPE)
+        add_skyline(lines)
 
 class ShowSkylineCommand (gdb.Command):
     "Show a skyline graphically."
@@ -213,17 +120,17 @@ class ShowSkylineCommand (gdb.Command):
         # If they passed in a reference or pointer to a skyline,
         # dereference it.
         if typ.code == gdb.TYPE_CODE_PTR or typ.code == gdb.TYPE_CODE_REF:
-            val = val.dereference ()
+            val = val.referenced_value ()
             typ = val.type
 
         if typ.tag == 'Skyline_pair':
             sky = val['skylines_']
             arr = sky['array_']
-            thread.add_skyline (self.to_lines (arr[0]))
-            thread.add_skyline (self.to_lines (arr[1]))
+            add_skyline (self.to_lines (arr[0]))
+            add_skyline (self.to_lines (arr[1]))
 
         elif typ.tag == 'Skyline':
-            thread.add_skyline (self.to_lines (val))
+            add_skyline (self.to_lines (val))
 
 class ShowVSkylineCommand (ShowSkylineCommand):
     "Show a vertical skyline."
