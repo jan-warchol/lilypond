@@ -100,7 +100,6 @@ merge_springs (vector<Spring> const &springs)
   avg_stretch /= Real (springs.size ());
   avg_compress /= Real (springs.size ());
   avg_distance /= Real (springs.size ());
-  avg_distance = max (min_distance + 0.3, avg_distance);
 
   Spring ret = Spring (avg_distance, min_distance);
   ret.set_inverse_stretch_strength (avg_stretch);
@@ -172,7 +171,6 @@ Spring::set_blocking_force (Real f)
 
   blocking_force_ = -infinity_f;
   min_distance_ = length (f);
-  distance_ = max (distance_, min_distance_);
   update_blocking_force ();
 }
 
