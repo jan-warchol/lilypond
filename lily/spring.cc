@@ -117,7 +117,6 @@ merge_springs (vector<Spring> const &springs)
   avg_stretch /= Real (springs.size ());
   avg_compress /= Real (springs.size ());
   avg_distance /= Real (springs.size ());
-  avg_distance = max (min_distance + 0.3, avg_distance);
 
   Spring ret = Spring (avg_distance, min_distance);
   ret.set_inverse_stretch_strength (avg_stretch);
