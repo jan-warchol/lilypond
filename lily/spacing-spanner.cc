@@ -307,15 +307,33 @@ Spacing_spanner::generate_springs (Grob *me,
 }
 
 /*
+  Check if in wish'right_items is any item from right_col, if i understood well
+*/
+static inline bool
+check_for_matching_column(Grob *wish, Item *right_col)
+{
+    extract_grob_set (wish, "right-items", right_items);
+    for (vsize j = 0; j < right_items.size (); j++)
+      {
+        Item *it = dynamic_cast<Item *> (right_items[j]);
+        if (it && (right_col == it->get_column ()
+                   || right_col->original () == it->get_column ()))
+          return 1;
+      }
+    return 0;
+}
+
+/*
   Generate the space between two musical columns LEFT_COL and RIGHT_COL.
 */
 void
-Spacing_spanner::musical_column_spacing (Grob *me,
+Spacing_spanner::musical_column_spacing (Grob * /* me */,
                                          Item *left_col,
                                          Item *right_col,
                                          Spacing_options const *options)
 {
-  Real base_note_space = note_spacing (me, left_col, right_col, options);
+  Real base_note_space = note_spacing (0 /* me */, left_col, right_col, options);
+
   Spring spring;
 
   if (options->stretch_uniformly_)
@@ -336,20 +354,13 @@ Spacing_spanner::musical_column_spacing (Grob *me,
               continue;
             }
 
-          extract_grob_set (wish, "right-items", right_items);
-          bool found_matching_column = false;
-          for (vsize j = 0; j < right_items.size (); j++)
-            {
-              Item *it = dynamic_cast<Item *> (right_items[j]);
-              if (it && (right_col == it->get_column ()
-                         || right_col->original () == it->get_column ()))
-                found_matching_column = true;
-            }
+          if (!check_for_matching_column(wish, right_col))
+              continue;
 
           /*
             This is probably a waste of time in the case of polyphonic
             music.  */
-          if (found_matching_column && Note_spacing::has_interface (wish))
+          if (Note_spacing::has_interface (wish))
             {
               Real inc = options->increment_;
               Grob *gsp = unsmob_grob (left_col->get_object ("grace-spacing"));

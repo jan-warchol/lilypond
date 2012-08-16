@@ -87,18 +87,28 @@ get_measure_length (Grob *column)
 
   extract_grob_set (sys, "columns", cols);
 
-  vsize col_idx = Paper_column::get_rank (column);
-
-  do
+  for (vsize col_idx = Paper_column::get_rank (column); col_idx+1>0; --col_idx)
     {
       if (Moment *len = unsmob_moment (cols[col_idx]->get_property ("measure-length")))
         {
           return len;
         }
     }
-  while (col_idx-- != 0);
 
   return 0;
+}
+
+static inline Moment
+get_shortest_playing_len(Grob *column)
+{
+  SCM s = column->get_property ("shortest-playing-duration");
+  Moment *unsmobbed_s = unsmob_moment (s);
+
+  if (unsmobbed_s && unsmobbed_s->to_bool ())
+    return *unsmobbed_s;
+
+  programming_error ("cannot find a ruling note at: " + Paper_column::when_mom (column).to_string ());
+  return 1;
 }
 
 Real
@@ -107,17 +117,7 @@ Spacing_spanner::note_spacing (Grob * /* me */,
                                Grob *rc,
                                Spacing_options const *options)
 {
-  Moment shortest_playing_len = 0;
-  SCM s = lc->get_property ("shortest-playing-duration");
-
-  if (unsmob_moment (s))
-    shortest_playing_len = *unsmob_moment (s);
-
-  if (! shortest_playing_len.to_bool ())
-    {
-      programming_error ("cannot find a ruling note at: " + Paper_column::when_mom (lc).to_string ());
-      shortest_playing_len = 1;
-    }
+  Moment shortest_playing_len = get_shortest_playing_len(lc);
 
   Moment lwhen = Paper_column::when_mom (lc);
   Moment rwhen = Paper_column::when_mom (rc);
