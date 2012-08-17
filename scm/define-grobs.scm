@@ -1358,6 +1358,7 @@
 	(meta . ((class . Item)
 		 (interfaces . (font-interface
 				lyric-syllable-interface
+				lyric-text-interface
 				rhythmic-grob-interface
 				self-alignment-interface
 				text-interface))))))

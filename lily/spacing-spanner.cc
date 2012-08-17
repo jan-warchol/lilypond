@@ -223,8 +223,6 @@ Spacing_spanner::generate_pair_spacing (Grob *me,
 #include <lyric-text.hh>
 void foo (Grob *dad, vector<pair<Grob *, int> > &lyrics, int lev = 0)
 {
-    if (dad->name() == "LyricText")
-        message ("dracula");
   if(Lyric_text::has_interface (dad))
     lyrics.push_back (make_pair (dad, lev));
   extract_grob_set (dad, "elements", elts);
