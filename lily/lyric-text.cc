@@ -17,15 +17,10 @@
   along with LilyPond.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "lyric-text.hh"
+
 #include "item.hh"
 #include "self-alignment-interface.hh"
-
-class Lyric_text
-{
-public:
-  DECLARE_SCHEME_CALLBACK (calc_x_offset, (SCM));
-  DECLARE_GROB_INTERFACE ();
-};
 
 /* Restrict position of default-aligned long syllables
  * so that they don't start earlier than minimum-X-offset from the note.
