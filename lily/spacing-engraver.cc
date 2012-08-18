@@ -17,6 +17,8 @@
   along with LilyPond.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "context.hh"
+
 #include "engraver.hh"
 #include "moment.hh"
 #include "note-spacing.hh"
@@ -122,6 +124,7 @@ Spacing_engraver::start_spanner ()
   assert (!spacing_);
 
   spacing_ = make_spanner ("SpacingSpanner", SCM_EOL);
+  context ()->set_property ("bong", spacing_->self_scm());
   spacing_->set_bound (LEFT,
                        unsmob_grob (get_property ("currentCommandColumn")));
 }
@@ -130,6 +133,7 @@ void
 Spacing_engraver::finalize ()
 {
   stop_spanner ();
+  message (to_string (robust_scm2int (spacing_->get_property ("flak"), 44)));
 }
 
 void

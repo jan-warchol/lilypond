@@ -141,6 +141,11 @@ get_current_note_head (Context *voice, bool include_grace_notes)
   for (SCM s = voice->get_property ("busyGrobs");
        scm_is_pair (s); s = scm_cdr (s))
     {
+      SCM buh = voice->get_property ("bong");
+      Grob *blaa = unsmob_grob (buh);
+      blaa->set_property ("flak", scm_from_int (13));
+     // scm_display (voice->get_property ("bong"), scm_current_error_port ());
+      message (" ");
       Grob *g = unsmob_grob (scm_cdar (s));;
       Moment *end_mom = unsmob_moment (scm_caar (s));
       if (!end_mom || !g)
