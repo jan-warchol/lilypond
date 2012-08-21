@@ -632,25 +632,30 @@ add_interior_skylines (Grob *me, Grob *x_common, Grob *y_common, vector<Skyline_
 // or with anything in other_h_skylines and other_v_skylines.
 void
 avoid_outside_staff_collisions (Grob *elt,
-                                Skyline_pair const &staff_skyline,
                                 Skyline_pair *v_skyline,
+                                Real padding,
+                                Real horizon_padding,
                                 vector<Skyline_pair> const &other_v_skylines,
+                                vector<Real> const &other_padding,
+                                vector<Real> const &other_horizon_padding,
                                 Direction const dir)
 {
-  // TODO: handle padding
   vector<Interval> forbidden_intervals;
   for (vsize j = 0; j < other_v_skylines.size (); j++)
     {
       Skyline_pair const& v_other = other_v_skylines[j];
+      Real pad = (padding + other_padding[j]);
+      Real horizon_pad = (horizon_padding + other_horizon_padding[j]);
 
       // We need to push elt up by at least this much to be above v_other.
-      Real up = (*v_skyline)[DOWN].distance (v_other[UP]);
+      Real up = (*v_skyline)[DOWN].distance (v_other[UP], horizon_pad) + pad;
       // We need to push elt down by at least this much to be below v_other.
-      Real down = (*v_skyline)[UP].distance (v_other[DOWN]);
+      Real down = (*v_skyline)[UP].distance (v_other[DOWN], horizon_pad) + pad;
 
       forbidden_intervals.push_back (Interval (-down, up));
     }
 
+  Interval_set forbidden_shifts = Interval_set::interval_union (forbidden_intervals);
   Interval_set allowed_shifts =
     Interval_set::interval_union (forbidden_intervals).complement ();
   Real move = allowed_shifts.nearest_point (0, dir);
@@ -663,63 +668,114 @@ avoid_outside_staff_collisions (Grob *elt,
 // or anything in all_X_skylines.  Afterwards, the skylines
 // of the grobs in elements will be added to all_v_skylines.
 static void
-add_grobs_of_one_priority (Skyline_pair const& skylines,
-                           Drul_array<vector<Skyline_pair> >& all_v_skylines,
-                           vector<Grob *> const& elements,
+add_grobs_of_one_priority (Drul_array<vector<Skyline_pair> > *all_v_skylines,
+                           vector<Grob *> elements,
                            Grob *x_common,
                            Grob *y_common,
                            multimap<Grob*, Grob*> const& riders)
 {
   vector<Box> boxes;
   vector<Skyline_pair> skylines_to_merge;
+  Drul_array<vector<Real> > all_paddings;
+  Drul_array<vector<Real> > all_horizon_paddings;
 
-  for (vsize i = 0; i < elements.size (); i++)
+  // all_v_skylines starts out with one element (the staff), so these
+  // vectors also need one element.
+  all_paddings[UP].push_back (0);
+  all_horizon_paddings[UP].push_back (0);
+  all_paddings[DOWN].push_back (0);
+  all_horizon_paddings[DOWN].push_back (0);
+
+  // We want to avoid situations like this:
+  //           still more text
+  //      more text
+  //   text
+  //   -------------------
+  //   staff
+  //   -------------------
+
+  // The point is that "still more text" should be positioned under
+  // "more text".  In order to achieve this, we place the grobs in several
+  // passes.  We keep track of the right-most horizontal position that has been
+  // affected by the current pass so far (actually we keep track of 2
+  // positions, one for above the staff, one for below).
+  
+  // In each pass, we loop through the unplaced grobs from left to right.
+  // If the grob doesn't overlap the right-most affected position, we place it
+  // (and then update the right-most affected position to point to the right
+  // edge of the just-placed grob).  Otherwise, we skip it until the next pass.
+  while (!elements.empty ())
     {
-      Grob *elt = elements[i];
-      Direction dir = get_grob_direction (elt);
-      if (dir == CENTER)
+      Drul_array<Real> last_end (-infinity_f, -infinity_f);
+      vector<Grob *> skipped_elements;
+      for (vsize i = 0; i < elements.size (); i++)
         {
-          warning (_ ("an outside-staff object should have a direction, defaulting to up"));
-          dir = UP;
-        }
+          Grob *elt = elements[i];
+          Real padding =
+            robust_scm2double (elt->get_property ("outside-staff-padding"), 0.25);
+          Real horizon_padding =
+            robust_scm2double (elt->get_property ("outside-staff-horizontal-padding"), 0.0);
+          Interval x_extent = elt->extent (x_common, X_AXIS);
+          x_extent.widen (horizon_padding);
 
-      SCM horizon_padding_scm = elt->get_property ("outside-staff-horizontal-padding");
-      Real horizon_padding = robust_scm2double (horizon_padding_scm, 0.0);
-      Skyline_pair *v_orig = Skyline_pair::unsmob (elt->get_property ("vertical-skylines"));
-      if (v_orig->is_empty ())
-          continue;
-
-      // Find the riders associated with this grob.
-      typedef multimap<Grob*, Grob*>::const_iterator GrobMapIterator;
-      pair<GrobMapIterator, GrobMapIterator> range = riders.equal_range (elt);
-      vector<Skyline_pair> rider_v_skylines;
-      for (GrobMapIterator j = range.first; j != range.second; j++)
-        {
-          Grob *rider = j->second;
-          Skyline_pair *v_rider = Skyline_pair::unsmob (rider->get_property ("vertical-skylines"));
-          if (v_rider)
+          Direction dir = get_grob_direction (elt);
+          if (dir == CENTER)
             {
-              Skyline_pair copy (*v_rider);
-              copy.shift (rider->relative_coordinate (x_common, X_AXIS));
-              copy.raise (rider->relative_coordinate (y_common, Y_AXIS));
-              rider_v_skylines.push_back (copy);
+              warning (_ ("an outside-staff object should have a direction, defaulting to up"));
+              dir = UP;
             }
+
+          if (x_extent[LEFT] <= last_end[dir])
+            {
+              skipped_elements.push_back (elt);
+              continue;
+            }
+          last_end[dir] = x_extent[RIGHT];
+
+          Skyline_pair *v_orig = Skyline_pair::unsmob (elt->get_property ("vertical-skylines"));
+          if (v_orig->is_empty ())
+            continue;
+
+          // Find the riders associated with this grob.
+          // TODO: assess whether this is necessary.
+          typedef multimap<Grob*, Grob*>::const_iterator GrobMapIterator;
+          pair<GrobMapIterator, GrobMapIterator> range = riders.equal_range (elt);
+          vector<Skyline_pair> rider_v_skylines;
+          for (GrobMapIterator j = range.first; j != range.second; j++)
+            {
+              Grob *rider = j->second;
+              Skyline_pair *v_rider = Skyline_pair::unsmob (rider->get_property ("vertical-skylines"));
+              if (v_rider)
+                {
+                  Skyline_pair copy (*v_rider);
+                  copy.shift (rider->relative_coordinate (x_common, X_AXIS));
+                  copy.raise (rider->relative_coordinate (y_common, Y_AXIS));
+                  rider_v_skylines.push_back (copy);
+                }
+            }
+
+          // Make a copy that we can modify, and merge in the rider skylines.
+          Skyline_pair v_skylines (*v_orig);
+          v_skylines.shift (elt->relative_coordinate (x_common, X_AXIS));
+          v_skylines.raise (elt->relative_coordinate (y_common, Y_AXIS));
+          v_skylines.merge (Skyline_pair (rider_v_skylines));
+
+          avoid_outside_staff_collisions (elt,
+                                          &v_skylines,
+                                          padding,
+                                          horizon_padding,
+                                          (*all_v_skylines)[dir],
+                                          all_paddings[dir],
+                                          all_horizon_paddings[dir],
+                                          dir);
+
+          elt->set_property ("outside-staff-priority", SCM_BOOL_F);
+          (*all_v_skylines)[dir].push_back (v_skylines);
+          all_paddings[dir].push_back (padding);
+          all_horizon_paddings[dir].push_back (horizon_padding);
         }
-
-      // Make a copy that we can modify.
-      Skyline_pair v_skylines (*v_orig);
-      v_skylines.shift (elt->relative_coordinate (x_common, X_AXIS));
-      v_skylines.raise (elt->relative_coordinate (y_common, Y_AXIS));
-      v_skylines.merge (Skyline_pair (rider_v_skylines));
-
-      avoid_outside_staff_collisions (elt,
-                                      skylines,
-                                      &v_skylines,
-                                      all_v_skylines[dir],
-                                      dir);
-
-      elt->set_property ("outside-staff-priority", SCM_BOOL_F);
-      all_v_skylines[dir].push_back (v_skylines);
+      swap (elements, skipped_elements);
+      skipped_elements.clear ();
     }
 }
 
@@ -784,19 +840,19 @@ Axis_group_interface::skyline_spacing (Grob *me, vector<Grob *> elements)
   multimap<Grob*,Grob*> riders;
 
   vsize i = 0;
-  vector<Skyline_pair> to_constructor;
+  vector<Skyline_pair> inside_staff_skylines;
   for (i = 0; i < elements.size ()
        && !scm_is_number (elements[i]->get_property ("outside-staff-priority")); i++)
     {
       Grob *elt = elements[i];
       Grob *ancestor = outside_staff_ancestor (elt);
       if (!(to_boolean (elt->get_property ("cross-staff")) || ancestor))
-        add_interior_skylines (elt, x_common, y_common, &to_constructor);
+        add_interior_skylines (elt, x_common, y_common, &inside_staff_skylines);
       if (ancestor)
         riders.insert (pair<Grob*, Grob*> (ancestor, elt));
     }
 
-  Skyline_pair skylines (to_constructor);
+  Skyline_pair skylines (inside_staff_skylines);
 
   // These are the skylines of all outside-staff grobs
   // that have already been processed.  We keep them around in order to
@@ -822,8 +878,7 @@ Axis_group_interface::skyline_spacing (Grob *me, vector<Grob *> elements)
           ++i;
         }
 
-      add_grobs_of_one_priority (skylines,
-                                 all_v_skylines,
+      add_grobs_of_one_priority (&all_v_skylines,
                                  current_elts,
                                  x_common,
                                  y_common,
