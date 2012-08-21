@@ -26,6 +26,7 @@
 #include "grob-array.hh"
 #include "hara-kiri-group-spanner.hh"
 #include "international.hh"
+#include "interval-set.hh"
 #include "lookup.hh"
 #include "paper-column.hh"
 #include "paper-score.hh"
@@ -632,62 +633,37 @@ add_interior_skylines (Grob *me, Grob *x_common, Grob *y_common, vector<Skyline_
 void
 avoid_outside_staff_collisions (Grob *elt,
                                 Skyline_pair const &staff_skyline,
-                                Skyline_pair *h_skyline,
                                 Skyline_pair *v_skyline,
-                                vector<Skyline_pair> const &other_h_skylines,
                                 vector<Skyline_pair> const &other_v_skylines,
                                 Direction const dir)
 {
-  Real EPSILON = 0.001;
-  bool dirty = false;
-
-  // TODO: by modifying Skyline::smallest_shift to allow a vector of skylines,
-  // we can get rid of the do {} while (dirty) loop.
-  do
+  // TODO: handle padding
+  vector<Interval> forbidden_intervals;
+  for (vsize j = 0; j < other_v_skylines.size (); j++)
     {
-      Real max_bump = dir * staff_skyline[dir].distance ((*v_skyline)[-dir]);
-      for (vsize j = 0; j < other_h_skylines.size (); j++)
-        {
-          Skyline_pair const& h_other = other_h_skylines[j];
-          Skyline_pair const& v_other = other_v_skylines[j];
+      Skyline_pair const& v_other = other_v_skylines[j];
 
-          // In order for one object to avoid the other,
-          // it is sufficient for /either/ the horizontal skylines
-          // /or/ the vertical skylines to not intersect.
-          // Find the smallest shift so that one of these
-          // constraints will be satisfied.
+      // We need to push elt up by at least this much to be above v_other.
+      Real up = (*v_skyline)[DOWN].distance (v_other[UP]);
+      // We need to push elt down by at least this much to be below v_other.
+      Real down = (*v_skyline)[UP].distance (v_other[DOWN]);
 
-          Real bump = h_skyline->smallest_shift (h_other, dir, 0.0, 0.0);
-          if (v_skyline->intersects (v_other))
-            {
-              Real dist = v_other[dir].distance ((*v_skyline)[-dir]);
-              bump = dir * min (dir * bump, dist);              
-            }
-
-          if (!isinf (bump))
-            max_bump = dir * max (dir * bump, dir * max_bump);
-        }
-          
-      dirty = dir * max_bump > EPSILON;
-      if (dirty)
-        {
-          max_bump = max_bump + (dir * EPSILON);
-          v_skyline->raise (max_bump);
-          h_skyline->shift (max_bump);
-          elt->translate_axis (max_bump, Y_AXIS);
-        }
+      forbidden_intervals.push_back (Interval (-down, up));
     }
-  while (dirty);
+
+  Interval_set allowed_shifts =
+    Interval_set::interval_union (forbidden_intervals).complement ();
+  Real move = allowed_shifts.nearest_point (0, dir);
+  v_skyline->raise (move);
+  elt->translate_axis (move, Y_AXIS);
 }
 
 // Shifts the grobs in elements to ensure that they (and any
 // connected riders) don't collide with the staff skylines
 // or anything in all_X_skylines.  Afterwards, the skylines
-// of the grobs in elements will be added to all_h_skylines
-// and all_v_skylines.
+// of the grobs in elements will be added to all_v_skylines.
 static void
 add_grobs_of_one_priority (Skyline_pair const& skylines,
-                           Drul_array<vector<Skyline_pair> >& all_h_skylines,
                            Drul_array<vector<Skyline_pair> >& all_v_skylines,
                            vector<Grob *> const& elements,
                            Grob *x_common,
@@ -717,26 +693,16 @@ add_grobs_of_one_priority (Skyline_pair const& skylines,
       typedef multimap<Grob*, Grob*>::const_iterator GrobMapIterator;
       pair<GrobMapIterator, GrobMapIterator> range = riders.equal_range (elt);
       vector<Skyline_pair> rider_v_skylines;
-      vector<Skyline_pair> rider_h_skylines;
       for (GrobMapIterator j = range.first; j != range.second; j++)
         {
           Grob *rider = j->second;
           Skyline_pair *v_rider = Skyline_pair::unsmob (rider->get_property ("vertical-skylines"));
-          Skyline_pair *h_rider = Skyline_pair::unsmob (rider->get_property ("horizontal-skylines"));
           if (v_rider)
             {
               Skyline_pair copy (*v_rider);
               copy.shift (rider->relative_coordinate (x_common, X_AXIS));
               copy.raise (rider->relative_coordinate (y_common, Y_AXIS));
               rider_v_skylines.push_back (copy);
-            }
-
-          if (h_rider)
-            {
-              Skyline_pair copy (*h_rider);
-              copy.shift (rider->relative_coordinate (y_common, Y_AXIS));
-              copy.raise (rider->relative_coordinate (x_common, X_AXIS));
-              rider_h_skylines.push_back (copy);
             }
         }
 
@@ -746,22 +712,13 @@ add_grobs_of_one_priority (Skyline_pair const& skylines,
       v_skylines.raise (elt->relative_coordinate (y_common, Y_AXIS));
       v_skylines.merge (Skyline_pair (rider_v_skylines));
 
-      Skyline_pair *h_orig = Skyline_pair::unsmob (elt->get_property ("horizontal-skylines"));
-      Skyline_pair h_skylines (*h_orig);
-      h_skylines.shift (elt->relative_coordinate (y_common, Y_AXIS));
-      h_skylines.raise (elt->relative_coordinate (x_common, X_AXIS));
-      h_skylines.merge (Skyline_pair (rider_h_skylines));
-
       avoid_outside_staff_collisions (elt,
                                       skylines,
-                                      &h_skylines,
                                       &v_skylines,
-                                      all_h_skylines[dir],
                                       all_v_skylines[dir],
                                       dir);
 
       elt->set_property ("outside-staff-priority", SCM_BOOL_F);
-      all_h_skylines[dir].push_back (h_skylines);
       all_v_skylines[dir].push_back (v_skylines);
     }
 }
@@ -841,11 +798,12 @@ Axis_group_interface::skyline_spacing (Grob *me, vector<Grob *> elements)
 
   Skyline_pair skylines (to_constructor);
 
-  // These two collection of contain the skylines of all outside-staff grobs
+  // These are the skylines of all outside-staff grobs
   // that have already been processed.  We keep them around in order to
   // check them for collisions with the currently active outside-staff grob.
-  Drul_array<vector<Skyline_pair> > all_h_skylines;
   Drul_array<vector<Skyline_pair> > all_v_skylines;
+  all_v_skylines[UP].push_back (skylines);
+  all_v_skylines[DOWN].push_back (skylines);
 
   for (; i < elements.size (); i++)
     {
@@ -865,7 +823,6 @@ Axis_group_interface::skyline_spacing (Grob *me, vector<Grob *> elements)
         }
 
       add_grobs_of_one_priority (skylines,
-                                 all_h_skylines,
                                  all_v_skylines,
                                  current_elts,
                                  x_common,
