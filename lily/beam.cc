@@ -888,7 +888,7 @@ Beam::consider_auto_knees (Grob *me)
   Interval max_gap;
   Real max_gap_len = 0.0;
 
-  vector<Interval> const &allowed_regions =
+  vector<Interval> allowed_regions =
     Interval_set::interval_union (forbidden_intervals).complement ().intervals ();
   for (vsize i = allowed_regions.size () - 1; i != VPOS; i--)
     {
