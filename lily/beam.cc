@@ -848,9 +848,7 @@ Beam::consider_auto_knees (Grob *me)
   if (!scm_is_number (scm))
     return;
 
-  Interval_set gaps;
-
-  gaps.set_full ();
+  vector<Interval> forbidden_intervals;
 
   extract_grob_set (me, "normal-stems", stems);
 
@@ -884,15 +882,17 @@ Beam::consider_auto_knees (Grob *me)
         }
       head_extents_array.push_back (head_extents);
 
-      gaps.remove_interval (head_extents);
+      forbidden_intervals.push_back (head_extents);
     }
 
   Interval max_gap;
   Real max_gap_len = 0.0;
 
-  for (vsize i = gaps.allowed_regions_.size () - 1; i != VPOS; i--)
+  vector<Interval> const &allowed_regions =
+    Interval_set::interval_union (forbidden_intervals).complement ().intervals ();
+  for (vsize i = allowed_regions.size () - 1; i != VPOS; i--)
     {
-      Interval gap = gaps.allowed_regions_[i];
+      Interval gap = allowed_regions[i];
 
       /*
         the outer gaps are not knees.
