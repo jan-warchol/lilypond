@@ -50,6 +50,11 @@ FUNC (interval_set_union)
   EQUAL (result.intervals ().size (), 2);
   EQUAL (result.intervals ()[0].to_string (), Interval (-infinity_f, -4).to_string ());
   EQUAL (result.intervals ()[1].to_string (), Interval (-1, 3).to_string ());
+
+  // Empty intervals.
+  ivs.push_back (Interval (infinity_f, -infinity_f));
+  result = Interval_set::interval_union (ivs);
+  EQUAL (result.intervals ().size (), 2);
 }
 
 FUNC (interval_set_nearest_point)
