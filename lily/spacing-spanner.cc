@@ -397,6 +397,7 @@ Spacing_spanner::musical_column_spacing (Grob *me,
       /*
         Ugh. 0.8 is arbitrary.
       */
+      message (to_string())
       spring *= 0.8;
     }
 
@@ -433,6 +434,12 @@ Spacing_spanner::musical_column_spacing (Grob *me,
 
       spring.set_inverse_stretch_strength (1.0);
     }
+
+  // add the information about the rhythmical distance between columns to the spring that connects them.
+
+  Moment lwhen = Paper_column::when_mom (lc);
+  Moment rwhen = Paper_column::when_mom (rc);
+  Moment delta_t = rwhen - lwhen;
 
   Spaceable_grob::add_spring (left_col, right_col, spring);
 }

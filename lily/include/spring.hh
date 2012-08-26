@@ -25,6 +25,7 @@
 
 class Spring
 {
+  Real duration_;
   Real distance_;
   Real min_distance_;
 
