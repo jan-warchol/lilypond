@@ -165,9 +165,10 @@ thicken_and_transform_lines (vector<Line> const& lines, PangoMatrix const& trans
 }
 
 vector<Line>
-outline_polyline (vector<Line> const& lines, PangoMatrix const& trans, Real thick, bool connect)
+outline_polyline (vector<Offset> const& points, PangoMatrix const& trans, Real thick, bool connect)
 {
-  // TODO
+  // TODO: caps etc.
+  return vector<Line> ();
 }
 
 //// END UTILITY FUNCTIONS
@@ -225,7 +226,7 @@ outline_partial_ellipse (PangoMatrix const& trans, SCM expr)
   Real end_radians = end * M_PI / 180;
   vector<Offset> points;
   int quantization = max (1, (int) (((x_rad * trans.xx) + (y_rad * trans.yy)) * M_PI / QUANTIZATION_UNIT));
-  for (vsize i = 0; i < 1 + quantization; i++)
+  for (int i = 0; i < 1 + quantization; i++)
     {
       Real angle = linear_map (start_radians, end_radians, 0, quantization, i);
       points.push_back (Offset (x_rad * cos (angle), y_rad + sin (angle)));
@@ -248,10 +249,10 @@ outline_round_filled_box (PangoMatrix const& trans, SCM expr)
   Real thick = robust_scm2double (scm_car (expr), 0.0);
 
   vector<Offset> points;
-  points.push_back (-left, -bottom);
-  points.push_back (right, -bottom);
-  points.push_back (right, top);
-  points.push_back (-left, top);
+  points.push_back (Offset (-left, -bottom));
+  points.push_back (Offset (right, -bottom));
+  points.push_back (Offset (right, top));
+  points.push_back (Offset (-left, top));
   return outline_polyline (points, trans, thick, true);
 }
 
@@ -285,7 +286,7 @@ create_path_cap (vector<Box> &boxes, vector<Drul_array<Offset> > &buildings, Pan
 }
 #endif
 
-void
+vector<Line>
 outline_bezier (PangoMatrix const& trans, SCM expr)
 {
   Real thick = robust_scm2double (scm_car (expr), 0.0);
@@ -324,7 +325,7 @@ outline_bezier (PangoMatrix const& trans, SCM expr)
   for (vsize i = 0; i <= quantization; i++)
     {
       Real t = (double) i / quantization;
-      points.push_back (curve.point (t));
+      points.push_back (curve.curve_point (t));
     }
 
   return outline_polyline (points, trans, thick, false);
@@ -467,6 +468,25 @@ absolute_path (SCM expr)
   return scm_reverse_x (out, SCM_EOL);
 }
 
+// Here, path is in the format returned by absolute_path.
+// That is, path is a list of lists, each of which has either 4 or 6 numbers.
+vector<Line>
+outline_absolute_path (PangoMatrix const& trans, SCM path, SCM thick)
+{
+  vector<Line> ret;
+  for (SCM s = path; scm_is_pair (s); s = scm_cdr (s))
+    {
+      vector<Line> part;
+      if (scm_to_int (scm_length (scm_car (s))) == 4)
+        part = outline_line (trans, scm_cons (thick, scm_car (s)));
+      else
+        part = outline_bezier (trans, scm_cons (thick, scm_car (s)));
+      ret.insert (ret.end (), part.begin (), part.end ());
+    }
+
+  return ret;
+}
+
 vector<Line>
 outline_path (PangoMatrix const& trans, SCM expr)
 {
@@ -475,18 +495,7 @@ outline_path (PangoMatrix const& trans, SCM expr)
   SCM path = absolute_path (expr);
   // note that expr has more stuff that we don't need after this - simply ignore it
 
-  vector<Line> ret;
-  for (SCM s = path; scm_is_pair (s); s = scm_cdr (s))
-    {
-      vector<Line> part;
-      if (scm_to_int (scm_length (scm_car (s))) == 4)
-        part = outline_line (trans, scm_cons (blot, scm_car (s)));
-      else
-        part = outline_bezier (trans, scm_cons (blot, scm_car (s)));
-      ret.insert (ret.end (), part.begin (), part.end ());
-    }
-
-  return ret;
+  return outline_absolute_path (trans, path, thick);
 }
 
 vector<Line>
@@ -495,7 +504,7 @@ outline_polygon (PangoMatrix const& trans, SCM expr)
   // FIXME: probably don't need get_number_list...
   SCM coords = get_number_list (scm_car (expr));
   expr = scm_cdr (expr);
-  SCM thick = scm_car (expr);
+  Real thick = robust_scm2double (scm_car (expr), 0);
 
   vector<Offset> points;
   for (SCM s = coords; scm_is_pair (s); s = scm_cddr (s))
@@ -508,150 +517,87 @@ outline_polygon (PangoMatrix const& trans, SCM expr)
   return outline_polyline (points, trans, thick, true);
 }
 
-void
-make_named_glyph_boxes (vector<Box> &boxes, vector<Drul_array<Offset> > &buildings, PangoMatrix trans, SCM expr)
+vector<Line>
+outline_named_glyph (PangoMatrix trans, SCM expr)
 {
   SCM fm_scm = scm_car (expr);
-  Font_metric *fm = unsmob_metrics (fm_scm);
+  Modified_font_metric *fm = dynamic_cast<Modified_font_metric*> (unsmob_metrics (fm_scm));
   expr = scm_cdr (expr);
-  SCM glyph = scm_car (expr);
-  string glyph_s = ly_scm2string (glyph);
-
-  Open_type_font *open_fm =
-    dynamic_cast<Open_type_font *>
-      (dynamic_cast<Modified_font_metric *>(fm)->original_font ());
+  string glyph = ly_scm2string (scm_car (expr));
+  Open_type_font *open_fm = fm ? dynamic_cast<Open_type_font *> (fm->original_font ()) : 0;
   SCM_ASSERT_TYPE (open_fm, fm_scm, SCM_ARG1, __FUNCTION__, "OpenType font");
 
-  size_t gidx = open_fm->name_to_index (glyph_s);
-  Box bbox = open_fm->get_unscaled_indexed_char_dimensions (gidx);
+  size_t gidx = open_fm->name_to_index (glyph);
   SCM outline = open_fm->get_glyph_outline (gidx);
-  Box real_bbox = fm->get_indexed_char_dimensions (gidx);
+  Real scale = fm->magnification ();
+  pango_matrix_scale (&trans, scale, scale);
 
-  /*
-    Because extents for named glyphs are cached, the value of
-    real_bbox may not be the one that freetype calculates.
-
-    They should be close, though.
-    A workaround below is to use the max of the two, which may
-    slightly overshoot an extent but generally doesn't.
-  */
-  Real xlen = real_bbox[X_AXIS].length () / bbox[X_AXIS].length ();
-  Real ylen = real_bbox[Y_AXIS].length () / bbox[Y_AXIS].length ();
-  assert (abs (xlen - ylen) < 10e-3);
-
-  pango_matrix_scale (&trans, max (xlen, ylen), max (xlen, ylen));
-
-  vector<Line> ret;
-  for (SCM s = outline; scm_is_pair (s); s = scm_cdr (s))
-    {
-      vector<Line> part;
-      SCM expr = scm_cons (scm_from_double (0), scm_car (s));
-      if (scm_to_int (scm_length (scm_car (s))) == 4)
-        part = outline_line (trans, expr);
-      else
-        part = outline_bezier (trans, expr);
-
-      ret.insert (ret.end (), part.begin (), part.end ());
-    }
-
-  return ret;
+  return outline_absolute_path (trans, outline, scm_from_double (0));
 }
 
 vector<Line>
-make_glyph_string_boxes (PangoMatrix const& trans, SCM expr)
+outline_glyph_string (PangoMatrix const& trans, SCM expr)
 {
-  Font_metric *fm = unsmob_metrics (scm_car (fm_scm));
+  SCM fm_scm = scm_car (expr);
+  Pango_font *fm = dynamic_cast<Pango_font*> (unsmob_metrics (fm_scm));
+  SCM_ASSERT_TYPE (fm, fm_scm, SCM_ARG1, __FUNCTION__, "Pango font");
+
   expr = scm_cdr (expr);
   expr = scm_cdr (expr); // font-name
   expr = scm_cdr (expr); // size
   expr = scm_cdr (expr); // cid?
   SCM whxy = scm_cadar (expr);
 
-  vector<Real> widths;
-  vector<Interval> heights;
   vector<Real> x_offsets;
   vector<Real> y_offsets;
   vector<string> char_ids;
-  Pango_font *pango_fm = dynamic_cast<Pango_font *> (fm);
-  SCM_ASSERT_TYPE (pango_fm, fm_scm, SCM_ARG1, __FUNCTION__, "Pango font");
-
   for (SCM s = whxy; scm_is_pair (s); s = scm_cdr (s))
     {
       SCM now = scm_car (s);
-      widths.push_back (robust_scm2double (scm_car (now), 0.0));
-      now = scm_cdr (now);
-      heights.push_back (robust_scm2interval (scm_car (now), Interval (0,0)));
-      now = scm_cdr (now);
+      now = scm_cdr (now); // width
+      now = scm_cdr (now); // height
       x_offsets.push_back (robust_scm2double (scm_car (now), 0.0));
       now = scm_cdr (now);
       y_offsets.push_back (robust_scm2double (scm_car (now), 0.0));
       now = scm_cdr (now);
       char_ids.push_back (robust_scm2string (scm_car (now), ""));
     }
-  Real cumulative_x = 0.0;
-  for (vsize i = 0; i < widths.size (); i++)
+
+  // FIXME: check if y_pos is cumulative
+  Real x_pos = 0.0;
+  Real y_pos = 0.0;
+  Real scale = fm->scale ();
+  vector<Line> ret;
+  for (vsize i = 0; i < char_ids.size (); i++)
     {
       PangoMatrix transcopy (trans);
-      Offset pt0 (cumulative_x + xos[i], heights[i][DOWN] + yos[i]);
-      Offset pt1 (cumulative_x + widths[i] + xos[i], heights[i][UP] + yos[i]);
-      cumulative_x += widths[i];
+      x_pos += x_offsets[i];
+      y_pos += y_offsets[i];
 
-      Box kerned_bbox;
-      kerned_bbox.add_point (pt0);
-      kerned_bbox.add_point (pt1);
-      size_t gidx = pango_fm->name_to_index (char_ids[i]);
-      Box real_bbox = pango_fm->get_scaled_indexed_char_dimensions (gidx);
-      Box bbox = pango_fm->get_unscaled_indexed_char_dimensions (gidx);
-      SCM outline = pango_fm->get_glyph_outline (gidx);
+      size_t gidx = fm->name_to_index (char_ids[i]);
+      SCM outline = fm->get_glyph_outline (gidx);
 
-      // scales may have rounding error but should be close
-      Real xlen = real_bbox[X_AXIS].length () / bbox[X_AXIS].length ();
-      Real ylen = real_bbox[Y_AXIS].length () / bbox[Y_AXIS].length ();
+      // pango_matrix_translate applies the translation first, before the
+      // original transformation. So what we're doing here is to first scale
+      // the glyph (up to the desired font size), then translate it, and finally
+      // do whatever translation was required by trans.
+      pango_matrix_translate (&transcopy, x_pos, y_pos);
+      pango_matrix_scale (&transcopy, scale, scale);
 
-      /*
-        TODO:
-
-        The value will be nan for whitespace, in which case we just want
-        filler, so the kerned bbox is ok.
-
-        However, if the value is inf, this likely means that LilyPond is
-        using a font that is currently difficult to get the measurements
-        from the Pango_font.  This should eventually be fixed.  The solution
-        for now is just to use the bounding box.
-      */
-      if (isnan (xlen) || isnan (ylen) || isinf (xlen) || isinf (ylen))
-        outline = box_to_scheme_lines (kerned_bbox);
-      else
-        {
-          assert (abs (xlen - ylen) < 10e-3);
-
-          Real scale_factor = max (xlen, ylen);
-          // the three operations below move the stencil from its original coordinates to current coordinates
-          pango_matrix_translate (&transcopy, kerned_bbox[X_AXIS][LEFT], kerned_bbox[Y_AXIS][DOWN] - real_bbox[Y_AXIS][DOWN]);
-          pango_matrix_translate (&transcopy, real_bbox[X_AXIS][LEFT], real_bbox[Y_AXIS][DOWN]);
-          pango_matrix_scale (&transcopy, scale_factor, scale_factor);
-          pango_matrix_translate (&transcopy, -bbox[X_AXIS][LEFT], -bbox[Y_AXIS][DOWN]);
-        }
-      //////////////////////
-      for (SCM s = outline;
-           scm_is_pair (s);
-           s = scm_cdr (s))
-        {
-          scm_to_int (scm_length (scm_car (s))) == 4
-                      ? make_draw_line_boxes (boxes, buildings, transcopy, scm_cons (scm_from_double (0), scm_car (s)), false)
-                      : make_draw_bezier_boxes (boxes, buildings, transcopy, scm_cons (scm_from_double (0), scm_car (s)));
-        }
+      vector<Line> part = outline_absolute_path (trans, outline, scm_from_double (0));
+      ret.insert (ret.end (), part.begin (), part.end ());
     }
+  return ret;
 }
 
 
 // Returns a vector of straight lines that approximates the outline
 // of the given stencil.
 vector<Line>
-outline_simple_stencil (PangoMatrix trans, SCM expr)
+outline_simple_stencil (PangoMatrix const &trans, SCM expr)
 {
   if (not scm_is_pair (expr))
-    return;
+    return vector<Line> ();
   if (scm_car (expr) == ly_symbol2scm ("draw-line"))
     return outline_line (trans, scm_cdr (expr));
   else if (scm_car (expr) == ly_symbol2scm ("dashed-line"))
@@ -718,6 +664,7 @@ outline_simple_stencil (PangoMatrix trans, SCM expr)
   else
     {
       programming_error ("Stencil expression not supported by the vertical skylines.");
+      return vector<Line> ();
     }
 }
 
@@ -833,17 +780,19 @@ Stencil::skylines_from_stencil (SCM sten, Real pad, Axis a)
   vector<Transform_matrix_and_expression> data =
     stencil_traverser (make_transform_matrix (1.0,0.0,0.0,1.0,0.0,0.0),
                        s->expr ());
-  vector<Box> boxes;
-  vector<Drul_array<Offset> > buildings;
+
+  vector<Line> lines;
   for (vsize i = 0; i < data.size (); i++)
-    stencil_dispatcher (boxes, buildings, data[i].tm_, data[i].expr_);
+    {
+      vector<Line> part = outline_simple_stencil (data[i].tm_, data[i].expr_);
+      lines.insert (lines.end (), part.begin (), part.end ());
+    }
 
-  // we use the bounding box if there are no boxes
-  if (!boxes.size () && !buildings.size ())
-    boxes.push_back (Box (s->extent (X_AXIS), s->extent (Y_AXIS)));
+  // we use the bounding box if there are no boxes (FIXME)
+  //  if (!boxes.size () && !buildings.size ())
+  //    boxes.push_back (Box (s->extent (X_AXIS), s->extent (Y_AXIS)));
 
-  Skyline_pair out (boxes, a);
-  out.merge (Skyline_pair (buildings, a));
+  Skyline_pair out (lines, a);
 
   for (DOWN_and_UP (d))
     out[d] = out[d].padded (pad);

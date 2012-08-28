@@ -47,6 +47,7 @@ public:
   ~Pango_font ();
 
   string description_string () const;
+  Real scale () const { return scale_; }
   SCM font_file_name () const;
   void register_font_file (string, string, int);
 

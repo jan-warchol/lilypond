@@ -34,6 +34,7 @@ public:
   Offset attachment_point (string) const;
   size_t name_to_index (string) const;
   size_t index_to_charcode (size_t) const;
+  Real magnification () const { return magnification_; }
   Font_metric *original_font () const;
 
 protected:
