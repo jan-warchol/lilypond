@@ -110,95 +110,109 @@ ly_FT_get_glyph_outline (FT_Face const &face, size_t signed_idx)
   FT_Outline *outline;
   outline = &(face->glyph->outline);
   SCM out = SCM_EOL;
-  Offset lastpos;
-  Offset firstpos;
-  vsize j = 0;
-  while (j < outline->n_points)
+  for (int i = 0; i < outline->n_contours; ++i)
     {
-      if (j == 0)
+      // Contour i runs between indices first and last (inclusive)
+      // in the outline->points array.
+      int first = (i == 0) ? 0 : outline->contours[i-1] + 1;
+      int last = outline->contours[i];
+
+      int j = first;
+      Offset lastpos;
+      Offset firstpos;
+      while (j < last)
         {
-          firstpos = Offset (outline->points[j].x, outline->points[j].y);
-          lastpos = firstpos;
-          j++;
+          if (j == first)
+            {
+              firstpos = Offset (outline->points[j].x, outline->points[j].y);
+              lastpos = firstpos;
+              j++;
+            }
+          else if (outline->tags[j] & 1)
+            {
+              // it is a line
+              out = scm_cons (scm_list_4 (scm_from_double (lastpos[X_AXIS]),
+                                          scm_from_double (lastpos[Y_AXIS]),
+                                          scm_from_double (outline->points[j].x),
+                                          scm_from_double (outline->points[j].y)),
+                              out);
+              lastpos = Offset (outline->points[j].x, outline->points[j].y);
+              j++;
+            }
+          else if (outline->tags[j] & 2)
+            {
+              // It is a third order bezier.  Note that this contour is defined
+              // only by the points [first, last], so we need to wrap j to
+              // stay in this interval.
+              int j1 = (j + 1 - first) % (last - first + 1) + first;
+              int j2 = (j + 2 - first) % (last - first + 1) + first;
+              out = scm_cons (scm_list_n (scm_from_double (lastpos[X_AXIS]),
+                                          scm_from_double (lastpos[Y_AXIS]),
+                                          scm_from_double (outline->points[j].x),
+                                          scm_from_double (outline->points[j].y),
+                                          scm_from_double (outline->points[j1].x),
+                                          scm_from_double (outline->points[j1].y),
+                                          scm_from_double (outline->points[j2].x),
+                                          scm_from_double (outline->points[j2].y),
+                                          SCM_UNDEFINED),
+                              out);
+              lastpos = Offset (outline->points[j2].x, outline->points[j2].y);
+              j += 3;
+            }
+          else
+            {
+              // it is a second order bezier
+              int j1 = (j + 1 - first) % (last - first + 1) + first;
+              Real x0 = lastpos[X_AXIS];
+              Real x1 = outline->points[j].x;
+              Real x2 = outline->points[j1].x;
+
+              Real y0 = lastpos[Y_AXIS];
+              Real y1 = outline->points[j].y;
+              Real y2 = outline->points[j1].y;
+
+              Real qx2 = x0 + x2 - (2 * x1);
+              Real qx1 = (2 * x1) - (2 * x0);
+              Real qx0 = x0;
+
+              Real qy2 = y0 + y2 - (2 * y1);
+              Real qy1 = (2 * y1) - (2 * y0);
+              Real qy0 = y0;
+
+              Real cx0 = qx0;
+              Real cx1 = qx0 + (qx1 / 3);
+              Real cx2 = qx0 + (2 * qx1 / 3) + (qx2 / 3);
+              Real cx3 = qx0 + qx1 + qx2;
+
+              Real cy0 = qy0;
+              Real cy1 = qy0 + (qy1 / 3);
+              Real cy2 = qy0 + (2 * qy1 / 3) + (qy2 / 3);
+              Real cy3 = qy0 + qy1 + qy2;
+
+              out = scm_cons (scm_list_n (scm_from_double (cx0),
+                                          scm_from_double (cy0),
+                                          scm_from_double (cx1),
+                                          scm_from_double (cy1),
+                                          scm_from_double (cx2),
+                                          scm_from_double (cy2),
+                                          scm_from_double (cx3),
+                                          scm_from_double (cy3),
+                                          SCM_UNDEFINED),
+                              out);
+              lastpos = Offset (outline->points[j1].x, outline->points[j1].y);
+              j += 2;
+            }
         }
-      else if (outline->tags[j] & 1)
-        {
-          // it is a line
-          out = scm_cons (scm_list_4 (scm_from_double (lastpos[X_AXIS]),
-                                      scm_from_double (lastpos[Y_AXIS]),
-                                      scm_from_double (outline->points[j].x),
-                                      scm_from_double (outline->points[j].y)),
-                          out);
-          lastpos = Offset (outline->points[j].x, outline->points[j].y);
-          j++;
-        }
-      else if (outline->tags[j] & 2)
-        {
-          // it is a third order bezier
-          out = scm_cons (scm_list_n (scm_from_double (lastpos[X_AXIS]),
-                                      scm_from_double (lastpos[Y_AXIS]),
-                                      scm_from_double (outline->points[j].x),
-                                      scm_from_double (outline->points[j].y),
-                                      scm_from_double (outline->points[j + 1].x),
-                                      scm_from_double (outline->points[j + 1].y),
-                                      scm_from_double (outline->points[j + 2].x),
-                                      scm_from_double (outline->points[j + 2].y),
-                                      SCM_UNDEFINED),
-                          out);
-          lastpos = Offset (outline->points[j + 2].x, outline->points[j + 2].y);
-          j += 3;
-        }
-      else
-        {
-          // it is a second order bezier
-          Real x0 = lastpos[X_AXIS];
-          Real x1 = outline->points[j].x;
-          Real x2 = outline->points[j + 1].x;
 
-          Real y0 = lastpos[Y_AXIS];
-          Real y1 = outline->points[j].y;
-          Real y2 = outline->points[j + 1].y;
-
-          Real qx2 = x0 + x2 - (2 * x1);
-          Real qx1 = (2 * x1) - (2 * x0);
-          Real qx0 = x0;
-
-          Real qy2 = y0 + y2 - (2 * y1);
-          Real qy1 = (2 * y1) - (2 * y0);
-          Real qy0 = y0;
-
-          Real cx0 = qx0;
-          Real cx1 = qx0 + (qx1 / 3);
-          Real cx2 = qx0 + (2 * qx1 / 3) + (qx2 / 3);
-          Real cx3 = qx0 + qx1 + qx2;
-
-          Real cy0 = qy0;
-          Real cy1 = qy0 + (qy1 / 3);
-          Real cy2 = qy0 + (2 * qy1 / 3) + (qy2 / 3);
-          Real cy3 = qy0 + qy1 + qy2;
-
-          out = scm_cons (scm_list_n (scm_from_double (cx0),
-                                      scm_from_double (cy0),
-                                      scm_from_double (cx1),
-                                      scm_from_double (cy1),
-                                      scm_from_double (cx2),
-                                      scm_from_double (cy2),
-                                      scm_from_double (cx3),
-                                      scm_from_double (cy3),
-                                      SCM_UNDEFINED),
-                          out);
-          lastpos = Offset (outline->points[j + 1].x, outline->points[j + 1].y);
-          j += 2;
-        }
-    }
-
-  // just in case, close the figure
-  out = scm_cons (scm_list_4 (scm_from_double (lastpos[X_AXIS]),
-                              scm_from_double (lastpos[Y_AXIS]),
-                              scm_from_double (firstpos[X_AXIS]),
-                              scm_from_double (firstpos[Y_AXIS])),
-                  out);
-
+      // Every contour should be closed anyway, but let's make sure.
+      if ((lastpos - firstpos).length () != 0)
+        out = scm_cons (scm_list_4 (scm_from_double (lastpos[X_AXIS]),
+                                    scm_from_double (lastpos[Y_AXIS]),
+                                    scm_from_double (firstpos[X_AXIS]),
+                                    scm_from_double (firstpos[Y_AXIS])),
+                        out);
+   }
+ 
   out = scm_reverse_x (out, SCM_EOL);
   return out;
 }
