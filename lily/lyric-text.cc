@@ -22,6 +22,7 @@
 #include "output-def.hh"
 #include "stencil.hh"
 #include "international.hh"
+#include "self-alignment-interface.hh"
 
 class Lyric_text
 {
