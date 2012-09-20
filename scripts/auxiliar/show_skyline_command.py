@@ -44,7 +44,7 @@ def find_type(orig, name):
             raise ValueError, "Cannot find type %s::%s" % (str(orig), name)
         typ = field.type
 
-# Class adapted from GCC
+# ListIterator and VectorIterator adapted from GCC
 class ListIterator:
     def __init__ (self, val):
         self.val = val
@@ -65,8 +65,27 @@ class ListIterator:
         self.base = elt['_M_next']
         return elt['_M_data']
 
+class VectorIterator:
+    def __init__ (self, val):
+        self.item = val['_M_impl']['_M_start']
+        self.finish = val['_M_impl']['_M_finish']
+
+    def __iter__(self):
+        return self
+
+    def next(self):
+        if self.item == self.finish:
+            raise StopIteration
+        elt = self.item.dereference()
+        self.item = self.item + 1
+        return elt
+
+
 def to_list (list_val):
     return list (ListIterator (list_val))
+
+def vector_to_list (vector_val):
+    return list (VectorIterator (vector_val))
 
 def skyline_to_lines (sky_value):
     """Turns a gdb.Value into a list of line segments."""
@@ -85,6 +104,25 @@ def skyline_to_lines (sky_value):
 
     ret = map (bld_to_line, buildings)
     return [r for r in ret if r is not None]
+
+def drul_array_to_pair (drul_value):
+    """Turns a grob.Value into a pair (val[LEFT], val[RIGHT])."""
+    val_typ = drul_value.type.template_argument (0)
+    array = drul_value['array_'].cast (val_typ.pointer ())
+    return (array.dereference (), (array + 1).dereference ())
+
+def offset_to_point (offset_value):
+    """Turns a gdb.Value into a pair (x, y)."""
+    val_typ = gdb.lookup_type ('Real')
+    array = offset_value['coordinate_a_'].cast (val_typ.pointer ())
+    x_val = array.dereference ()
+    y_val = (array + 1).dereference ()
+    return (float (x_val), float (y_val))
+
+def drul_offset_to_line (drul_value):
+    """Turns a gdb.Value representing a Drul_array<Offset> into a line (x1, y1, x2, y2)."""
+    p1, p2 = drul_array_to_pair (drul_value)
+    return offset_to_point (p1) + offset_to_point (p2)
 
 viewer = Popen(SKYLINE_VIEWER, stdin=PIPE)
 def add_skyline(lines):
@@ -112,8 +150,6 @@ class ShowSkylineCommand (gdb.Command):
         pass
 
     def invoke (self, arg, from_tty):
-        global plot
-
         val = gdb.parse_and_eval (arg)
         typ = val.type
 
@@ -152,6 +188,39 @@ class ShowHSkylineCommand (ShowSkylineCommand):
         # Because it is a horizontal skyline, reflect around the line y=x.
         return [(y1, x1, y2, x2) for (x1, y1, x2, y2) in lines]
 
+class ShowLinesCommand (gdb.Command):
+    "Show a vector<Drul_array<Offset> >."
+
+    def __init__ (self):
+        super (ShowLinesCommand, self).__init__ ("plines",
+                                                 gdb.COMMAND_DATA,
+                                                 gdb.COMPLETE_SYMBOL, False)
+
+    def invoke (self, arg, from_tty):
+        val = gdb.parse_and_eval (arg)
+        typ = val.type
+
+        # If they passed in a reference or pointer to a skyline,
+        # dereference it.
+        if typ.code == gdb.TYPE_CODE_PTR or typ.code == gdb.TYPE_CODE_REF:
+            val = val.referenced_value ()
+            typ = val.type
+
+        if not typ.tag.startswith ('std::vector'):
+            print ('Got %s, expected vector' % typ.tag)
+            return
+
+        typ = typ.template_argument (0)
+        val = vector_to_list (val)
+        if typ.tag != 'Drul_array<Offset>':
+            print ('Got %s, expected Drul_array<Offset>' % typ.tag)
+            return
+        
+        val = val[:1000]
+        lines = [drul_offset_to_line (drul) for drul in val]
+        add_skyline (lines)
+
+
 ShowHSkylineCommand()
 ShowVSkylineCommand()
-
+ShowLinesCommand()
