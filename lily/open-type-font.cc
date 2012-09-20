@@ -220,6 +220,16 @@ Open_type_font::get_indexed_char_dimensions (size_t signed_idx) const
   return b;
 }
 
+// Returns the conversion between font units and lilypond
+// (ie. staff-space) units.  In particular, the return value
+// of get_glyph_outline should be multiplied by scale ()
+// to put it in lilypond units.
+Real
+Open_type_font::scale () const
+{
+  return design_size () / Real (face_->units_per_EM);
+}
+
 size_t
 Open_type_font::name_to_index (string nm) const
 {
@@ -234,12 +244,6 @@ Box
 Open_type_font::get_unscaled_indexed_char_dimensions (size_t signed_idx) const
 {
   return ly_FT_get_unscaled_indexed_char_dimensions (face_, signed_idx);
-}
-
-Box
-Open_type_font::get_glyph_outline_bbox (size_t signed_idx) const
-{
-  return ly_FT_get_glyph_outline_bbox (face_, signed_idx);
 }
 
 SCM

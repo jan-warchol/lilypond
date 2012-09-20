@@ -130,41 +130,6 @@ get_unicode_name (char *s,
     sprintf (s, "uni%04lX", code);
 }
 
-Box
-Pango_font::get_unscaled_indexed_char_dimensions (size_t signed_idx) const
-{
-  PangoFcFont *fcfont = PANGO_FC_FONT (pango_context_load_font (context_, pango_description_));
-  FT_Face face = pango_fc_font_lock_face (fcfont);
-  Box b = ly_FT_get_unscaled_indexed_char_dimensions (face, signed_idx);
-  pango_fc_font_unlock_face (fcfont);
-  return b;
-}
-
-Box
-Pango_font::get_scaled_indexed_char_dimensions (size_t signed_idx) const
-{
-  PangoFont *font = pango_context_load_font (context_, pango_description_);
-  PangoRectangle logical_rect;
-  PangoRectangle ink_rect;
-  pango_font_get_glyph_extents (font, signed_idx, &ink_rect, &logical_rect);
-  Box out (Interval (PANGO_LBEARING (ink_rect),
-                   PANGO_RBEARING (ink_rect)),
-           Interval (-PANGO_DESCENT (ink_rect),
-                   PANGO_ASCENT (ink_rect)));
-  out.scale (scale_);
-  return out;
-}
-
-Box
-Pango_font::get_glyph_outline_bbox (size_t signed_idx) const
-{
-  PangoFcFont *fcfont = PANGO_FC_FONT (pango_context_load_font (context_, pango_description_));
-  FT_Face face = pango_fc_font_lock_face (fcfont);
-  Box b = ly_FT_get_glyph_outline_bbox (face, signed_idx);
-  pango_fc_font_unlock_face (fcfont);
-  return b;
-}
-
 SCM
 Pango_font::get_glyph_outline (size_t signed_idx) const
 {
@@ -473,6 +438,12 @@ SCM
 Pango_font::font_file_name () const
 {
   return SCM_BOOL_F;
+}
+
+Real
+Pango_font::scale () const
+{
+  return scale_;
 }
 
 #endif // HAVE_PANGO_FT2

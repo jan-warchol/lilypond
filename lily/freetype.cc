@@ -69,28 +69,6 @@ box_to_scheme_lines (Box b)
                                  scm_from_double (b[Y_AXIS][DOWN])));
 }
 
-Box
-ly_FT_get_glyph_outline_bbox (FT_Face const &face, size_t signed_idx)
-{
-  FT_UInt idx = FT_UInt (signed_idx);
-  FT_Load_Glyph (face, idx, FT_LOAD_NO_SCALE);
-
-  if (!(face->glyph->format == FT_GLYPH_FORMAT_OUTLINE))
-    {
-#if 0
-      // will generate a lot of warnings
-      warning ("Cannot make glyph outline");
-#endif
-      return Box (Interval (infinity_f, -infinity_f), Interval (infinity_f, -infinity_f));
-    }
-  FT_Outline *outline;
-  outline = &(face->glyph->outline);
-
-  FT_BBox bbox;
-  FT_Outline_Get_BBox (outline, &bbox);
-
-  return Box (Interval (bbox.xMin, bbox.xMax), Interval (bbox.yMin, bbox.yMax));
-}
 
 SCM
 ly_FT_get_glyph_outline (FT_Face const &face, size_t signed_idx)

@@ -99,91 +99,44 @@ linear_map (Real final_l, Real final_r, Real orig_l, Real orig_r, Real x)
   return final_l + ((final_r - final_l) * ((x - orig_l) / (orig_r - orig_l)));
 }
 
-/*
-  from a nested SCM list, return the first list of numbers
-  useful for polygons
-*/
-SCM
-get_number_list (SCM l)
-{
-  if (scm_is_pair (l))
-    {
-      if (scm_is_number (scm_car (l)))
-        return l;
-      SCM res = get_number_list (scm_car (l));
-      if (res == SCM_BOOL_F)
-        return get_number_list (scm_cdr (l));
-      return res;
-    }
-  return SCM_BOOL_F;
-}
-
-/*
-  from a nested SCM list, return the first list of numbers
-  useful for paths
-*/
-SCM
-get_path_list (SCM l)
-{
-  if (scm_is_pair (l))
-    {
-      if (scm_memv (scm_car (l),
-                    scm_list_n (ly_symbol2scm ("moveto"),
-                                ly_symbol2scm ("rmoveto"),
-                                ly_symbol2scm ("lineto"),
-                                ly_symbol2scm ("rlineto"),
-                                ly_symbol2scm ("curveto"),
-                                ly_symbol2scm ("rcurveto"),
-                                ly_symbol2scm ("closepath"),
-                                SCM_UNDEFINED))
-          != SCM_BOOL_F)
-        return l;
-      SCM res = get_path_list (scm_car (l));
-      if (res == SCM_BOOL_F)
-        return get_path_list (scm_cdr (l));
-      return res;
-    }
-  return SCM_BOOL_F;
-}
-
-Real
-perpendicular_slope (Real s)
-{
-  if (s == 0.0)
-    return infinity_f;
-  if (s == infinity_f)
-    return 0.0;
-  return -1.0 / s;
-}
-
 // Returns a vector of lines that outline a thickened version
 // of the original lines.
-vector<Line>
-thicken_and_transform_lines (vector<Line> const& lines, PangoMatrix const& trans, Real thick)
+void
+simplify_and_transform_lines (vector<Line> const& lines, vector<Line> *const out,
+                              PangoMatrix const& trans, Real thick, Real tolerance)
 {
-  return lines; // TODO
+  out->insert (out->end (), lines.begin (), lines.end ());
+
+  for (vsize i = 0; i < ret.size (); ++i)
+    {
+      pango_matrix_transform_point (&trans, &ret[i][LEFT][X_AXIS], &ret[i][LEFT][Y_AXIS]);
+      pango_matrix_transform_point (&trans, &ret[i][RIGHT][X_AXIS], &ret[i][RIGHT][Y_AXIS]);
+    }
+  // TODO: simplify
+  return ret;
 }
 
 vector<Line>
 outline_polyline (vector<Offset> const& points, PangoMatrix const& trans, Real thick, bool connect)
 {
+  vector<Line> ret;
+
+  for (vsize i = 0; i < points.size () - 1; ++i)
+    ret.push_back (Line (points[i], points[i+1]));
+
+  if (connect)
+    ret.push_back (Line (ret.back ()[RIGHT], ret.front ()[LEFT]));
+
   // TODO: caps etc.
-  return vector<Line> ();
+  return simplify_and_transform_lines (ret, trans, thick);
 }
 
-//// END UTILITY FUNCTIONS
+// The trace_xxx functions return a list of lines which
+// represent approximate outlines for the given shapes. These
+// lines are not thickened, and no line caps are drawn.
 
-/*
-  below, for all of the functions make_X_boxes, the expression
-  is always unpacked into variables.
-  then, after a line of /////, there are manipulations of these variables
-  (there may be no manipulations necessary depending on the function)
-  afterwards, there is another ///// followed by the creation of points
-  and boxes
-*/
-
-vector<Line>
-outline_line (PangoMatrix const& trans, SCM expr)
+void
+trace_line (vector<Line> *const ret, SCM expr)
 {
   Real thick = robust_scm2double (scm_car (expr), 0.0);
   expr = scm_cdr (expr);
@@ -199,11 +152,66 @@ outline_line (PangoMatrix const& trans, SCM expr)
   Offset left (x0, y0);
   Offset right (x1, y1);
 
-  vector<Offset> ret;
-  ret.push_back (left);
-  ret.push_back (right);
-  return outline_polyline (ret, trans, thick, false);
+  ret->push_back (Line (left, right));
 }
+
+void
+trace_bezier (vector<Line> *const ret, SCM expr, Real tolerance)
+{
+  Real thick = robust_scm2double (scm_car (expr), 0.0);
+  expr = scm_cdr (expr);
+  Real x0 = robust_scm2double (scm_car (expr), 0.0);
+  expr = scm_cdr (expr);
+  Real y0 = robust_scm2double (scm_car (expr), 0.0);
+  expr = scm_cdr (expr);
+  Real x1 = robust_scm2double (scm_car (expr), 0.0);
+  expr = scm_cdr (expr);
+  Real y1 = robust_scm2double (scm_car (expr), 0.0);
+  expr = scm_cdr (expr);
+  Real x2 = robust_scm2double (scm_car (expr), 0.0);
+  expr = scm_cdr (expr);
+  Real y2 = robust_scm2double (scm_car (expr), 0.0);
+  expr = scm_cdr (expr);
+  Real x3 = robust_scm2double (scm_car (expr), 0.0);
+  expr = scm_cdr (expr);
+  Real y3 = robust_scm2double (scm_car (expr), 0.0);
+
+  Bezier curve;
+  curve.control_[0] = Offset (x0, y0);
+  curve.control_[1] = Offset (x1, y1);
+  curve.control_[2] = Offset (x2, y2);
+  curve.control_[3] = Offset (x3, y3);
+  Offset p0 (x0, y0);
+  Offset p1 (x1, y1);
+  Offset p2 (x2, y2);
+  Offset p3 (x3, y3);
+  int quantization = max (1, int (((p1 - p0).length ()
+                                   + (p2 - p1).length ()
+                                   + (p3 - p2).length ()) / tolerance));
+  Offset last_point = curve.curve_point (0);
+  for (vsize i = 1; i <= quantization; i++)
+    {
+      Real t = (double) i / quantization;
+      Offset point = curve.curve_point (t);
+      ret->push_back (Line (last_point, point));
+      last_point = point;
+    }
+}
+
+// Here, path is in the format returned by absolute_path.
+// That is, path is a list of lists, each of which has either 4 or 6 numbers.
+void
+trace_absolute_path (vector<Line> *const ret, SCM path, Real tolerance)
+{
+  for (SCM s = path; scm_is_pair (s); s = scm_cdr (s))
+    {
+      if (scm_to_int (scm_length (scm_car (s))) == 4)
+        trace_line (ret, scm_car (s));
+      else
+        trace_bezier (ret, scm_car (s), tolerance);
+    }
+}
+
 
 vector<Line>
 outline_partial_ellipse (PangoMatrix const& trans, SCM expr)
@@ -232,7 +240,7 @@ outline_partial_ellipse (PangoMatrix const& trans, SCM expr)
       points.push_back (Offset (x_rad * cos (angle), y_rad + sin (angle)));
     }
 
-  return outline_polyline (points, trans, thick, connect || fill || abs (start - end) == 360);
+  return outline_polyline (points, trans, thick, connect || fill);
 }
 
 vector<Line>
@@ -286,50 +294,6 @@ create_path_cap (vector<Box> &boxes, vector<Drul_array<Offset> > &buildings, Pan
 }
 #endif
 
-vector<Line>
-outline_bezier (PangoMatrix const& trans, SCM expr)
-{
-  Real thick = robust_scm2double (scm_car (expr), 0.0);
-  expr = scm_cdr (expr);
-  Real x0 = robust_scm2double (scm_car (expr), 0.0);
-  expr = scm_cdr (expr);
-  Real y0 = robust_scm2double (scm_car (expr), 0.0);
-  expr = scm_cdr (expr);
-  Real x1 = robust_scm2double (scm_car (expr), 0.0);
-  expr = scm_cdr (expr);
-  Real y1 = robust_scm2double (scm_car (expr), 0.0);
-  expr = scm_cdr (expr);
-  Real x2 = robust_scm2double (scm_car (expr), 0.0);
-  expr = scm_cdr (expr);
-  Real y2 = robust_scm2double (scm_car (expr), 0.0);
-  expr = scm_cdr (expr);
-  Real x3 = robust_scm2double (scm_car (expr), 0.0);
-  expr = scm_cdr (expr);
-  Real y3 = robust_scm2double (scm_car (expr), 0.0);
-
-  Bezier curve;
-  curve.control_[0] = Offset (x0, y0);
-  curve.control_[1] = Offset (x1, y1);
-  curve.control_[2] = Offset (x2, y2);
-  curve.control_[3] = Offset (x3, y3);
-  Offset p0 (x0, y0);
-  Offset p1 (x1, y1);
-  Offset p2 (x2, y2);
-  Offset p3 (x3, y3);
-
-  vector<Offset> points;
-  int quantization = int (((p1 - p0).length ()
-                           + (p2 - p1).length ()
-                           + (p3 - p2).length ())
-                          / QUANTIZATION_UNIT * max (trans.xx, trans.yy));
-  for (vsize i = 0; i <= quantization; i++)
-    {
-      Real t = (double) i / quantization;
-      points.push_back (curve.curve_point (t));
-    }
-
-  return outline_polyline (points, trans, thick, false);
-}
 
 /*
   converts a path into lists of 4 (line) or 8 (curve) absolute coordinates
@@ -468,25 +432,6 @@ absolute_path (SCM expr)
   return scm_reverse_x (out, SCM_EOL);
 }
 
-// Here, path is in the format returned by absolute_path.
-// That is, path is a list of lists, each of which has either 4 or 6 numbers.
-vector<Line>
-outline_absolute_path (PangoMatrix const& trans, SCM path, SCM thick)
-{
-  vector<Line> ret;
-  for (SCM s = path; scm_is_pair (s); s = scm_cdr (s))
-    {
-      vector<Line> part;
-      if (scm_to_int (scm_length (scm_car (s))) == 4)
-        part = outline_line (trans, scm_cons (thick, scm_car (s)));
-      else
-        part = outline_bezier (trans, scm_cons (thick, scm_car (s)));
-      ret.insert (ret.end (), part.begin (), part.end ());
-    }
-
-  return ret;
-}
-
 vector<Line>
 outline_path (PangoMatrix const& trans, SCM expr)
 {
@@ -495,14 +440,15 @@ outline_path (PangoMatrix const& trans, SCM expr)
   SCM path = absolute_path (expr);
   // note that expr has more stuff that we don't need after this - simply ignore it
 
-  return outline_absolute_path (trans, path, thick);
+  vector<Line> ret;
+  trace_absolute_path (&ret, path, TOLERANCE);
+  return simplify_and_transform_lines (ret, trans, thick, TOLERANCE);
 }
 
 vector<Line>
 outline_polygon (PangoMatrix const& trans, SCM expr)
 {
-  // FIXME: probably don't need get_number_list...
-  SCM coords = get_number_list (scm_car (expr));
+  SCM coords = scm_car (expr);
   expr = scm_cdr (expr);
   Real thick = robust_scm2double (scm_car (expr), 0);
 
@@ -529,7 +475,7 @@ outline_named_glyph (PangoMatrix trans, SCM expr)
 
   size_t gidx = open_fm->name_to_index (glyph);
   SCM outline = open_fm->get_glyph_outline (gidx);
-  Real scale = fm->magnification ();
+  Real scale = fm->scale ();
   pango_matrix_scale (&trans, scale, scale);
 
   return outline_absolute_path (trans, outline, scm_from_double (0));

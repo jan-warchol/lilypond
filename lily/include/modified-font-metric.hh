@@ -34,8 +34,9 @@ public:
   Offset attachment_point (string) const;
   size_t name_to_index (string) const;
   size_t index_to_charcode (size_t) const;
-  Real magnification () const { return magnification_; }
+  virtual Real scale () const;
   Font_metric *original_font () const;
+  Box get_indexed_char_dimensions (size_t) const;
 
 protected:
   Font_metric *orig_;
@@ -46,7 +47,6 @@ protected:
   string font_name () const;
   Real design_size () const;
   void derived_mark () const;
-  Box get_indexed_char_dimensions (size_t) const;
 };
 
 #endif /* MODIFIED_FONT_METRIC_HH */

@@ -47,15 +47,12 @@ public:
   ~Pango_font ();
 
   string description_string () const;
-  Real scale () const { return scale_; }
   SCM font_file_name () const;
   void register_font_file (string, string, int);
 
   size_t name_to_index (string) const;
   SCM get_glyph_outline (size_t signed_idx) const;
-  Box get_glyph_outline_bbox (size_t signed_idx) const;
-  Box get_unscaled_indexed_char_dimensions (size_t) const;
-  Box get_scaled_indexed_char_dimensions (size_t) const;
+  virtual Real scale () const;
 
   Stencil pango_item_string_stencil (PangoGlyphItem const *) const;
 

@@ -134,3 +134,9 @@ Modified_font_metric::font_name () const
 {
   return original_font ()->font_name ();
 }
+
+Real
+Modified_font_metric::scale () const
+{
+  return orig_->scale () * magnification_;
+}
