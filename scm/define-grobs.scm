@@ -1352,6 +1352,7 @@
 	(skyline-horizontal-padding . 0.1)
 	(vertical-skylines . ,grob::always-vertical-skylines-from-stencil)
 	(default-X-alignment . ((X-core-extent . 0) (X-core-extent . 0) 0))
+	(melisma-x-alignment . ((X-core-extent . -1) (X-core-extent . -1) 0))
 	(minimum-X-offset . -2.2)
 	(X-offset . ,ly:lyric-text::calc-x-offset)
 	(Y-extent . ,grob::always-Y-extent-from-stencil)

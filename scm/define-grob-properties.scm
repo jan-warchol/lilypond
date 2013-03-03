@@ -575,6 +575,7 @@ if this column is the start of a system.")
      (line-thickness ,number? "The thickness of the tie or slur
 contour.")
      (long-text ,markup? "Text markup.  See @ruser{Formatting text}.")
+     (melisma-x-alignment ,list? "foof")
 
 
 ;;

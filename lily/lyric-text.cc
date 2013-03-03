@@ -43,6 +43,9 @@ Lyric_text::calc_x_offset (SCM smob)
                      : robust_scm2double (me->get_property ("minimum-X-offset"), -2.2);
 
   if (align_prop == SCM_EOL)
+      if (to_boolean(me->get_property ("is-melisma")))
+          me->set_property ("X-alignment", me->get_property ("melisma-x-alignment"));
+  else
     me->set_property ("X-alignment", me->get_property ("default-X-alignment"));
 
   Real offset = scm_to_double (Self_alignment_interface::general_x_alignment (smob));
@@ -54,6 +57,7 @@ ADD_INTERFACE (Lyric_text,
 
                /* properties */
                "default-X-alignment "
+               "melisma-x-alignment "
                "minimum-X-offset "
                "is-melisma "
               );
