@@ -520,6 +520,7 @@ resolution on this @code{NoteColumn}.")
 configuration to this index, and print the respective scores.")
      (inspect-quants ,number-pair? "If debugging is set, set beam and
 slur quants to this position, and print the respective scores.")
+     (is-melisma ,boolean? "is the syllable a melisma?")
 
 
 ;;

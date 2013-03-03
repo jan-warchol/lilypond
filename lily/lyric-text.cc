@@ -55,4 +55,5 @@ ADD_INTERFACE (Lyric_text,
                /* properties */
                "default-X-alignment "
                "minimum-X-offset "
+               "is-melisma "
               );
