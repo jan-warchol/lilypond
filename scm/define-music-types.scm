@@ -254,6 +254,11 @@ duration stored in @code{duration}.")
 	(types . (general-music post-event hyphen-event event))
 	))
 
+    (HardHyphenEvent
+     . ((description . "A hard hyphen between lyric syllables.")
+	(types . (general-music post-event hard-hyphen-event event))
+	))
+
     (KeyChangeEvent
      . ((description . "Change the key signature.
 

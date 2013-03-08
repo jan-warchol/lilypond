@@ -32,8 +32,8 @@
       part-combine-event part-combine-force-event
       beam-forbid-event script-event tempo-change-event
       tremolo-event bend-after-event fingering-event glissando-event
-      harmonic-event hyphen-event laissez-vibrer-event mark-event
-      multi-measure-text-event note-grouping-event
+      harmonic-event hyphen-event hard-hyphen-event laissez-vibrer-event
+      mark-event multi-measure-text-event note-grouping-event
       pes-or-flexa-event repeat-tie-event spacing-section-event
       layout-instruction-event completize-extender-event break-span-event
       alternative-event))

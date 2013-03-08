@@ -144,6 +144,7 @@ ADD_INTERFACE (Lyric_hyphen,
                "height "
                "length "
                "minimum-distance "
+               "hard-hyphen-distance "
                "minimum-length "
                "padding "
                "thickness "

@@ -1314,6 +1314,7 @@
 	(height . 0.42)
 	(length . 0.66)
 	(minimum-distance . 0.1)
+	(hard-hyphen-distance . 0.7)
 	(minimum-length . 0.3)
 	(padding . 0.07)
 	(springs-and-rods . ,ly:lyric-hyphen::set-spacing-rods)

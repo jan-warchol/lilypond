@@ -37,6 +37,8 @@ class Hyphen_engraver : public Engraver
   Spanner *hyphen_;
   Spanner *finished_hyphen_;
 
+  bool hard_;
+
 public:
   TRANSLATOR_DECLARATIONS (Hyphen_engraver);
 
@@ -44,6 +46,7 @@ protected:
 
   DECLARE_ACKNOWLEDGER (lyric_syllable);
   DECLARE_TRANSLATOR_LISTENER (hyphen);
+  DECLARE_TRANSLATOR_LISTENER (hard_hyphen);
 
   virtual void finalize ();
 
@@ -57,6 +60,7 @@ Hyphen_engraver::Hyphen_engraver ()
   finished_hyphen_ = 0;
   finished_ev_ = 0;
   ev_ = 0;
+  hard_ = false;
 }
 
 void
@@ -79,6 +83,14 @@ void
 Hyphen_engraver::listen_hyphen (Stream_event *ev)
 {
   ASSIGN_EVENT_ONCE (ev_, ev);
+}
+
+IMPLEMENT_TRANSLATOR_LISTENER (Hyphen_engraver, hard_hyphen);
+void
+Hyphen_engraver::listen_hard_hyphen (Stream_event *ev)
+{
+  ASSIGN_EVENT_ONCE (ev_, ev);
+  hard_ = true;
 }
 
 void
@@ -127,6 +139,13 @@ Hyphen_engraver::process_music ()
 {
   if (ev_)
     hyphen_ = make_spanner ("LyricHyphen", ev_->self_scm ());
+
+  if (hard_)
+    {
+      Real min_dist = robust_scm2double
+                      (hyphen_->get_property ("hard-hyphen-distance"), .7);
+      hyphen_->set_property ("minimum-distance", scm_from_double (min_dist));
+    }
 }
 
 void
@@ -153,6 +172,7 @@ Hyphen_engraver::stop_translation_timestep ()
 
   hyphen_ = 0;
   ev_ = 0;
+  hard_ = false;
 }
 
 ADD_ACKNOWLEDGER (Hyphen_engraver, lyric_syllable);

@@ -328,6 +328,7 @@ If we give names, Bison complains.
 %token FIGURE_OPEN /* "\\<" */
 %token FIGURE_SPACE "_"
 %token HYPHEN "--"
+%token HARDHYPHEN "-="
 
 %token CHORDMODIFIERS
 %token MULTI_MEASURE_REST
@@ -2548,6 +2549,11 @@ post_event_nofinger:
 		if (!parser->lexer_->is_lyric_state ())
 			parser->parser_error (@1, _ ("have to be in Lyric mode for lyrics"));
 		$$ = MY_MAKE_MUSIC ("HyphenEvent", @$)->unprotect ();
+	}
+	| HARDHYPHEN {
+		if (!parser->lexer_->is_lyric_state ())
+			parser->parser_error (@1, _ ("have to be in Lyric mode for lyrics"));
+	$$ = MY_MAKE_MUSIC ("HardHyphenEvent", @$)->unprotect ();
 	}
 	| EXTENDER {
 		if (!parser->lexer_->is_lyric_state ())

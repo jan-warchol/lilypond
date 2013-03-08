@@ -454,6 +454,8 @@ etc. are already taken.")
 ;;
      (hair-thickness ,number? "Thickness of the thin line in a bar
 line.")
+     (hard-hyphen-distance ,number? "Minimum distance between syllables
+connected using hard hyphen.")
      (harp-pedal-details ,list? "An alist of detailed grob properties
 for harp pedal diagrams.  Each alist entry consists of a
 @code{(@var{property} . @var{value})} pair.  The properties which can

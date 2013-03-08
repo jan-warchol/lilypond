@@ -163,6 +163,7 @@ RESTNAME	[rs]
 ESCAPED		[nt\\''""]
 EXTENDER	__
 HYPHEN		--
+HARDHYPHEN	-=
 BOM_UTF8	\357\273\277
 
 %%
@@ -561,6 +562,8 @@ BOM_UTF8	\357\273\277
 			return EXTENDER;
 		if (s == "--")
 			return HYPHEN;
+		if (s == "-=")
+			return HARDHYPHEN;
 		s = lyric_fudge (s);
 		yylval = ly_string2scm (s);
 
