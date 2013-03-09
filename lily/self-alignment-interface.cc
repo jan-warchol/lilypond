@@ -28,58 +28,21 @@
 #include "pointer-group-interface.hh"
 #include "warn.hh"
 
-MAKE_SCHEME_CALLBACK (Self_alignment_interface, y_aligned_on_self, 1);
-SCM
-Self_alignment_interface::y_aligned_on_self (SCM element)
-{
-  return aligned_on_self (unsmob_grob (element), Y_AXIS, false, 0, 0);
-}
-
-MAKE_SCHEME_CALLBACK (Self_alignment_interface, x_aligned_on_self, 1);
-SCM
-Self_alignment_interface::x_aligned_on_self (SCM element)
-{
-  return aligned_on_self (unsmob_grob (element), X_AXIS, false, 0, 0);
-}
+// (yet) unavoidable exeptions
 
 MAKE_SCHEME_CALLBACK (Self_alignment_interface, pure_y_aligned_on_self, 3);
 SCM
 Self_alignment_interface::pure_y_aligned_on_self (SCM smob, SCM start, SCM end)
 {
-  return aligned_on_self (unsmob_grob (smob), Y_AXIS, true, robust_scm2int (start, 0), robust_scm2int (end, INT_MAX));
-}
-
-SCM
-Self_alignment_interface::aligned_on_self (Grob *me, Axis a, bool pure, int start, int end)
-{
-  SCM sym = (a == X_AXIS) ? ly_symbol2scm ("self-alignment-X")
-            : ly_symbol2scm ("self-alignment-Y");
-
-  SCM align (me->internal_get_property (sym));
+  Grob *me = unsmob_grob (smob);
+  SCM align (me->internal_get_property (ly_symbol2scm ("self-alignment-Y")));
   if (scm_is_number (align))
     {
-      Interval ext (me->maybe_pure_extent (me, a, pure, start, end));
-      // Empty extent doesn't mean an error - we simply don't align such grobs.
-      // However, empty extent and non-empty stencil would be suspicious.
+      Interval ext (me->maybe_pure_extent (me, Y_AXIS, true, robust_scm2int (start, 0), robust_scm2int (end, INT_MAX)));
       if (!ext.is_empty ())
         return scm_from_double (- ext.linear_combination (scm_to_double (align)));
-      else if (me->get_stencil ())
-        warning (me->name () + " has empty extent and non-empty stencil.");
     }
   return scm_from_double (0.0);
-}
-
-SCM
-Self_alignment_interface::centered_on_object (Grob *him, Axis a)
-{
-  return scm_from_double (robust_relative_extent (him, him, a).center ());
-}
-
-MAKE_SCHEME_CALLBACK (Self_alignment_interface, centered_on_x_parent, 1);
-SCM
-Self_alignment_interface::centered_on_x_parent (SCM smob)
-{
-  return centered_on_object (unsmob_grob (smob)->get_parent (X_AXIS), X_AXIS);
 }
 
 MAKE_SCHEME_CALLBACK (Self_alignment_interface, centered_on_note_columns, 1);
@@ -103,6 +66,15 @@ Self_alignment_interface::centered_on_note_columns (SCM smob)
   return scm_from_double (centers.center ());
 }
 
+// these will be wrapped as well, when general-alignment will support arbitrary grobs
+
+MAKE_SCHEME_CALLBACK (Self_alignment_interface, centered_on_x_parent, 1);
+SCM
+Self_alignment_interface::centered_on_x_parent (SCM smob)
+{
+  return centered_on_object (unsmob_grob (smob)->get_parent (X_AXIS), X_AXIS);
+}
+
 MAKE_SCHEME_CALLBACK (Self_alignment_interface, centered_on_y_parent, 1);
 SCM
 Self_alignment_interface::centered_on_y_parent (SCM smob)
@@ -117,56 +89,71 @@ Self_alignment_interface::x_centered_on_y_parent (SCM smob)
   return centered_on_object (unsmob_grob (smob)->get_parent (Y_AXIS), X_AXIS);
 }
 
+SCM
+Self_alignment_interface::centered_on_object (Grob *him, Axis a)
+{
+  return scm_from_double (robust_relative_extent (him, him, a).center ());
+}
+
+// wrappers around general-alignment for old ways of doing things
+
+MAKE_SCHEME_CALLBACK (Self_alignment_interface, x_aligned_on_self, 1);
+SCM
+Self_alignment_interface::x_aligned_on_self (SCM element)
+{
+  Grob *me = unsmob_grob (element);
+  // convert old self-alignment-* to new *-alignment
+  SCM old_align (me->internal_get_property (ly_symbol2scm ("self-alignment-X")));
+  me->set_property ("X-alignment",
+                    scm_list_3 (scm_cons (ly_symbol2scm ("X-extent"), old_align),
+                                SCM_EOL,
+                                scm_from_double (0)));
+  return general_alignment (me, X_AXIS);
+}
+
+MAKE_SCHEME_CALLBACK (Self_alignment_interface, y_aligned_on_self, 1);
+SCM
+Self_alignment_interface::y_aligned_on_self (SCM element)
+{
+  Grob *me = unsmob_grob (element);
+  // convert old self-alignment-* to new *-alignment
+  SCM old_align (me->internal_get_property (ly_symbol2scm ("self-alignment-Y")));
+  me->set_property ("Y-alignment",
+                    scm_list_3 (scm_cons (ly_symbol2scm ("Y-extent"), old_align),
+                                SCM_EOL,
+                                scm_from_double (0)));
+  return general_alignment (me, Y_AXIS);
+}
+
 MAKE_SCHEME_CALLBACK (Self_alignment_interface, aligned_on_x_parent, 1);
 SCM
 Self_alignment_interface::aligned_on_x_parent (SCM smob)
 {
-  return aligned_on_parent (unsmob_grob (smob), X_AXIS);
+  Grob *me = unsmob_grob (smob);
+  // convert old self-alignment-* to new *-alignment
+  SCM old_align (me->internal_get_property (ly_symbol2scm ("self-alignment-X")));
+  me->set_property ("X-alignment",
+                    scm_list_3 (scm_cons (ly_symbol2scm ("X-extent"), old_align),
+                                scm_cons (ly_symbol2scm ("X-extent"), old_align),
+                                scm_from_double (0)));
+  return general_alignment (me, X_AXIS);
 }
 
 MAKE_SCHEME_CALLBACK (Self_alignment_interface, aligned_on_y_parent, 1);
 SCM
 Self_alignment_interface::aligned_on_y_parent (SCM smob)
 {
-  return aligned_on_parent (unsmob_grob (smob), Y_AXIS);
+  Grob *me = unsmob_grob (smob);
+  // convert old self-alignment-* to new *-alignment
+  SCM old_align (me->internal_get_property (ly_symbol2scm ("self-alignment-Y")));
+  me->set_property ("Y-alignment",
+                    scm_list_3 (scm_cons (ly_symbol2scm ("Y-extent"), old_align),
+                                scm_cons (ly_symbol2scm ("Y-extent"), old_align),
+                                scm_from_double (0)));
+  return general_alignment (me, Y_AXIS);
 }
 
-SCM
-Self_alignment_interface::aligned_on_parent (Grob *me, Axis a)
-{
-  Grob *him = me->get_parent (a);
-  if (Paper_column::has_interface (him))
-    return scm_from_double (0.0);
-
-  Interval he = him->extent (him, a);
-
-  SCM sym = (a == X_AXIS) ? ly_symbol2scm ("self-alignment-X")
-            : ly_symbol2scm ("self-alignment-Y");
-  SCM align_prop (me->internal_get_property (sym));
-
-  if (!scm_is_number (align_prop))
-    return scm_from_int (0);
-
-  Real x = 0.0;
-  Real align = scm_to_double (align_prop);
-
-  Interval ext (me->extent (me, a));
-
-  // Empty extent doesn't mean an error - we simply don't align such grobs.
-  // However, empty extent and non-empty stencil would be suspicious.
-  if (!ext.is_empty ())
-    x -= ext.linear_combination (align);
-  else if (me->get_stencil ())
-    warning (me->name () + " has empty extent and non-empty stencil.");
-
-  // See comment above.
-  if (!he.is_empty ())
-    x += he.linear_combination (align);
-  else if (him->get_stencil ())
-    warning (him->name () + " has empty extent and non-empty stencil.");
-
-  return scm_from_double (x);
-}
+// brand-new general alignment
 
 MAKE_SCHEME_CALLBACK (Self_alignment_interface, general_x_alignment, 1)
 SCM
@@ -231,6 +218,10 @@ Self_alignment_interface::general_alignment (Grob *me, Axis a)
   Interval grob_extent = (scm_is_pair (grob_property))
                          ? ly_scm2interval (grob_property)
                          : me->extent (me, a);
+
+  // TODO add error when empty extent
+  //if (ext.is_empty ())
+  //  programming_error ("cannot align on self: empty element");
 
   if (!grob_extent.is_empty () && (which_grob_extent != SCM_EOL))
     offset -= grob_extent.linear_combination (grob_alignment);
