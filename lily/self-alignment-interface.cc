@@ -68,15 +68,27 @@ Self_alignment_interface::centered_on_note_columns (SCM smob)
 
 // wrappers around general-alignment for old ways of doing things
 
+void
+Self_alignment_interface::convert (Grob *me, Axis a, SCM align_val, bool selfish)
+{
+  SCM align_sym = (a == X_AXIS)
+                  ? ly_symbol2scm ("X-alignment")
+                  : ly_symbol2scm ("Y-alignment");
+  SCM ext_sym = (a == X_AXIS)
+                ? ly_symbol2scm ("X-extent")
+                : ly_symbol2scm ("Y-extent");
+  me->set_property ("X-alignment",
+                    scm_list_3 (scm_cons (ext_sym, align_val),
+                                selfish ? SCM_EOL : scm_cons (ext_sym, align_val),
+                                scm_from_double (0)));
+}
+
 MAKE_SCHEME_CALLBACK (Self_alignment_interface, centered_on_x_parent, 1);
 SCM
 Self_alignment_interface::centered_on_x_parent (SCM smob)
 {
   Grob *me = unsmob_grob (smob);
-  me->set_property ("X-alignment",
-                    scm_list_3 (scm_cons (ly_symbol2scm ("X-extent"), scm_from_double (0)),
-                                SCM_EOL, // ?
-                                scm_from_double (0)));
+  convert (me, X_AXIS, scm_from_double (0), true);
   return general_alignment (me, me->get_parent (X_AXIS), X_AXIS);
 }
 
@@ -85,10 +97,7 @@ SCM
 Self_alignment_interface::centered_on_y_parent (SCM smob)
 {
   Grob *me = unsmob_grob (smob);
-  me->set_property ("X-alignment",
-                    scm_list_3 (scm_cons (ly_symbol2scm ("Y-extent"), scm_from_double (0)),
-                                SCM_EOL, // ?
-                                scm_from_double (0)));
+  convert (me, Y_AXIS, scm_from_double (0), true);
   return general_alignment (me, me->get_parent (Y_AXIS), Y_AXIS);
 }
 
@@ -97,10 +106,7 @@ SCM
 Self_alignment_interface::x_centered_on_y_parent (SCM smob)
 {
   Grob *me = unsmob_grob (smob);
-  me->set_property ("X-alignment",
-                    scm_list_3 (scm_cons (ly_symbol2scm ("X-extent"), scm_from_double (0)),
-                                SCM_EOL, // ?
-                                scm_from_double (0)));
+  convert (me, X_AXIS, scm_from_double (0), true);
   return general_alignment (me, me->get_parent (Y_AXIS), X_AXIS);
 }
 
@@ -109,12 +115,7 @@ SCM
 Self_alignment_interface::x_aligned_on_self (SCM element)
 {
   Grob *me = unsmob_grob (element);
-  // convert old self-alignment-* to new *-alignment
-  SCM old_align (me->internal_get_property (ly_symbol2scm ("self-alignment-X")));
-  me->set_property ("X-alignment",
-                    scm_list_3 (scm_cons (ly_symbol2scm ("X-extent"), old_align),
-                                SCM_EOL,
-                                scm_from_double (0)));
+  convert (me, X_AXIS, me->internal_get_property (ly_symbol2scm ("self-alignment-X")), true);
   return general_alignment (me, me->get_parent (X_AXIS), X_AXIS);
 }
 
@@ -123,12 +124,7 @@ SCM
 Self_alignment_interface::y_aligned_on_self (SCM element)
 {
   Grob *me = unsmob_grob (element);
-  // convert old self-alignment-* to new *-alignment
-  SCM old_align (me->internal_get_property (ly_symbol2scm ("self-alignment-Y")));
-  me->set_property ("Y-alignment",
-                    scm_list_3 (scm_cons (ly_symbol2scm ("Y-extent"), old_align),
-                                SCM_EOL,
-                                scm_from_double (0)));
+  convert (me, Y_AXIS, me->internal_get_property (ly_symbol2scm ("self-alignment-Y")), true);
   return general_alignment (me, me->get_parent (Y_AXIS), Y_AXIS);
 }
 
@@ -137,12 +133,7 @@ SCM
 Self_alignment_interface::aligned_on_x_parent (SCM smob)
 {
   Grob *me = unsmob_grob (smob);
-  // convert old self-alignment-* to new *-alignment
-  SCM old_align (me->internal_get_property (ly_symbol2scm ("self-alignment-X")));
-  me->set_property ("X-alignment",
-                    scm_list_3 (scm_cons (ly_symbol2scm ("X-extent"), old_align),
-                                scm_cons (ly_symbol2scm ("X-extent"), old_align),
-                                scm_from_double (0)));
+  convert (me, X_AXIS, me->internal_get_property (ly_symbol2scm ("self-alignment-X")), false);
   return general_alignment (me, me->get_parent (X_AXIS), X_AXIS);
 }
 
@@ -151,12 +142,7 @@ SCM
 Self_alignment_interface::aligned_on_y_parent (SCM smob)
 {
   Grob *me = unsmob_grob (smob);
-  // convert old self-alignment-* to new *-alignment
-  SCM old_align (me->internal_get_property (ly_symbol2scm ("self-alignment-Y")));
-  me->set_property ("Y-alignment",
-                    scm_list_3 (scm_cons (ly_symbol2scm ("Y-extent"), old_align),
-                                scm_cons (ly_symbol2scm ("Y-extent"), old_align),
-                                scm_from_double (0)));
+  convert (me, Y_AXIS, me->internal_get_property (ly_symbol2scm ("self-alignment-Y")), false);
   return general_alignment (me, me->get_parent (Y_AXIS), Y_AXIS);
 }
 
