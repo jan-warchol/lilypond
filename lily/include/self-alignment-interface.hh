@@ -27,8 +27,7 @@ struct Self_alignment_interface
 {
   DECLARE_GROB_INTERFACE ();
 
-  static SCM centered_on_object (Grob *me, Axis a);
-  static SCM general_alignment (Grob *me, Axis a);
+  static SCM general_alignment (Grob *me, Grob *him, Axis a);
   static void set_center_parent (Grob *me, Axis a);
   static void set_align_self (Grob *me, Axis a);
 

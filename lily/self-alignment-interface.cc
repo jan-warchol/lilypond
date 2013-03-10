@@ -66,36 +66,43 @@ Self_alignment_interface::centered_on_note_columns (SCM smob)
   return scm_from_double (centers.center ());
 }
 
-// these will be wrapped as well, when general-alignment will support arbitrary grobs
+// wrappers around general-alignment for old ways of doing things
 
 MAKE_SCHEME_CALLBACK (Self_alignment_interface, centered_on_x_parent, 1);
 SCM
 Self_alignment_interface::centered_on_x_parent (SCM smob)
 {
-  return centered_on_object (unsmob_grob (smob)->get_parent (X_AXIS), X_AXIS);
+  Grob *me = unsmob_grob (smob);
+  me->set_property ("X-alignment",
+                    scm_list_3 (scm_cons (ly_symbol2scm ("X-extent"), scm_from_double (0)),
+                                SCM_EOL, // ?
+                                scm_from_double (0)));
+  return general_alignment (me, me->get_parent (X_AXIS), X_AXIS);
 }
 
 MAKE_SCHEME_CALLBACK (Self_alignment_interface, centered_on_y_parent, 1);
 SCM
 Self_alignment_interface::centered_on_y_parent (SCM smob)
 {
-  return centered_on_object (unsmob_grob (smob)->get_parent (Y_AXIS), Y_AXIS);
+  Grob *me = unsmob_grob (smob);
+  me->set_property ("X-alignment",
+                    scm_list_3 (scm_cons (ly_symbol2scm ("Y-extent"), scm_from_double (0)),
+                                SCM_EOL, // ?
+                                scm_from_double (0)));
+  return general_alignment (me, me->get_parent (Y_AXIS), Y_AXIS);
 }
 
 MAKE_SCHEME_CALLBACK (Self_alignment_interface, x_centered_on_y_parent, 1);
 SCM
 Self_alignment_interface::x_centered_on_y_parent (SCM smob)
 {
-  return centered_on_object (unsmob_grob (smob)->get_parent (Y_AXIS), X_AXIS);
+  Grob *me = unsmob_grob (smob);
+  me->set_property ("X-alignment",
+                    scm_list_3 (scm_cons (ly_symbol2scm ("X-extent"), scm_from_double (0)),
+                                SCM_EOL, // ?
+                                scm_from_double (0)));
+  return general_alignment (me, me->get_parent (Y_AXIS), X_AXIS);
 }
-
-SCM
-Self_alignment_interface::centered_on_object (Grob *him, Axis a)
-{
-  return scm_from_double (robust_relative_extent (him, him, a).center ());
-}
-
-// wrappers around general-alignment for old ways of doing things
 
 MAKE_SCHEME_CALLBACK (Self_alignment_interface, x_aligned_on_self, 1);
 SCM
@@ -108,7 +115,7 @@ Self_alignment_interface::x_aligned_on_self (SCM element)
                     scm_list_3 (scm_cons (ly_symbol2scm ("X-extent"), old_align),
                                 SCM_EOL,
                                 scm_from_double (0)));
-  return general_alignment (me, X_AXIS);
+  return general_alignment (me, me->get_parent (X_AXIS), X_AXIS);
 }
 
 MAKE_SCHEME_CALLBACK (Self_alignment_interface, y_aligned_on_self, 1);
@@ -122,7 +129,7 @@ Self_alignment_interface::y_aligned_on_self (SCM element)
                     scm_list_3 (scm_cons (ly_symbol2scm ("Y-extent"), old_align),
                                 SCM_EOL,
                                 scm_from_double (0)));
-  return general_alignment (me, Y_AXIS);
+  return general_alignment (me, me->get_parent (Y_AXIS), Y_AXIS);
 }
 
 MAKE_SCHEME_CALLBACK (Self_alignment_interface, aligned_on_x_parent, 1);
@@ -136,7 +143,7 @@ Self_alignment_interface::aligned_on_x_parent (SCM smob)
                     scm_list_3 (scm_cons (ly_symbol2scm ("X-extent"), old_align),
                                 scm_cons (ly_symbol2scm ("X-extent"), old_align),
                                 scm_from_double (0)));
-  return general_alignment (me, X_AXIS);
+  return general_alignment (me, me->get_parent (X_AXIS), X_AXIS);
 }
 
 MAKE_SCHEME_CALLBACK (Self_alignment_interface, aligned_on_y_parent, 1);
@@ -150,7 +157,7 @@ Self_alignment_interface::aligned_on_y_parent (SCM smob)
                     scm_list_3 (scm_cons (ly_symbol2scm ("Y-extent"), old_align),
                                 scm_cons (ly_symbol2scm ("Y-extent"), old_align),
                                 scm_from_double (0)));
-  return general_alignment (me, Y_AXIS);
+  return general_alignment (me, me->get_parent (Y_AXIS), Y_AXIS);
 }
 
 // brand-new general alignment
@@ -159,20 +166,23 @@ MAKE_SCHEME_CALLBACK (Self_alignment_interface, general_x_alignment, 1)
 SCM
 Self_alignment_interface::general_x_alignment (SCM smob)
 {
-  return general_alignment (unsmob_grob (smob), X_AXIS);
+  Grob *me = unsmob_grob (smob);
+  return general_alignment (me, me->get_parent (X_AXIS), X_AXIS);
 }
 
 MAKE_SCHEME_CALLBACK (Self_alignment_interface, general_y_alignment, 1)
 SCM
 Self_alignment_interface::general_y_alignment (SCM smob)
 {
-  return general_alignment (unsmob_grob (smob), Y_AXIS);
+  Grob *me = unsmob_grob (smob);
+  return general_alignment (me, me->get_parent (Y_AXIS), Y_AXIS);
 }
 
 SCM
-Self_alignment_interface::general_alignment (Grob *me, Axis a)
+Self_alignment_interface::general_alignment (Grob *me, Grob *him, Axis a)
 {
-  Grob *parent = me->get_parent (a);
+  //him is usually a parent of me in respective axis.
+
   Real offset = 0.0;
 
   SCM which_alignment = (a == X_AXIS)
@@ -211,7 +221,7 @@ Self_alignment_interface::general_alignment (Grob *me, Axis a)
     }
 
   // PaperColumn extents are weird, so we don't use them.
-  if (Paper_column::has_interface (parent))
+  if (Paper_column::has_interface (him))
     which_parent_extent = SCM_EOL;
 
   SCM grob_property = me->get_property (which_grob_extent);
@@ -226,10 +236,10 @@ Self_alignment_interface::general_alignment (Grob *me, Axis a)
   if (!grob_extent.is_empty () && (which_grob_extent != SCM_EOL))
     offset -= grob_extent.linear_combination (grob_alignment);
 
-  SCM parent_property = parent->get_property (which_parent_extent);
+  SCM parent_property = him->get_property (which_parent_extent);
   Interval parent_extent = (scm_is_pair (parent_property))
                            ? ly_scm2interval (parent_property)
-                           : parent->extent (parent, a);
+                           : him->extent (him, a);
 
   if (!parent_extent.is_empty () && (which_parent_extent != SCM_EOL))
     offset += parent_extent.linear_combination (parent_alignment);
