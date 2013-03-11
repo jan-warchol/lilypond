@@ -58,7 +58,7 @@ Self_alignment_interface::centered_on_note_columns (SCM smob)
   Interval centers;
   for (vsize i = 0; i < elts.size (); i++)
     if (Note_column::has_interface (elts[i]))
-      centers.add_point (scm_to_double (centered_on_object (elts[i], X_AXIS)));
+      centers.add_point (robust_relative_extent (elts[i], elts[i], X_AXIS).center ());
 
   if (centers.is_empty ())
     return scm_from_double (0.0);
