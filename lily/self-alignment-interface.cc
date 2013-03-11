@@ -90,17 +90,20 @@ Self_alignment_interface::fofo (SCM smob)
   Grob *me = unsmob_grob (smob);
   Grob *parenta = me->get_parent(X_AXIS);
   message (parenta->name());
-  Grob *glop = unsmob_grob(parenta->get_object ("stem"));
+  Grob *boo = unsmob_grob(parenta->get_object ("stem"));
+  Grob *glop = unsmob_grob(boo->get_object ("flag"));
   message ("mamny stema? " + glop->name());
+  message (to_string(me->relative_coordinate(glop, X_AXIS)));
+  message (to_string(glop->relative_coordinate(me, X_AXIS)));
   message (to_string(glop->extent(glop, X_AXIS).linear_combination(-1)));
   message (to_string(glop->extent(glop, X_AXIS).linear_combination(1)));
-  message (to_string(robust_relative_extent (me, glop, X_AXIS).linear_combination(-1)));
-  message (to_string(robust_relative_extent (me, glop, X_AXIS).linear_combination(1)));
+  message (to_string(robust_relative_extent (glop, me, X_AXIS).linear_combination(-1)));
+  message (to_string(robust_relative_extent (glop, me, X_AXIS).linear_combination(1)));
   /*
   unsmob_grob(me->get_object ("stem")),
           message (him->name());
           */
-  return scm_from_double (0);
+  return scm_from_double (robust_relative_extent (glop, me, X_AXIS).center ());
   //return scm_from_double (robust_relative_extent (me, glop, X_AXIS).center ());
 //  return general_alignment (me, glop, X_AXIS);
 }
