@@ -77,7 +77,7 @@ Self_alignment_interface::convert (Grob *me, Axis a, SCM align_val, bool selfish
   SCM ext_sym = (a == X_AXIS)
                 ? ly_symbol2scm ("X-extent")
                 : ly_symbol2scm ("Y-extent");
-  me->set_property ("X-alignment",
+  me->set_property (align_sym,
                     scm_list_3 (scm_cons (ext_sym, align_val),
                                 selfish ? SCM_EOL : scm_cons (ext_sym, align_val),
                                 scm_from_double (0)));
