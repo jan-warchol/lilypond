@@ -83,6 +83,14 @@ Self_alignment_interface::convert (Grob *me, Axis a, SCM align_val, bool selfish
                                 scm_from_double (0)));
 }
 
+MAKE_SCHEME_CALLBACK (Self_alignment_interface, fofo, 1);
+SCM
+Self_alignment_interface::fofo (SCM smob)
+{
+  Grob *me = unsmob_grob (smob);
+  return general_alignment (me, unsmob_grob(me->get_object ("stem")), X_AXIS);
+}
+
 MAKE_SCHEME_CALLBACK (Self_alignment_interface, centered_on_x_parent, 1);
 SCM
 Self_alignment_interface::centered_on_x_parent (SCM smob)
