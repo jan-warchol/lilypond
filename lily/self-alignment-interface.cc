@@ -92,13 +92,17 @@ Self_alignment_interface::fofo (SCM smob)
   message (parenta->name());
   Grob *glop = unsmob_grob(parenta->get_object ("stem"));
   message ("mamny stema? " + glop->name());
-  message (to_string(glop->extent(glop, Y_AXIS).linear_combination(0)));
-  message (to_string(glop->extent(glop, Y_AXIS).linear_combination(1)));
+  message (to_string(glop->extent(glop, X_AXIS).linear_combination(-1)));
+  message (to_string(glop->extent(glop, X_AXIS).linear_combination(1)));
+  message (to_string(robust_relative_extent (me, glop, X_AXIS).linear_combination(-1)));
+  message (to_string(robust_relative_extent (me, glop, X_AXIS).linear_combination(1)));
   /*
   unsmob_grob(me->get_object ("stem")),
           message (him->name());
           */
-  return general_alignment (me, glop, X_AXIS);
+  return scm_from_double (0);
+  //return scm_from_double (robust_relative_extent (me, glop, X_AXIS).center ());
+//  return general_alignment (me, glop, X_AXIS);
 }
 
 MAKE_SCHEME_CALLBACK (Self_alignment_interface, centered_on_x_parent, 1);
