@@ -139,6 +139,16 @@ Self_alignment_interface::y_align_grob (SCM smob)
   aligning 'me' on something else than its parent), but that'd be a wrong
   approach.  If we want to align me on another grob, what we need to do is
   change appropriate parent to be that grob. (TODO: did i get this right? --jw)
+
+  TODO: Also, Mike Solomon suggested to make a more generic funciton that would
+  accept a vector of grobs to align with (instead of simply grabbing a parent).
+  His idea was inspired by the fact that sometimes we need to grab a notecolumn
+  and align on it (for example when the parent is a PaperColumn and we cannot
+  use him), so maybe we could allow aligning on arbitrary set of grobs.
+  However, i don't think this is a good idea.  Aligning on NoteColumns is an
+  exception, and we generally align to a single grob - aligning to multiple grobs
+  seems to be something strange.  Thoughts? --jw
+  see https://codereview.appspot.com/7768043#msg12
 */
 SCM
 Self_alignment_interface::align_grob (Grob *me, Axis a, bool pure, int start, int end)
@@ -166,10 +176,20 @@ Self_alignment_interface::align_grob (Grob *me, Axis a, bool pure, int start, in
   // calculate offset related to grob's parent dimensions
   if (scm_is_number (his_alignment))
     {
+      Interval his_ext;
       if (Paper_column::has_interface (him))
-        return scm_from_double (0.0);
-
-      Interval his_ext = him->maybe_pure_extent (him, a, pure, start, end);
+        /*
+          PaperColumn extents aren't reliable (they depend on size and alignment
+          of PaperColumn's children), so we cannot use them. Instead, we extract
+          the extent of a respective NoteColumn and align on it.
+          This situation (i.e. having PaperColumn as parent) happens for example
+          for unassociated lyrics (i.e. lyrics without associatedVoice set),
+          or dynamics attached to spacers.
+        */
+        his_ext = Paper_column::get_generic_interface_extent
+                  (him, ly_symbol2scm ("note-column-interface"), a);
+      else
+        his_ext = him->maybe_pure_extent (him, a, pure, start, end);
 
       // Empty extent doesn't mean an error - we simply don't align such grobs.
       // However, empty extent and non-empty stencil would be suspicious.
