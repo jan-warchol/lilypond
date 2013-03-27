@@ -776,12 +776,38 @@ stem distance.")
 scripts in a stack, by being added to the position of the script in
 the user input, the sum being the overall priority.  Smaller means
 closer to the head.")
-     (self-alignment-X ,number? "Specify alignment of an object.  The
-value @w{@code{-1}} means left aligned, @code{0}@tie{}centered, and
-@code{1}@tie{}right-aligned in X@tie{}direction.  Other numerical
-values may also be specified.")
-     (self-alignment-Y ,number? "Like @code{self-alignment-X} but for
-the Y@tie{}axis.")
+
+;; TODO: this is complicated.  It should be written in a less technical
+;; manner - suggestions?  Feedback from doc writers and power-users-not-
+;; developers is welcome!
+;; If you have trouble understanding this explanation, look here:
+;; http://lists.gnu.org/archive/html/lilypond-user/2013-03/msg00956.html
+;;
+;; TODO: since
+;;   \override Grob #'self-alignment-X = #LEFT
+;; is equivalent to
+;;   \override Grob #'self-alignment-X = #-1
+;; it would be nice if something like
+;;   \override Grob #'self-alignment-X = #'(LEFT . RIGHT)
+;; was interpreted as
+;;   \override Grob #'self-alignment-X = #'(-1 . 1)
+;; but as of now using #'(LEFT . RIGHT) results in error.
+;; can this be done?
+
+     (self-alignment-X ,number-or-pair? "Specify horizontal alignment
+of an object.  This may be a number or a pair of numbers.  In case of
+a single number, anchors of the grob and its parent are synchronized:
+for example, value @code{-1} means that grob's left edge will be aligned
+with parent's left edge, @code{0} means that centers of both objects
+will be aligned, and @code{1} will align right edges.
+If a pair of numbers is given, anchors will be calculated separately:
+@code{'(-1 . 1)} will result in grobs' left edge being aligned to
+parent's right edge.  Other numerical values may also be specified.
+If some value is set to @code{#f}, default reference point will be
+used.  For example, @code{'(0 . #f)} will align grob's center to the
+default refererence point of its parent.")
+     (self-alignment-Y ,number-or-pair? "Like @code{self-alignment-X}
+but for the Y@tie{}axis.")
      (sharp-positions ,list? "Sharps in key signatures are placed
 within the specified ranges of staff-positions.  The general form
 is a list of pairs, with one pair for each type of clef, in order

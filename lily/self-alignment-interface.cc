@@ -160,15 +160,27 @@ Self_alignment_interface::align_grob (Grob *me, Axis a, bool pure, int start, in
                   ? me->internal_get_property (ly_symbol2scm ("self-alignment-X"))
                   : me->internal_get_property (ly_symbol2scm ("self-alignment-Y"));
 
+  SCM my_alignment, his_alignment;
+  if (scm_is_pair (alignment))
+    {
+      my_alignment = scm_car (alignment);
+      his_alignment = scm_cdr (alignment);
+    }
+  else
+    {
+      my_alignment = alignment;
+      his_alignment = alignment;
+    }
+
   // calculate offset related to grob's own dimensions
-  if (scm_is_number (alignment))
+  if (scm_is_number (my_alignment))
     {
       Interval my_ext = me->maybe_pure_extent (me, a, pure, start, end);
 
       // Empty extent doesn't mean an error - we simply don't align such grobs.
       // However, empty extent and non-empty stencil would be suspicious.
       if (!my_ext.is_empty ())
-        offset -= my_ext.linear_combination (scm_to_double (alignment));
+        offset -= my_ext.linear_combination (scm_to_double (my_alignment));
       else if (me->get_stencil ())
         warning (me->name () + " has empty extent and non-empty stencil.");
     }
@@ -194,7 +206,7 @@ Self_alignment_interface::align_grob (Grob *me, Axis a, bool pure, int start, in
       // Empty extent doesn't mean an error - we simply don't align such grobs.
       // However, empty extent and non-empty stencil would be suspicious.
       if (!his_ext.is_empty ())
-        offset += his_ext.linear_combination (scm_to_double (alignment));
+        offset += his_ext.linear_combination (scm_to_double (his_alignment));
       else if (him->get_stencil ())
         warning (him->name () + " has empty extent and non-empty stencil.");
     }
