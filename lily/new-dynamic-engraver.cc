@@ -271,7 +271,6 @@ New_dynamic_engraver::acknowledge_note_column (Grob_info info)
       if (x_parent)
         {
           script_->set_parent (x_parent, X_AXIS);
-          Self_alignment_interface::set_center_parent (script_, X_AXIS);
         }
       if (stem)
         Pointer_group_interface::add_grob (script_, ly_symbol2scm ("potential-X-colliding-grobs"), stem);
