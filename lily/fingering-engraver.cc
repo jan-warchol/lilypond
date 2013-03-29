@@ -104,14 +104,6 @@ Fingering_engraver::make_script (Direction d, Stream_event *r, int i)
   if (unsmob_pitch (pitch))
     fingering->set_property ("pitch", pitch);
 
-  /*
-    We can't fold these definitions into define-grobs since
-    fingerings for chords need different settings.
-  */
-  Side_position_interface::set_axis (fingering, Y_AXIS);
-  Self_alignment_interface::set_align_self (fingering, X_AXIS);
-  Self_alignment_interface::set_center_parent (fingering, X_AXIS);
-
   // Hmm
   int priority = 200;
   SCM s = fingering->get_property ("script-priority");
@@ -134,6 +126,28 @@ Fingering_engraver::make_script (Direction d, Stream_event *r, int i)
 void
 Fingering_engraver::stop_translation_timestep ()
 {
+  /*
+    We can't do alignment stuff earlier because X-parent must
+    be set before calling x_align_grob.
+
+    FIXME: We can't fold these definitions into define-grobs
+    because fingerings for chords need different settings.
+    Maybe this could be done in a smarter way?  --jw
+  */
+  for (vsize i = fingerings_.size (); i--;)
+    {
+      // QUESTION: Mike Solomon suggested using chain_offset_callback
+      // instead of set_property below, but i don't understand what for.
+      // Current solution seems ok to me. --jw
+
+      // don't overwrite offset property if it was overridden by the user
+      if (fingerings_[i]->get_property (ly_symbol2scm ("X-offset")) == SCM_EOL)
+        fingerings_[i]->set_property (ly_symbol2scm ("X-offset"),
+                                      Self_alignment_interface::x_align_grob (fingerings_[i]->self_scm ()));
+
+      Side_position_interface::set_axis (fingerings_[i], Y_AXIS);
+    }
+
   fingerings_.clear ();
   events_.clear ();
 }
