@@ -214,22 +214,6 @@ Self_alignment_interface::align_grob (Grob *me, Axis a, bool pure, int start, in
   return scm_from_double (offset);
 }
 
-void
-Self_alignment_interface::set_center_parent (Grob *me, Axis a)
-{
-  add_offset_callback (me,
-                       (a == X_AXIS) ? centered_on_x_parent_proc : centered_on_y_parent_proc,
-                       a);
-}
-
-void
-Self_alignment_interface::set_align_self (Grob *me, Axis a)
-{
-  add_offset_callback (me,
-                       (a == X_AXIS) ? x_aligned_on_self_proc : y_aligned_on_self_proc,
-                       a);
-}
-
 ADD_INTERFACE (Self_alignment_interface,
                "Align a particular point of this object on"
                " a particular point of its parent, for example"
