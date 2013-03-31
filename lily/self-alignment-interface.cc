@@ -134,7 +134,15 @@ Self_alignment_interface::align_grob (Grob *me, Axis a, bool pure, int start, in
   // calculate offset related to grob's own dimensions
   if (scm_is_number (my_alignment))
     {
-      Interval my_ext = me->maybe_pure_extent (me, a, pure, start, end);
+      Interval my_ext;
+      SCM what_ext = (a == X_AXIS)
+                     ? me->internal_get_property (ly_symbol2scm ("X-align-extent"))
+                     : me->internal_get_property (ly_symbol2scm ("Y-align-extent"));
+
+      if (scm_is_symbol (what_ext))
+        my_ext = ly_scm2interval (me->internal_get_property (what_ext));
+      else
+        my_ext = me->maybe_pure_extent (me, a, pure, start, end);
 
       // Empty extent doesn't mean an error - we simply don't align such grobs.
       // However, empty extent and non-empty stencil would be suspicious.
