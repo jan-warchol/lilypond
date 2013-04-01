@@ -137,12 +137,14 @@
     (AmbitusLine
      . (
 	(gap . 0.35)
+	(self-alignment-X . ,CENTER)
 	(stencil . ,ambitus::print)
 	(thickness . 2)
-	(X-offset . ,ly:self-alignment-interface::centered-on-x-parent)
+	(X-offset . ,ly:self-alignment-interface::x-align-grob)
 	(meta . ((class . Item)
 		 (interfaces . (ambitus-interface
-				font-interface))))))
+				font-interface
+				self-alignment-interface))))))
 
     (AmbitusNoteHead
      . (
