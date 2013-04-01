@@ -1755,7 +1755,7 @@
 	(outside-staff-horizontal-padding . 0.12)
 	(outside-staff-priority . 1500)
 	(padding . 0.8)
-	(self-alignment-X . ,CENTER)
+	(self-alignment-X . (,CENTER . #f))
 	(stencil . ,ly:text-interface::print)
 	(vertical-skylines . ,grob::always-vertical-skylines-from-stencil)
 	(X-offset . ,(ly:make-simple-closure
@@ -1763,7 +1763,7 @@
 			,(ly:make-simple-closure
 			  (list ly:break-alignable-interface::self-align-callback))
 			,(ly:make-simple-closure
-			  (list ly:self-alignment-interface::x-aligned-on-self)))))
+			  (list ly:self-alignment-interface::x-align-grob)))))
 	(Y-offset . ,side-position-interface::y-aligned-side)
 	(Y-extent . ,grob::always-Y-extent-from-stencil)
 	(meta . ((class . Item)
