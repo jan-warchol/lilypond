@@ -17,7 +17,7 @@
       c'16 \startTextSpan c' c' c' \stopTextSpan 
    }
    \new Staff {
-     \override TextScript.self-alignment-X = #RIGHT 
+     \override TextScript.self-alignment-X = #'(1 . -1)
      \repeat unfold 2 {c'4 _ \markup { "FAT" } } 
    }
 >>
