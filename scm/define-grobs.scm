@@ -1045,13 +1045,8 @@
 	(layer . 0)
 	(self-alignment-X . ,CENTER)
 	(stencil . ,ly:grid-line-interface::print)
-	(X-extent  . ,ly:grid-line-interface::width)
-	(X-offset . ,(ly:make-simple-closure
-		      `(,+
-			,(ly:make-simple-closure
-			  (list ly:self-alignment-interface::centered-on-x-parent))
-			,(ly:make-simple-closure
-			  (list ly:self-alignment-interface::x-aligned-on-self)))))
+	(X-extent . ,ly:grid-line-interface::width)
+	(X-offset . ,ly:self-alignment-interface::x-align-grob)
 	(meta . ((class . Item)
 		 (interfaces . (grid-line-interface
 				self-alignment-interface))))))
