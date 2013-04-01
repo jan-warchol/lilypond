@@ -1416,8 +1416,8 @@
 			,(ly:make-simple-closure
 			  (list ly:break-alignable-interface::self-align-callback))
 			,(ly:make-simple-closure
-			  (list ly:self-alignment-interface::x-aligned-on-self)))))
-	(self-alignment-X . ,LEFT)
+			  (list ly:self-alignment-interface::x-align-grob)))))
+	(self-alignment-X . (,LEFT . #f))
 	(break-align-symbols . (time-signature))
 	(non-break-align-symbols . (multi-measure-rest-interface))
 	(Y-extent . ,grob::always-Y-extent-from-stencil)
