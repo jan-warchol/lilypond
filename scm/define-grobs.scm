@@ -254,7 +254,7 @@
 	(horizon-padding . 0.05)
 	(outside-staff-priority . 100)
 	(padding . 1.0)
-	(self-alignment-X . ,RIGHT)
+	(self-alignment-X . (,RIGHT . #f))
 	(side-axis . ,Y)
 	(stencil . ,ly:text-interface::print)
 	(X-offset . ,(ly:make-simple-closure
@@ -262,7 +262,7 @@
 			,(ly:make-simple-closure
 			  (list ly:break-alignable-interface::self-align-callback))
 			,(ly:make-simple-closure
-			  (list ly:self-alignment-interface::x-aligned-on-self)))))
+			  (list ly:self-alignment-interface::x-align-grob)))))
 	(Y-offset . ,side-position-interface::y-aligned-side)
 	(Y-extent . ,grob::always-Y-extent-from-stencil)
 	(meta .
