@@ -590,15 +590,16 @@
 	(outside-staff-priority . 450)
 	(padding . 0.5)
 	(script-priority . 200)
+	(self-alignment-X . ,LEFT)
 	(side-axis . ,Y)
 	(staff-padding . 0.5)
-	;; todo: add X self alignment?
 	(stencil . ,ly:text-interface::print)
-	(X-offset . ,ly:self-alignment-interface::x-aligned-on-self)
+	(X-offset . ,ly:self-alignment-interface::x-align-grob)
 	(Y-offset . ,side-position-interface::y-aligned-side)
 	(Y-extent . ,grob::always-Y-extent-from-stencil)
 	(meta . ((class . Item)
 		 (interfaces . (font-interface
+		                self-alignment-interface
 				side-position-interface
 				text-interface
 				text-script-interface))))))
