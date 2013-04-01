@@ -1102,7 +1102,7 @@
 	(direction . ,LEFT)
 	(padding . 0.3)
 	(self-alignment-X . ,CENTER)
-	(self-alignment-Y . ,CENTER)
+	(self-alignment-Y . (,CENTER . #f))
 	(stencil . ,system-start-text::print)
 	(X-offset . ,system-start-text::calc-x-offset)
 	(Y-offset . ,system-start-text::calc-y-offset)

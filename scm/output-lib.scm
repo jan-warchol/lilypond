@@ -1229,7 +1229,7 @@ and draws the stencil based on its coordinates.
 	(ly:grob-suicide! grob))
 
     (+
-     (ly:self-alignment-interface::y-aligned-on-self grob)
+     (ly:self-alignment-interface::y-align-grob grob)
      (interval-center extent))))
 
 
