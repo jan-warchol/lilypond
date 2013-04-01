@@ -1842,6 +1842,7 @@
 	(direction . ,ly:script-interface::calc-direction)
 	(font-encoding . fetaMusic)
 	(positioning-done . ,ly:script-interface::calc-positioning-done)
+	(self-alignment-X . ,CENTER)
 	(side-axis . ,Y)
 
 	;; padding set in script definitions.
@@ -1856,6 +1857,7 @@
 	(meta . ((class . Item)
 		 (interfaces . (font-interface
 				script-interface
+				self-alignment-interface
 				side-position-interface))))))
 
     (ScriptColumn
