@@ -931,15 +931,17 @@
     (Flag
      . (
 	(glyph-name . ,ly:flag::glyph-name)
+	(self-alignment-X . (#f . ,RIGHT))
 	(stencil . ,ly:flag::print)
 	(X-extent . ,ly:flag::width)
-	(X-offset . ,ly:flag::calc-x-offset)
+	(X-offset . ,ly:self-alignment-interface::x-align-grob)
 	(Y-offset . ,(ly:make-unpure-pure-container ly:flag::calc-y-offset ly:flag::pure-calc-y-offset))
 	(Y-extent . ,grob::always-Y-extent-from-stencil)
 	(vertical-skylines . ,grob::always-vertical-skylines-from-stencil)
 	(meta . ((class . Item)
 		 (interfaces . (flag-interface
-                                font-interface))))))
+                                font-interface
+                                self-alignment-interface))))))
 
     (FootnoteItem
      . (

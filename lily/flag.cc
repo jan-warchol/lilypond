@@ -37,7 +37,6 @@ public:
   DECLARE_SCHEME_CALLBACK (width, (SCM));
   DECLARE_SCHEME_CALLBACK (calc_y_offset, (SCM));
   DECLARE_SCHEME_CALLBACK (pure_calc_y_offset, (SCM, SCM, SCM));
-  DECLARE_SCHEME_CALLBACK (calc_x_offset, (SCM));
   DECLARE_GROB_INTERFACE ();
 
   static SCM internal_calc_y_offset (SCM smob, bool pure);
@@ -193,15 +192,6 @@ Flag::internal_calc_y_offset (SCM smob, bool pure)
   return scm_from_double (stem_extent.is_empty ()
                           ? 0.0
                           : stem_extent[d] - d * blot / 2);
-}
-
-MAKE_SCHEME_CALLBACK (Flag, calc_x_offset, 1);
-SCM
-Flag::calc_x_offset (SCM smob)
-{
-  Grob *me = unsmob_grob (smob);
-  Grob *stem = me->get_parent (X_AXIS);
-  return scm_from_double (stem->extent (stem, X_AXIS)[RIGHT]);
 }
 
 ADD_INTERFACE (Flag,
