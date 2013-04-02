@@ -79,6 +79,24 @@ MAKE_SCHEME_CALLBACK (Self_alignment_interface, centered_on_x_parent, 1);
 SCM
 Self_alignment_interface::centered_on_x_parent (SCM smob)
 {
+  Grob *me = unsmob_grob(smob);
+  /*
+    Notice that while Percent repeats work correctly, MMrest numbers and texts
+    do not: despite the fact that in Multi_measure_rest_engraver::process_music
+    we assigned the same grob as both parents, here different X- and Y-parents
+    are reported:
+
+        I'm a MultiMeasureRestNumber and my parents are:
+        X: NonMusicalPaperColumn Y: MultiMeasureRest
+
+  */
+  //message ("I'm a " + me->name() + " and my parents are:");
+  //message ("X: " + me->get_parent(X_AXIS)->name() + " Y: " + me->get_parent(Y_AXIS)->name());
+  /*
+    uncomment the line below to reassign current Y-parent as X-parent
+    (and the alignment will be correct!)
+  */
+  // me->set_parent(me->get_parent(Y_AXIS), X_AXIS);
   return centered_on_object (unsmob_grob (smob)->get_parent (X_AXIS), X_AXIS);
 }
 

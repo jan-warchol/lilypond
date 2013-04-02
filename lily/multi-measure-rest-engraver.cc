@@ -146,6 +146,12 @@ Multi_measure_rest_engraver::process_music ()
         {
           Side_position_interface::add_support (numbers_[i], mmrest_);
           numbers_[i]->set_parent (mmrest_, Y_AXIS);
+          /*
+            It appears that this is the place where we assign parents to
+            MMRest numbers. Since we want X-parent to be the same as Y_parent,
+            let's just assign the same grob.
+          */
+          numbers_[i]->set_parent (mmrest_, X_AXIS);
         }
 
       start_measure_

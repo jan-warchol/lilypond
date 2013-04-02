@@ -777,7 +777,7 @@
         (X-offset . ,(ly:make-simple-closure
                       `(,+
                         ,(ly:make-simple-closure
-                          (list ly:self-alignment-interface::centered-on-y-parent))
+                          (list ly:self-alignment-interface::centered-on-x-parent))
                         ,(ly:make-simple-closure
                           (list ly:self-alignment-interface::x-aligned-on-self)))))
         (Y-offset . ,side-position-interface::y-aligned-side)
@@ -1522,7 +1522,7 @@
                         ,(ly:make-simple-closure
                           (list ly:self-alignment-interface::x-aligned-on-self))
                         ,(ly:make-simple-closure
-                          (list ly:self-alignment-interface::x-centered-on-y-parent)))))
+                          (list ly:self-alignment-interface::centered-on-x-parent)))))
         (Y-offset . ,side-position-interface::y-aligned-side)
         (vertical-skylines . ,grob::unpure-vertical-skylines-from-stencil)
         (Y-extent . ,grob::always-Y-extent-from-stencil)
@@ -1545,7 +1545,7 @@
         (X-offset . ,(ly:make-simple-closure
                       `(,+
                         ,(ly:make-simple-closure
-                          (list ly:self-alignment-interface::x-centered-on-y-parent))
+                          (list ly:self-alignment-interface::centered-on-x-parent))
                         ,(ly:make-simple-closure
                           (list ly:self-alignment-interface::x-aligned-on-self)))))
         (Y-offset . ,side-position-interface::y-aligned-side)
@@ -1746,7 +1746,7 @@
         (X-offset . ,(ly:make-simple-closure
                       `(,+
                         ,(ly:make-simple-closure
-                          (list ly:self-alignment-interface::x-centered-on-y-parent))
+                          (list ly:self-alignment-interface::centered-on-x-parent))
                         ,(ly:make-simple-closure
                           (list ly:self-alignment-interface::x-aligned-on-self)))))
         (Y-offset . ,side-position-interface::y-aligned-side)

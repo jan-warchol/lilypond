@@ -133,6 +133,12 @@ Percent_repeat_engraver::process_music ()
           percent_counter_->set_bound (LEFT, col);
           Side_position_interface::add_support (percent_counter_, percent_);
           percent_counter_->set_parent (percent_, Y_AXIS);
+          /*
+            It appears that this is the place where we assign parents to
+            percent counters. Since we want X-parent to be the same as Y_parent,
+            let's just assign the same grob.
+          */
+          percent_counter_->set_parent (percent_, X_AXIS);
         }
       else
         percent_counter_ = 0;
