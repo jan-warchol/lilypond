@@ -110,55 +110,76 @@ Self_alignment_interface::centered_on_y_parent (SCM smob)
   return centered_on_object (unsmob_grob (smob)->get_parent (Y_AXIS), Y_AXIS);
 }
 
-MAKE_SCHEME_CALLBACK (Self_alignment_interface, aligned_on_x_parent, 1);
+MAKE_SCHEME_CALLBACK (Self_alignment_interface, x_align_grob, 1);
 SCM
-Self_alignment_interface::aligned_on_x_parent (SCM smob)
+Self_alignment_interface::x_align_grob (SCM smob)
 {
-  return aligned_on_parent (unsmob_grob (smob), X_AXIS);
+  Grob *me = unsmob_grob (smob);
+  return align_grob (me, X_AXIS, false, 0, 0);
 }
 
-MAKE_SCHEME_CALLBACK (Self_alignment_interface, aligned_on_y_parent, 1);
+MAKE_SCHEME_CALLBACK (Self_alignment_interface, y_align_grob, 1);
 SCM
-Self_alignment_interface::aligned_on_y_parent (SCM smob)
+Self_alignment_interface::y_align_grob (SCM smob)
 {
-  return aligned_on_parent (unsmob_grob (smob), Y_AXIS);
+  Grob *me = unsmob_grob (smob);
+  return align_grob (me, Y_AXIS, false, 0, 0);
 }
 
+/*
+  Positioning of grobs is done relative to their parents in respective axes.
+  Grob properties [XY]-offset measure the displacement between grob's reference
+  point and the reference point of grob's parent in [XY]_AXIS (in staffspaces).
+
+  To align a particular point of the grob with a particular point of its parent
+  one has to calculate what this offset should be, based on dimensions (extents)
+  of both objects.
+
+  There was an idea to pass the reference grob as another argument (to allow
+  aligning 'me' on something else than its parent), but that'd be a wrong
+  approach.  If we want to align me on another grob, what we need to do is
+  change appropriate parent to be that grob. (TODO: did i get this right? --jw)
+*/
 SCM
-Self_alignment_interface::aligned_on_parent (Grob *me, Axis a)
+Self_alignment_interface::align_grob (Grob *me, Axis a, bool pure, int start, int end)
 {
+  Real offset = 0.0;
   Grob *him = me->get_parent (a);
-  if (Paper_column::has_interface (him))
-    return scm_from_double (0.0);
 
-  Interval he = him->extent (him, a);
+  SCM alignment = (a == X_AXIS)
+                  ? me->internal_get_property (ly_symbol2scm ("self-alignment-X"))
+                  : me->internal_get_property (ly_symbol2scm ("self-alignment-Y"));
 
-  SCM sym = (a == X_AXIS) ? ly_symbol2scm ("self-alignment-X")
-            : ly_symbol2scm ("self-alignment-Y");
-  SCM align_prop (me->internal_get_property (sym));
+  // calculate offset related to grob's own dimensions
+  if (scm_is_number (alignment))
+    {
+      Interval my_ext = me->maybe_pure_extent (me, a, pure, start, end);
 
-  if (!scm_is_number (align_prop))
-    return scm_from_int (0);
+      // Empty extent doesn't mean an error - we simply don't align such grobs.
+      // However, empty extent and non-empty stencil would be suspicious.
+      if (!my_ext.is_empty ())
+        offset -= my_ext.linear_combination (scm_to_double (alignment));
+      else if (me->get_stencil ())
+        warning (me->name () + " has empty extent and non-empty stencil.");
+    }
 
-  Real x = 0.0;
-  Real align = scm_to_double (align_prop);
+  // calculate offset related to grob's parent dimensions
+  if (scm_is_number (his_alignment))
+    {
+      if (Paper_column::has_interface (him))
+        return scm_from_double (0.0);
 
-  Interval ext (me->extent (me, a));
+      Interval his_ext = him->maybe_pure_extent (him, a, pure, start, end);
 
-  // Empty extent doesn't mean an error - we simply don't align such grobs.
-  // However, empty extent and non-empty stencil would be suspicious.
-  if (!ext.is_empty ())
-    x -= ext.linear_combination (align);
-  else if (me->get_stencil ())
-    warning (me->name () + " has empty extent and non-empty stencil.");
+      // Empty extent doesn't mean an error - we simply don't align such grobs.
+      // However, empty extent and non-empty stencil would be suspicious.
+      if (!his_ext.is_empty ())
+        offset += his_ext.linear_combination (scm_to_double (alignment));
+      else if (him->get_stencil ())
+        warning (him->name () + " has empty extent and non-empty stencil.");
+    }
 
-  // See comment above.
-  if (!he.is_empty ())
-    x += he.linear_combination (align);
-  else if (him->get_stencil ())
-    warning (him->name () + " has empty extent and non-empty stencil.");
-
-  return scm_from_double (x);
+  return scm_from_double (offset);
 }
 
 void
@@ -178,18 +199,11 @@ Self_alignment_interface::set_align_self (Grob *me, Axis a)
 }
 
 ADD_INTERFACE (Self_alignment_interface,
-               "Position this object on itself and/or on its parent.  To this"
-               " end, the following functions are provided:\n"
-               "\n"
-               "@table @code\n"
-               "@item Self_alignment_interface::[xy]_aligned_on_self\n"
-               "Align self on reference point, using"
-               " @code{self-alignment-X} and @code{self-alignment-Y}."
-               "@item Self_alignment_interface::aligned_on_[xy]_parent\n"
-               "@item Self_alignment_interface::centered_on_[xy]_parent\n"
-               "Shift the object so its own reference point is centered on"
-               " the extent of the parent\n"
-               "@end table\n",
+               "Align a particular point of this object on"
+               " a particular point of its parent, for example"
+               " object's reference point on its parent's center."
+               " Alignment is read from properties @code{self-alignment-X}"
+               " and @code{self-alignment-Y}.",
 
                /* properties */
                "collision-bias "

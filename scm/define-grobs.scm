@@ -1352,7 +1352,7 @@
 	(word-space . 0.6)
 	(skyline-horizontal-padding . 0.1)
 	(vertical-skylines . ,grob::always-vertical-skylines-from-stencil)
-	(X-offset . ,ly:self-alignment-interface::aligned-on-x-parent)
+	(X-offset . ,ly:self-alignment-interface::x-align-grob)
 	(Y-extent . ,grob::always-Y-extent-from-stencil)
 	(meta . ((class . Item)
 		 (interfaces . (font-interface
