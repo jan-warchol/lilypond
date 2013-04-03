@@ -671,6 +671,8 @@ easy-notation note heads.")
 ;;
 ;; o
 ;;
+     (octavate-eight-alignments ,list? "An alist of alignments
+that should be used for octavate eights with various clefs")
      (outside-staff-horizontal-padding ,number? "By default, an
 outside-staff-object can be placed so that is it very close to another
 grob horizontally.  If this property is set, the outside-staff-object

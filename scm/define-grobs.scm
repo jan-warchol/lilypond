@@ -1602,7 +1602,11 @@
 	(break-visibility . ,inherit-x-parent-visibility)
 	(font-shape . italic)
 	(font-size . -4)
-	(self-alignment-X . ,CENTER)
+	(octavate-eight-alignments . (
+	                              (G . (0.5 . 0))
+	                              (F . (0.8 . 0.6))
+	                              (C . (0 . 0))))
+	(self-alignment-X . ,ly:octavate-eight::calc-alignment)
 	(staff-padding . 0.2)
 	(stencil . ,ly:text-interface::print)
 	(X-offset . ,ly:self-alignment-interface::x-align-grob)
