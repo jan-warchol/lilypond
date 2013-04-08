@@ -183,6 +183,11 @@ Spanner::get_bound (Direction d) const
 /*
   Set the items that this spanner spans. If D == LEFT, we also set the
   X-axis parent of THIS to S.
+
+  Explanations:
+  some spanners get broken over line breaks, and the new pieces need new xparents (e.g. glissando, slur)
+  some grobs don't have grobs that would normally be their parents and so they need a fallback
+   (tupletnumber when there's no tupletbracket) ->> todo: maybe we shouldn't set such parents?
 */
 void
 Spanner::set_bound (Direction d, Grob *s)
@@ -204,13 +209,15 @@ Spanner::set_bound (Direction d, Grob *s)
       if (this->get_parent (X_AXIS))
         {
           if (this->get_parent (X_AXIS) == i)
-            message ("!!!i'm a " + this->name ()
-                     + " and my xparent is reset to be " + this->get_parent (X_AXIS)->name ());
+              message ("reassign");
+            //message ("!!!i'm a " + this->name ()
+              //       + " and my xparent is reset to be " + this->get_parent (X_AXIS)->name ());
           else if (this->get_parent (X_AXIS)->name () == "NonMusicalPaperColumn")
             {
               Paper_column *parcol = dynamic_cast<Paper_column *> (this->get_parent (X_AXIS));
               if (parcol->when_mom (i) == i->get_column ()->when_mom (i))
-                message ("  i'm a " + this->name () + " and this looks like a linebreak thing.");
+                  message ("linebreak");
+                //message ("  i'm a " + this->name () + " and this looks like a linebreak thing.");
               else
                 message ("OOK i'm a " + this->name ()
                          + " my xparent was " + this->get_parent (X_AXIS)->name ()
