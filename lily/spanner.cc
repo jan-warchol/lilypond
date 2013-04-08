@@ -182,7 +182,24 @@ Spanner::get_bound (Direction d) const
 
 /*
   Set the items that this spanner spans. If D == LEFT, we also set the
-  X-axis parent of THIS to S.
+  X-axis parent of THIS to S: usually, the horizontal posisition of a
+  spanner's left edge should be specified relative to its left bound.
+
+  For example, when a slur crosses a line break, it's broken into two
+  pieces.  The second piece shouldn't be positioned relative to the
+  original X-parent (i.e. the NoteColumn to which the beginning of the
+  Slur was attached), but rather to a PaperColumn after the break.
+
+  Also, sometimes a grob that would normally be the X-parent is empty.
+  For example, TupletNumber's default X-parent is TupletBracket, but
+  when the TupletBracket isn't displayed, another grob should be used
+  as TupletNumber's X-parent.
+
+  (TODO: maybe we shouldn't use such parents at all?
+  In other words, maybe we should check if a parent isn't empty when
+  we're setting it, and if necessary use another grob back then?)
+
+  There's an exception when we don't want to set X-parent, see below.
 */
 void
 Spanner::set_bound (Direction d, Grob *s)
@@ -200,7 +217,23 @@ Spanner::set_bound (Direction d, Grob *s)
      We check for System to prevent the column -> line_of_score
      -> column -> line_of_score -> etc situation */
   if (d == LEFT && !dynamic_cast<System *> (this))
-    set_parent (i, X_AXIS);
+    /*
+      In case of MultiMeasureRestTexts, MultiMeasureRestNumbers and
+      PercentRepeatCounters, their X-parents (MultiMeasureRest and
+      PercentRepeat, respectively) are spanners as well, so they are
+      split into pieces across linebreaks, too.
+      Therefore we don't need to overwrite these X-parents with i
+      (which would be a NonMusicalPaperColumn in that case). This allows
+      us to calc the alignment of MMRNumbers, MMRTexts and PRCounters
+      in a straightforward way (we can simply center on X-parent).
+
+      (TODO: maybe we should move this part of set_bound into
+      a separate function?)
+    */
+    if (this->name () != "MultiMeasureRestText"
+        && this->name () != "MultiMeasureRestNumber"
+        && this->name () != "PercentRepeatCounter")
+      set_parent (i, X_AXIS);
 
   /*
     Signal that this column needs to be kept alive. They need to be

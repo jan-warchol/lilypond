@@ -133,6 +133,9 @@ Percent_repeat_engraver::process_music ()
           percent_counter_->set_bound (LEFT, col);
           Side_position_interface::add_support (percent_counter_, percent_);
           percent_counter_->set_parent (percent_, Y_AXIS);
+          // we need a special case in Spanner::set_bound
+          // to avoid overwriting this (FIXME? --jw)
+          percent_counter_->set_parent (percent_, X_AXIS);
         }
       else
         percent_counter_ = 0;
