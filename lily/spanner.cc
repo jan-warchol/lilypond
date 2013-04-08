@@ -200,7 +200,33 @@ Spanner::set_bound (Direction d, Grob *s)
      We check for System to prevent the column -> line_of_score
      -> column -> line_of_score -> etc situation */
   if (d == LEFT && !dynamic_cast<System *> (this))
-    set_parent (i, X_AXIS);
+    {
+      if (this->get_parent (X_AXIS))
+        {
+          if (this->get_parent (X_AXIS) == i)
+            message ("!!!i'm a " + this->name ()
+                     + " and my xparent is reset to be " + this->get_parent (X_AXIS)->name ());
+          else if (this->get_parent (X_AXIS)->name () == "NonMusicalPaperColumn")
+            {
+              message ("i'm a " + this->name ()
+                       + " my xparent was " + this->get_parent (X_AXIS)->name ()
+                       + " " + this->get_parent (X_AXIS)->->get_column ()->when_mom (i).to_string ()
+                       + " and now itll be " + i->name ()
+                       + " " + i->get_column ()->when_mom (i).to_string ());
+            }
+          else
+            message ("i'm a " + this->name ()
+                     + " my xparent was " + this->get_parent (X_AXIS)->name ()
+                     + " " + this->get_parent (X_AXIS)->->get_column ()->when_mom (i).to_string ()
+                     + " and now itll be " + i->name ()
+                     + " " + i->get_column ()->when_mom (i).to_string ());
+        }
+      else
+        message ("    i'm a " + this->name ()
+                 + " i didn't have xparent, but now it's " + i->name ());
+
+      set_parent (i, X_AXIS);
+    }
 
   /*
     Signal that this column needs to be kept alive. They need to be
