@@ -209,14 +209,17 @@ Spanner::set_bound (Direction d, Grob *s)
           else if (this->get_parent (X_AXIS)->name () == "NonMusicalPaperColumn")
             {
               Paper_column *parcol = dynamic_cast<Paper_column *> (this->get_parent (X_AXIS));
-              message ("i'm a " + this->name ()
-                       + " my xparent was " + this->get_parent (X_AXIS)->name ()
-                       + " " + parcol->when_mom (i).to_string ()
-                       + " and now itll be " + i->name ()
-                       + " " + i->get_column ()->when_mom (i).to_string ());
+              if (parcol->when_mom (i) == i->get_column ()->when_mom (i))
+                message ("  i'm a " + this->name () + " and this looks like a linebreak thing.");
+              else
+                message ("OOK i'm a " + this->name ()
+                         + " my xparent was " + this->get_parent (X_AXIS)->name ()
+                         + " " + parcol->when_mom (i).to_string ()
+                         + " and now itll be " + i->name ()
+                         + " " + i->get_column ()->when_mom (i).to_string ());
             }
           else
-            message ("i'm a " + this->name ()
+            message ("WAAH me's a " + this->name ()
                      + " my xparent was " + this->get_parent (X_AXIS)->name ()
                      + " and now itll be " + i->name ());
         }
