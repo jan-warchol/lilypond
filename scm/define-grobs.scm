@@ -736,12 +736,7 @@
 	(side-axis . ,Y)
 	(staff-padding . 0.25)
 	(stencil . ,ly:text-interface::print)
-	(X-offset . ,(ly:make-simple-closure
-		      `(,+
-			,(ly:make-simple-closure
-			  (list ly:self-alignment-interface::centered-on-x-parent))
-			,(ly:make-simple-closure
-			  (list ly:self-alignment-interface::x-aligned-on-self)))))
+	(X-offset . ,ly:self-alignment-interface::x-align-grob)
 	(Y-offset . ,side-position-interface::y-aligned-side)
 	(Y-extent . ,grob::always-Y-extent-from-stencil)
 	(meta . ((class . Item)
@@ -1700,12 +1695,7 @@
 	(self-alignment-X . ,CENTER)
 	(staff-padding . 0.25)
 	(stencil . ,ly:text-interface::print)
-	(X-offset . ,(ly:make-simple-closure
-		      `(,+
-			,(ly:make-simple-closure
-			  (list ly:self-alignment-interface::centered-on-x-parent))
-			,(ly:make-simple-closure
-			  (list ly:self-alignment-interface::x-aligned-on-self)))))
+	(X-offset . ,ly:self-alignment-interface::x-align-grob)
 	(Y-offset . ,side-position-interface::y-aligned-side)
 	(Y-extent . ,grob::always-Y-extent-from-stencil)
 	(meta . ((class . Spanner)
