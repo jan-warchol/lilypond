@@ -108,6 +108,12 @@ Self_alignment_interface::y_align_grob (SCM smob)
   exception, and we generally align to a single grob - aligning to multiple grobs
   seems to be something strange.  Thoughts? --jw
   see https://codereview.appspot.com/7768043#msg12
+
+  TODO from Mike - quoting:
+  I'd recommend adding a sort of padding property to the self-alignment-interface
+  to get it completely there.  That is, imagine that we right align to a grob and
+  we want to be padded by 0.1  We should be able to do that.  That'd allow
+  self-alignment-interface to be used for grobs like InstrumentName.
 */
 SCM
 Self_alignment_interface::align_grob (Grob *me, Axis a, bool pure, int start, int end)
