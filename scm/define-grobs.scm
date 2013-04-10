@@ -1603,8 +1603,8 @@
 	(font-shape . italic)
 	(font-size . -4)
 	(octavate-eight-alignments . (
-	                              (G . (0.5 . 0))
-	                              (F . (0.8 . 0.6))
+	                              (G . (-0.25 . 0.1))
+	                              (F . (-0.3 . -0.25))
 	                              (C . (0 . 0))))
 	(self-alignment-X . ,ly:octavate-eight::calc-alignment)
 	(staff-padding . 0.2)
