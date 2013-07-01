@@ -69,6 +69,7 @@ class Tie_formatting_problem
   vector<Tie_configuration_variation> generate_extremal_tie_variations (Ties_configuration const &ties) const;
   vector<Tie_configuration_variation> generate_single_tie_variations (Ties_configuration const &ties) const;
 
+  /// ocena konfiguracji
   void score_configuration (Tie_configuration *) const;
   Real score_aptitude (Tie_configuration *, Tie_specification const &,
                        Ties_configuration *, int) const;

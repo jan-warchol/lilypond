@@ -112,6 +112,7 @@ Engraver::internal_make_grob (SCM symbol,
                               char const *fun)
 {
 #ifdef NDEBUG
+    /// WTF??
   (void)file;
   (void)line;
   (void)fun;

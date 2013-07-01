@@ -39,6 +39,7 @@ public:
   static SCM get_default_control_points (Grob *);
   DECLARE_SCHEME_CALLBACK (print, (SCM));
   DECLARE_SCHEME_CALLBACK (set_spacing_rods, (SCM));
+  ///< so perhaps setting rods, which guarantee some minimal gap between tied notes
   DECLARE_SCHEME_CALLBACK (calc_direction, (SCM));
   DECLARE_SCHEME_CALLBACK (calc_control_points, (SCM));
   static bool less (Grob *const &s1,

@@ -23,6 +23,8 @@
 #include "lily-proto.hh"
 #include "drul-array.hh"
 
+/// Description of what should tie look like.
+
 struct Tie_specification
 {
   int position_;

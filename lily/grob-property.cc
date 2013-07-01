@@ -166,6 +166,7 @@ Grob::internal_get_property (SCM sym) const
   SCM val = get_property_data (sym);
 
 #ifndef NDEBUG
+  /// Przypominam nieznacznie, że to jest włączone na stałe
   if (val == ly_symbol2scm ("calculation-in-progress"))
     {
       programming_error (to_string ("cyclic dependency: calculation-in-progress encountered for #'%s (%s)",
@@ -307,6 +308,7 @@ Grob::internal_get_object (SCM sym) const
   return SCM_EOL;
 }
 
+/// Jeżeli dobrze rozumiem, to sprawdza zasadniczo, czy Grob nie zrobił wcześniej suicide.
 bool
 Grob::is_live () const
 {

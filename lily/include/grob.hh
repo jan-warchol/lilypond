@@ -42,6 +42,7 @@ protected:
   Grob *original_;
 
   /* SCM data */
+  /// WTF is that?
   SCM immutable_property_alist_;
   SCM mutable_property_alist_;
   SCM object_alist_;
@@ -133,6 +134,7 @@ public:
 
   /* interfaces */
   bool internal_has_interface (SCM intf);
+  /// To nie powinno być prywatne? Zwykle jest. Inne rzeczy chyba też.
   DECLARE_GROB_INTERFACE ();
 
   /* offsets */

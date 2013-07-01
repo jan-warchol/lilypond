@@ -53,8 +53,11 @@ internal_set_option (SCM var,
   string varstr = robust_symbol2string (var, "");
   bool valbool = to_boolean (val);
   SCM val_scm_bool = scm_from_bool (valbool);
+  /// WTFWTFWTF is thattt?!?!?!?!?!?!?!?!
+  /// Ok, everyone does it sometimes, but...
   if (0)
     ;
+  /// And this if-else ladder looks awful, and is awfully inefficient (however possibly hardly ever used).
   else if (varstr == "profile-property-accesses")
     {
       profile_property_accesses = valbool;

@@ -118,7 +118,9 @@ void check_expected_warnings ()
     }
   expected_warnings.clear ();
 }
-
+/// Można by to poprawić przez jakieś haszowanie, bo wygląda okropnie...
+/// Ale to tylko takie czepianie się, to nie ma żadnego istotnego znaczenia.\
+/// Btw, przekazywanie stringów przez wartość jest BE, straciłem przez to punkty na JNP, bo zapomniałem poprawić.
 bool is_expected (string s)
 {
   bool expected = false;

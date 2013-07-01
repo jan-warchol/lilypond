@@ -40,6 +40,12 @@
 #include "warn.hh"
 #include "semi-tie-column.hh"
 
+/// General note: whole that Lilypond is awfully Schemely Typed :P
+
+/// And:
+/// Why are all strings passed to functions by value and not by reference?
+/// Afaik it is not optimised in any way, and therefore is very inefficient, and can be even main energy-consuming part of Lilypond.
+
 bool
 Tie::less (Grob *const &s1, Grob *const &s2)
 {
@@ -49,21 +55,34 @@ Tie::less (Grob *const &s1, Grob *const &s2)
 void
 Tie::set_head (Grob *me, Direction d, Grob *h)
 {
+    /// set my respective (LEFT or RIGHT) 'bound' to *h
   dynamic_cast<Spanner *> (me)->set_bound (d, h);
 }
+
+/*!
+ * QUESTION: if (is_direction (me->get_property ("head-direction"))), then me is a Spanner*. Does it mean, that if me is a Spanner*, then it doesn't have "head-direction"?
+ * Answer: probably no, as afaik every Tie is a Spanner. I don't know (yet) how.
+ */
 
 Grob *
 Tie::head (Grob *me, Direction d)
 {
   if (is_direction (me->get_property ("head-direction")))
+      /// i have head-direction and it is Direction ( :P )
+      /// (this probably takes place when tie has note only on one of its ends)
     {
+      /// Then take it head-direction and put it to hd
       Direction hd = to_dir (me->get_property ("head-direction"));
 
+      /// and if hd is the same as we ask for, then we return our head
+      /// (i don't really know what's that), otherwise we return NULL.
       return (hd == d)
              ? unsmob_grob (me->get_object ("note-head"))
              : 0;
     }
 
+  /// Here i know, that i don't have head-direction. Then take the Grob on my proper end
+  /// (according to d), check if it's a note, and return it, or NULL, if it's anything else.
   Item *it = dynamic_cast<Spanner *> (me)->get_bound (d);
   if (Note_head::has_interface (it))
     return it;
@@ -71,10 +90,15 @@ Tie::head (Grob *me, Direction d)
     return 0;
 }
 
+/// column_rank == index of column
+/// this function would fit much better into grob (with some default d)
 int
 Tie::get_column_rank (Grob *me, Direction d)
 {
   Grob *col = 0;
+  /// If i am Spanner, then take item from my d-end, otherwise take me
+  /// and return rank of that item (my d-end or me)
+  /// (I was really concerned, that every Tie is a Spanner, so this 'if' really confuses me.)
   Spanner *span = dynamic_cast<Spanner *> (me);
   if (!span)
     col = dynamic_cast<Item *> (me)->get_column ();
@@ -136,6 +160,14 @@ Tie::get_default_dir (Grob *me)
       stems[d] = stem;
     }
 
+  /*!
+   * If both stems have one direction, then in another direction,
+   * if they have different directions, decides left one,
+   * if only one is present, it decides,
+   * if no one is present, decides tie position,
+   * if even it is not pesent (WTF?? is that possible?), than pick neutral direction.
+   * It is probably defined somehow by Tie_specification, i've seen sth like this there.
+   */
   if (stems[LEFT] && stems[RIGHT])
     {
       if (get_grob_direction (stems[LEFT]) == UP
@@ -153,12 +185,22 @@ Tie::get_default_dir (Grob *me)
   return to_dir (me->get_property ("neutral-direction"));
 }
 
+/// direction == curve directed upwards or downwards
 MAKE_SCHEME_CALLBACK (Tie, calc_direction, 1);
 SCM
 Tie::calc_direction (SCM smob)
 {
   Grob *me = unsmob_grob (smob);
   Grob *yparent = me->get_parent (Y_AXIS);
+
+  /*!
+   * If my yparent has interface Tie_column or Semi_tie_column,
+   * and has object(array) "ties", then we order it to make positioning
+   * (TODO: get some details). It sets us (*me) property "direction", which we return.
+   *
+   * If my yparent has none of these interfaces (and therefore we are separate tie, not in column),
+   * we return our get_default_dir().
+   */
   if ((Tie_column::has_interface (yparent)
        || Semi_tie_column::has_interface (yparent))
       && unsmob_grob_array (yparent->get_object ("ties"))
@@ -178,6 +220,8 @@ SCM
 Tie::get_default_control_points (Grob *me_grob)
 {
   Spanner *me = dynamic_cast<Spanner *> (me_grob);
+
+  /// common = LCA (common_refpoint) of me, me->get_bound (LEFT) & me->get_bound (RIGHT) in X_AXIS
   Grob *common = me;
   common = me->get_bound (LEFT)->common_refpoint (common, X_AXIS);
   common = me->get_bound (RIGHT)->common_refpoint (common, X_AXIS);
@@ -185,16 +229,29 @@ Tie::get_default_control_points (Grob *me_grob)
   Tie_formatting_problem problem;
   problem.from_tie (me);
 
+  /*!
+   * I don't know, what it really is. It looks like some problems inside problem.from_tie() can
+   * trigger suicide() on *me (and possibly on some other Grobs). IMO that's weird way to pass
+   * information about errors, but maybe sensible.
+   */
   if (!me->is_live ())
     return SCM_EOL;
 
   Ties_configuration conf
     = problem.generate_optimal_configuration ();
 
+  //Wouldn't it be better to have:
+//  Tie_configuration conf
+//    = problem.generate_optimal_configuration ()[0];
+// (and then conf instead of conf[0])
+  //?? But it's insignificant detail.
+
   return get_control_points (me, problem.common_x_refpoint (),
                              conf[0], problem.details_);
 }
 
+/// Returns Scheme list of points from conf.get_transformed_bezier (details),
+/// transposed to own(?) x coords
 SCM
 Tie::get_control_points (Grob *me,
                          Grob *common,

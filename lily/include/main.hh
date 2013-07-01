@@ -60,12 +60,21 @@ extern int exit_status_global;
 extern File_path global_path;
 extern const char *LILYPOND_DATADIR;
 
+/// Tutaj jest taki dziwny komentarz, który budzi we mnie rodzaj grozy:
+/// No i oznacza, że to debugowanie jest zawsze włączone
 /*
   Debugging options: switch on
 
   Cannot switch on -DNDEBUG, because it causes weird errors if you mix
   DNDEBUG and normal builds.
 */
+
+/*!
+ * Ogólna uwaga światopoglądowa: nie należy kodu debugującego pakować w #if/#endif (poza deklaracjami itp., chodzi o instrukcje),
+ * tylko w zwykłego if-a, coś w rodzaju "if (DEBUG_SLUR_SCORING) { do_something(); }". Jest to o tyle lepsze, że zawsze jest kompilowane
+ * (czyli jest sprawdzane, czy ten kod jest poprawny), a jednocześnie jest on skutecznie wycinany przy optymlizacji (nawet przy -O0).
+ * Oczywiście wtedy trzeba gdzieś dodać coś w rodzaju "#ifndef DEBUG_SLUR_SCORING #define DEBUG_SLUR_SCORING 0 #endif"
+ */
 
 #define DEBUG_SLUR_SCORING 1
 #define DEBUG_TIE_SCORING 1

@@ -101,15 +101,30 @@ Tie_configuration::distance (Tie_configuration const &a,
     return d + (2 + (a.dir_ - b.dir_));
 }
 
+//score == uglyness points
 void
 Tie_configuration::add_score (Real s, string desc)
 {
   assert (!scored_);
   score_ += s;
+//#if DEBUG_SLUR_SCORING
   if (s)
     score_card_ += to_string ("%s=%.2f ", desc.c_str (), s);
+  ///< That is a kind of efficiency catastrophe.
+  /*!
+   * If that was only in debug version, it would be OK, but it is present in normal, release
+   * version of Lilypond. What's more, it wouldn't compile without DEBUG_SLUR_SCORING
+   * (because of #if in header) - easiest solution is another #if here, which i added in comment.
+   * By the way, passing std::string by value is very inefficient and that problem is
+   * very common in Lilypond code - i believe it can have significant influence on Lilypond speed.
+   *
+   * And results of collecting these score_cards can (now) be accessed only through debugger.
+   */
+//#endif
 }
 
+/// Height of tie, measured between tip-points and top, or more specificly,
+/// height of curve in its middle point (half of length).
 Real
 Tie_configuration::height (Tie_details const &details) const
 {
@@ -131,6 +146,7 @@ Ties_configuration::reset_score ()
 {
   score_ = 0.0;
   scored_ = false;
+  /// Another thing that wouldn't compile without #if DEBUG_SLUR_SCORING
   score_card_ = "";
   tie_score_cards_.clear ();
 }
@@ -145,6 +161,7 @@ Ties_configuration::add_tie_score (Real s, int i, string desc)
       while (tie_score_cards_.size () < size ())
         tie_score_cards_.push_back ("");
 
+      /// And this is another costly collected description accessible only through debugger
       tie_score_cards_[i] += to_string ("%s=%.2f ", desc.c_str (), s);
     }
 }
@@ -154,6 +171,7 @@ Ties_configuration::add_score (Real s, string desc)
 {
   assert (!scored_);
   score_ += s;
+  /// Another thing that wouldn't compile without #if DEBUG_SLUR_SCORING
   if (s)
     score_card_ += to_string ("%s=%.2f ", desc.c_str (), s);
 }
@@ -201,6 +219,7 @@ Ties_configuration::complete_score_card () const
 string
 Ties_configuration::card () const
 {
+  /// Another thing that wouldn't compile without #if DEBUG_SLUR_SCORING
   return score_card_;
 }
 

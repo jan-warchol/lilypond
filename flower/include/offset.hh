@@ -108,8 +108,8 @@ public:
     coordinate_a_[a] = -coordinate_a_[a];
     return *this;
   }
-  Offset direction () const;
-  Offset swapped () const;
+  Offset direction () const; ///< wektor znormalizowany
+  Offset swapped () const;   ///< zamiana współrzędnych (iksa z igrekiem)
 
   Real arg () const;
   Real angle_degrees () const;

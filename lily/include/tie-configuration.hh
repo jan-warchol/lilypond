@@ -25,8 +25,13 @@
 #include "std-vector.hh"
 #include "main.hh" // DEBUG_SLUR_SCORING
 
+/// Tie_configuration == one tie description
+
+// Ties_configuration == many tieS description (Tie_column desc.)
+
 class Tie_configuration
 {
+    /// Err, why is that DEBUG_SLUR_SCORING, and not DEBUG_TIE_SCORING??
 #if DEBUG_SLUR_SCORING
   string score_card_;
 #endif
@@ -44,8 +49,12 @@ public:
   Drul_array<int> column_ranks_;
 
   /* computed. */
+  /// If i am right, it's x interval of where the tie is
+  /// (ie. interval ends == tie-tips coords) --Frax
+  /// (and Janek thinks i'm right)
   Interval attachment_x_;
 
+  /// Adding (named) penalty points
   void add_score (Real, string);
   Tie_configuration ();
   void center_tie_vertically (Tie_details const &);
@@ -62,6 +71,7 @@ public:
 
 INSTANTIATE_COMPARE (Tie_configuration, Tie_configuration::compare);
 
+/// Ties_configuration == many tieS description (Tie_column desc.)
 class Ties_configuration : public vector<Tie_configuration>
 {
   Real score_;

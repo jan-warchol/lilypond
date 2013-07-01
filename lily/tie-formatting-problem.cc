@@ -604,9 +604,13 @@ Tie_formatting_problem::score_aptitude (Tie_configuration *conf,
                                         Tie_specification const &spec,
                                         Ties_configuration *ties_conf, int tie_idx) const
 {
+  /// In
   Real penalty = 0.0;
+  /// In curve_y we have conf->position_ (note **conf**), and in tie_y is spec.position_ (note *spec**)
   Real curve_y = conf->position_ * details_.staff_space_ * 0.5 + conf->delta_y_;
   Real tie_y = spec.position_ * details_.staff_space_ * 0.5;
+  /// isn't it ok, if sign(curve_y - tie_y) == 0? (So that curve_y-tie_y == 0). Maybe that should be
+  /// if (sign (curve_y - tie_y) != conf->dir_ || curve_y == tie_y)
   if (sign (curve_y - tie_y) != conf->dir_)
     {
       Real p = details_.wrong_direction_offset_penalty_;
@@ -751,6 +755,7 @@ Tie_formatting_problem::score_configuration (Tie_configuration *conf) const
   if (!dot_x_.is_empty ())
     {
       /* use left edge? */
+      /// Why center? It doesn't seem to make any sense.
       Real x = dot_x_.center ();
 
       Bezier b = conf->get_transformed_bezier (details_);

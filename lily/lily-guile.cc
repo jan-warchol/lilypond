@@ -71,6 +71,7 @@ ly_symbol2string (SCM s)
   /*
     Ugh. this is not very efficient.
   */
+  /// Ugh. That's true.
   return ly_scm2string (scm_symbol_to_string (s));
 }
 

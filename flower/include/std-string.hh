@@ -34,9 +34,10 @@
 
 #include <string>
 
+/// AAAAARGH! What does it do in header?!?! It's death, <zaraza>, it's total destruction! It burns my eyes!
 using namespace std;
 
-typedef size_t ssize;
+typedef size_t ssize; ///< I believe it is in some c... header.
 #define NPOS string::npos
 
 string to_string (string s);
