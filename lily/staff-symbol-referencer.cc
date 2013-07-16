@@ -189,6 +189,7 @@ Staff_symbol_referencer::internal_set_position (Grob *me, Real p, bool pure)
   me->translate_axis ((p - oldpos) * ss * 0.5, Y_AXIS);
 }
 
+// Why do we need this in addition to Staff_symbol::line_span?
 Interval
 Staff_symbol_referencer::staff_span (Grob *me)
 {

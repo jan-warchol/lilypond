@@ -78,17 +78,29 @@ Tie_column::before_line_breaking (SCM smob)
   return SCM_UNSPECIFIED;
 }
 
+/*
+  "positioning-done" property of TieColumn grob is initialized
+  (in define-grobs.scm) to this function, and this is the only way
+  we can arrive here.
+  Question: what is the relation of this function to the rest?
+  Is this the starting point?
+  */
 MAKE_SCHEME_CALLBACK (Tie_column, calc_positioning_done, 1)
 SCM
 Tie_column::calc_positioning_done (SCM smob)
 {
   Grob *me = unsmob_grob (smob);
+  // does "ro" mean something special?
   extract_grob_set (me, "ties", ro_ties);
   vector<Grob *> ties (ro_ties);
   if (!ties.size ())
     return SCM_BOOL_T;
 
+  // why this property is set so soon? \
   me->set_property ("positioning-done", SCM_BOOL_T);
+  // we sort ties by the position on the staff.
+  // but how do we know it before we format it?
+  // Ahh, actually we sort based on the NoteHead position.
   vector_sort (ties, Tie::less);
 
   Tie_formatting_problem problem;
@@ -104,12 +116,14 @@ Tie_column::calc_positioning_done (SCM smob)
                                         base[i],
                                         problem.details_);
 
+      // is this the end?  I mean, are these final control point?
       ties[i]->set_property ("control-points", cp);
       set_grob_direction (ties[i],
                           base[i].dir_);
 
       problem.set_debug_scoring (base);
     }
+  // hadn't we already set "positioning-done" property?  Why return something again?
   return SCM_BOOL_T;
 }
 

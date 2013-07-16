@@ -45,6 +45,7 @@ public:
 
   int position_;
   Direction dir_;
+  // what's the purpose of delta_y_?  why position isn't just a real number?
   Real delta_y_;
   Drul_array<int> column_ranks_;
 
@@ -75,6 +76,7 @@ INSTANTIATE_COMPARE (Tie_configuration, Tie_configuration::compare);
 class Ties_configuration : public vector<Tie_configuration>
 {
   Real score_;
+  // what's a card?  is it some abbreviation?
   string score_card_;
   bool scored_;
   vector<string> tie_score_cards_;

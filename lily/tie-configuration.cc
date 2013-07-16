@@ -54,6 +54,14 @@ Tie_configuration::center_tie_vertically (Tie_details const &details)
   delta_y_ = - dir_ * center;
 }
 
+/*
+  Apparently, things happen in the following way:
+  - we determine exact postions of the tie ends (i.e. attachment_x_ and delta_y_)
+  - we calc tie length l (from attachment_x_) and we draw a "default-shaped tie"
+    of length l and height based on some general settings
+  - we flip the tie if the direction is down
+  - we translate the tie to the actual attachment points.
+  */
 Bezier
 Tie_configuration::get_transformed_bezier (Tie_details const &details) const
 {

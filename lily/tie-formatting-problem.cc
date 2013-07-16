@@ -454,6 +454,11 @@ Tie_formatting_problem::get_configuration (int pos, Direction dir, Drul_array<in
   return conf;
 }
 
+/*
+  this funciton is called by Tie_formatting_problem::get_configuration only,
+  when we don't already have enough configurations.
+  */
+
 Tie_configuration *
 Tie_formatting_problem::generate_configuration (int pos, Direction dir,
                                                 Drul_array<int> columns, bool y_tune) const
@@ -468,6 +473,8 @@ Tie_formatting_problem::generate_configuration (int pos, Direction dir,
 
   if (dot_positions_.find (pos) != dot_positions_.end ())
     {
+      // is this really this simple?  When there's a dot, move the tie?
+      // looks like something too simple to work reasonably...
       conf->delta_y_ += dir * 0.25 * details_.staff_space_;
       y_tune = false;
     }
@@ -701,6 +708,8 @@ Tie_formatting_problem::head_positions_slice (int rank) const
 /*
   Score a configuration, ie. how well these ties looks without regard
   to the note heads that they should connect to.
+
+  We arrive here from Tie_formatting_problem::score_ties_configuration
  */
 void
 Tie_formatting_problem::score_configuration (Tie_configuration *conf) const
@@ -710,6 +719,9 @@ Tie_formatting_problem::score_configuration (Tie_configuration *conf) const
       return;
     }
 
+  // WTF?  If conf is a configuration of a TieColumn (i.e. multiple ties),
+  // then why we have just one length?  After all, ties in a TieColumn
+  // can each have different length, for example here { <c' e' g'>~ q }
   Real length = conf->attachment_x_.length ();
 
   Real length_penalty
@@ -804,6 +816,7 @@ Tie_formatting_problem::score_ties (Ties_configuration *ties) const
   ties->scored_ = true;
 }
 
+// we arrive here from score_ties.
 void
 Tie_formatting_problem::score_ties_configuration (Ties_configuration *ties) const
 {
@@ -1066,6 +1079,8 @@ Tie_formatting_problem::generate_extremal_tie_variations (Ties_configuration con
   return vars;
 }
 
+//???
+
 vector<Tie_configuration_variation>
 Tie_formatting_problem::generate_single_tie_variations (Ties_configuration const &ties) const
 {
@@ -1102,6 +1117,7 @@ Tie_formatting_problem::generate_single_tie_variations (Ties_configuration const
 vector<Tie_configuration_variation>
 Tie_formatting_problem::generate_collision_variations (Ties_configuration const &ties) const
 {
+  // wtf is this? where did the value come from?
   Real center_distance_tolerance = 0.25;
 
   vector<Tie_configuration_variation> vars;
@@ -1189,11 +1205,13 @@ Tie_formatting_problem::generate_collision_variations (Ties_configuration const 
   return vars;
 }
 
+// pretty straighforward, just going through a list.
 void
 Tie_formatting_problem::set_manual_tie_configuration (SCM manual_configs)
 {
   vsize k = 0;
   for (SCM s = manual_configs;
+       //what's this?
        scm_is_pair (s) && k < specifications_.size (); s = scm_cdr (s))
     {
       SCM entry = scm_car (s);
@@ -1208,6 +1226,9 @@ Tie_formatting_problem::set_manual_tie_configuration (SCM manual_configs)
               spec.has_manual_delta_y_ = (scm_inexact_p (scm_car (entry)) == SCM_BOOL_T);
             }
 
+          // ahh, so it is possible to set just one parameter
+          //(e.g. set position w/o settting direction).
+          //that wasn't obvious from a user's perspective.
           if (scm_is_number (scm_cdr (entry)))
             {
               spec.has_manual_dir_ = true;

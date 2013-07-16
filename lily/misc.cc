@@ -59,6 +59,13 @@ directed_round (Real f, Direction d)
 
 /*
    0 at threshold,  1 at 0, with 1/x falloff.
+
+   WTF?
+   Why is this called "peak around" if there's no peak
+   (for all x<=0 the same value is returned).
+   What's the purpose of epsilon (that's not immediately obvious)?
+
+   WTF!  I'm not able to understand a 3-line funciton!
  */
 Real
 peak_around (Real epsilon, Real threshold, Real x)
