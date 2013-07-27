@@ -25,6 +25,9 @@
 
 #include "translator.icc"
 
+/// Byc moze tutaj tez cos trzeba bedzie zmienic, w kazdym
+/// razie nie mozna tego pliku tak po prostu zostawic.
+
 class Repeat_tie_engraver : public Engraver
 {
   Stream_event *event_;

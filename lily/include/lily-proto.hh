@@ -183,8 +183,6 @@ class System;
 class Tempo_performer;
 class Tie;
 class Tie_details;
-class Tie_configuration;
-class Tie_formatting_problem;
 class Tie_performer;
 class Time_scaled_music;
 class Time_scaled_music_iterator;

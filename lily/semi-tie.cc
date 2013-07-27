@@ -42,33 +42,35 @@ MAKE_SCHEME_CALLBACK (Semi_tie, calc_control_points, 1)
 SCM
 Semi_tie::calc_control_points (SCM smob)
 {
-  Grob *me = unsmob_grob (smob);
-  (void) me->get_property ("direction");
+//  Grob *me = unsmob_grob (smob);
+//  (void) me->get_property ("direction");
 
-  if (Semi_tie_column::has_interface (me->get_parent (Y_AXIS)))
-    {
-      me->get_parent (Y_AXIS)->get_property ("positioning-done");
-    }
-  else
-    {
-      programming_error ("lv tie without Semi_tie_column.  Killing lv tie.");
-      me->suicide ();
-    }
+//  if (Semi_tie_column::has_interface (me->get_parent (Y_AXIS)))
+//    {
+//      me->get_parent (Y_AXIS)->get_property ("positioning-done");
+//    }
+//  else
+//    {
+//      programming_error ("lv tie without Semi_tie_column.  Killing lv tie.");
+//      me->suicide ();
+//    }
 
-  return me->get_property_data ("control-points");
+//  return me->get_property_data ("control-points");
+    /// cokolwiek
+    return SCM_EOL;
 }
 
-int
-Semi_tie::get_position (Grob *me)
-{
-  Grob *h = unsmob_grob (me->get_object ("note-head"));
-  return (int) rint (Staff_symbol_referencer::get_position (h));
-}
+//int
+//Semi_tie::get_position (Grob *me)
+//{
+//  Grob *h = unsmob_grob (me->get_object ("note-head"));
+//  return (int) rint (Staff_symbol_referencer::get_position (h));
+//}
 
-bool
-Semi_tie::less (Grob *const &s1,
-                Grob *const &s2)
-{
-  return get_position (s1) < get_position (s2);
-}
+//bool
+//Semi_tie::less (Grob *const &s1,
+//                Grob *const &s2)
+//{
+//  return get_position (s1) < get_position (s2);
+//}
 

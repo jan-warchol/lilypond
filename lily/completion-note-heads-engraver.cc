@@ -268,10 +268,12 @@ Completion_heads_engraver::process_music ()
 void
 Completion_heads_engraver::make_tie (Grob *left, Grob *right)
 {
-  Grob *p = make_spanner ("Tie", SCM_EOL);
-  Tie::set_head (p, LEFT, left);
-  Tie::set_head (p, RIGHT, right);
-  ties_.push_back (p);
+    /// Tutaj sie wstawia taje
+    /// Ta funkcja musi wyladowac w Tie
+//  Grob *p = make_spanner ("Tie", SCM_EOL);
+//  Tie::set_head (p, LEFT, left);
+//  Tie::set_head (p, RIGHT, right);
+//  ties_.push_back (p);
 }
 
 void
