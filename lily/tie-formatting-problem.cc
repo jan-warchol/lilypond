@@ -498,7 +498,6 @@ Tie_formatting_problem::generate_configuration (int pos, Direction dir,
        */
       Interval staff_span
         = Staff_symbol_referencer::staff_span (details_.staff_symbol_referencer_);
-      staff_span.widen (-1);
       bool const within_staff = staff_span.contains (pos);
       if (head_positions_slice (columns[LEFT]).contains (pos)
           || head_positions_slice (columns[RIGHT]).contains (pos)
@@ -734,7 +733,6 @@ Tie_formatting_problem::score_configuration (Tie_configuration *conf) const
     }
 
   int rounded_tip_pos = int (rint (tip_pos));
-  staff_span.widen (-1);
   if (Staff_symbol_referencer::on_line (details_.staff_symbol_referencer_, rounded_tip_pos)
       && (head_positions_slice (conf->column_ranks_[LEFT]).contains (rounded_tip_pos)
           || head_positions_slice (conf->column_ranks_[RIGHT]).contains (rounded_tip_pos)
