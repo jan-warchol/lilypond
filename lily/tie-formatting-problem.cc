@@ -456,9 +456,10 @@ Tie_formatting_problem::get_configuration (int pos, Direction dir, Drul_array<in
 
 /*
   this funciton is called by Tie_formatting_problem::get_configuration only,
-  when we don't already have enough configurations.
+  if we don't have enough configurations yet.
   */
 
+// what's y_tune?
 Tie_configuration *
 Tie_formatting_problem::generate_configuration (int pos, Direction dir,
                                                 Drul_array<int> columns, bool y_tune) const
@@ -709,6 +710,12 @@ Tie_formatting_problem::head_positions_slice (int rank) const
   Score a configuration, ie. how well these ties looks without regard
   to the note heads that they should connect to.
 
+  What is scored:
+   - whether length isn't shorter than minimum
+   - whether tips collide with staffline
+   - whether top collide with staffline
+   - whether something (tips?) collide with (augmentation?) dots.
+
   We arrive here from Tie_formatting_problem::score_ties_configuration
  */
 void
@@ -736,11 +743,15 @@ Tie_formatting_problem::score_configuration (Tie_configuration *conf) const
   Real top_y = tip_y + conf->dir_ * height;
   Real top_pos = 2 * top_y / details_.staff_space_;
   Real round_top_pos = rint (top_pos);
+  // in positions (half ss)
   Interval staff_span
     = Staff_symbol_referencer::staff_span (details_.staff_symbol_referencer_);
+
+  // apparently below we give penalty fot the top lying on a staffline.
   if (Staff_symbol_referencer::on_line (details_.staff_symbol_referencer_,
                                         int (round_top_pos))
       && staff_span[UP] * 0.5 > top_y)
+      // an "on-line" position, and actually inside the staff
     {
       conf->add_score (details_.staff_line_collision_penalty_
                        * peak_around (0.1 * details_.center_staff_line_clearance_,
@@ -750,8 +761,11 @@ Tie_formatting_problem::score_configuration (Tie_configuration *conf) const
     }
 
   int rounded_tip_pos = int (rint (tip_pos));
+  // this doesn't make any sense.  After we've scored the top of the tie,
+  // we pretend that the staff is smaller as we score tips of the tie.
   staff_span.widen (-1);
   if (Staff_symbol_referencer::on_line (details_.staff_symbol_referencer_, rounded_tip_pos)
+          // the above condition is clear, but why do we check these below?
       && (head_positions_slice (conf->column_ranks_[LEFT]).contains (rounded_tip_pos)
           || head_positions_slice (conf->column_ranks_[RIGHT]).contains (rounded_tip_pos)
           || staff_span.contains (rounded_tip_pos))
@@ -768,6 +782,7 @@ Tie_formatting_problem::score_configuration (Tie_configuration *conf) const
     {
       /* use left edge? */
       /// Why center? It doesn't seem to make any sense.
+      // indeed, especially when there are multiple dots.  --jw
       Real x = dot_x_.center ();
 
       Bezier b = conf->get_transformed_bezier (details_);

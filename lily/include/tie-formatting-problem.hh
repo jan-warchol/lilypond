@@ -53,6 +53,10 @@ class Tie_formatting_problem
   Position_extent_map head_positions_;
 
   set<int> dot_positions_;
+  // what's this?  is this the horizontal extent taken by the dots?
+  // i assume this is an interval because there may be multiple dots.
+  // if so, is this taken from the left edge of the first dot to the
+  // right edge of the last dot, or what?
   Interval dot_x_;
   vector<Tie_specification> specifications_;
   bool use_horizontal_spacing_;
