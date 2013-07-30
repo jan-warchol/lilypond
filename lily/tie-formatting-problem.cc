@@ -460,6 +460,10 @@ Tie_formatting_problem::get_configuration (int pos, Direction dir, Drul_array<in
   */
 
 // what's y_tune?
+/* ok, apparently delta_y is treated separately from position here,
+  so that a tie has some calculated position and a "correction" for it.
+  This approach looks very wrong to me.
+  */
 Tie_configuration *
 Tie_formatting_problem::generate_configuration (int pos, Direction dir,
                                                 Drul_array<int> columns, bool y_tune) const
@@ -481,6 +485,7 @@ Tie_formatting_problem::generate_configuration (int pos, Direction dir,
     }
 
   if (y_tune
+      // ??? What's the relation between these conditions?  They don't seem to make sense.
       && max (fabs (get_head_extent (columns[LEFT], LEFT, Y_AXIS)[dir] - y),
               fabs (get_head_extent (columns[RIGHT], RIGHT, Y_AXIS)[dir] - y)) < 0.25
       && !Staff_symbol_referencer::on_line (details_.staff_symbol_referencer_, pos))
@@ -490,10 +495,13 @@ Tie_formatting_problem::generate_configuration (int pos, Direction dir,
           + dir * details_.outer_tie_vertical_gap_;
     }
 
+  // why this is a separate if?
   if (y_tune)
     {
       conf->attachment_x_ = get_attachment (y + conf->delta_y_, conf->column_ranks_);
       Real h = conf->height (details_);
+      // ...so, the height and x-coords of the tie are known and set in stone
+      // before y-coord is finally chosen? sounds wrong.
 
       /*
         TODO:
@@ -506,8 +514,18 @@ Tie_formatting_problem::generate_configuration (int pos, Direction dir,
        */
       Interval staff_span
         = Staff_symbol_referencer::staff_span (details_.staff_symbol_referencer_);
+
+      // this is regular WTF.
       staff_span.widen (-1);
+
+      // this doesn't make sense - within_staff is meaningless, because it only
+      // takes into account position.  Depending on the delta_y, the tie could
+      // actually be inside or outside of the staff.
+      // It also depends on direction: { f'~ f' } is outside staff, { f'^~ f' }
+      // inside.
       bool const within_staff = staff_span.contains (pos);
+
+      // again, why these conditions are here together?
       if (head_positions_slice (columns[LEFT]).contains (pos)
           || head_positions_slice (columns[RIGHT]).contains (pos)
           || within_staff)
