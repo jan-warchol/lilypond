@@ -21,10 +21,17 @@
 #include "warn.hh"
 #include "libc-extension.hh"
 
-Real binomial_coefficient_3[]
+Real binomial_coefficient[][]
 =
 {
-  1, 3, 3, 1
+  { 1 },
+  { 1, 1 },
+  { 1, 2, 1 },
+  { 1, 3, 3, 1 },
+  { 1, 4, 6, 4, 1 },
+  { 1, 5, 10, 10, 5, 1 },
+  { 1, 6, 15, 20, 15, 6, 1 },
+  { 1, 7, 21, 35, 35, 21, 7, 1 }
 };
 
 void
@@ -97,16 +104,16 @@ Real
 Bezier::curve_coordinate (Real t, Axis a) const
 {
   Real tj = 1;
-  Real one_min_tj[4];
+  Real one_min_tj[CONTROL_COUNT];
   one_min_tj[0] = 1;
-  for (int i = 1; i < 4; i++)
+  for (int i = 1; i < CONTROL_COUNT; i++)
     one_min_tj[i] = one_min_tj[i - 1] * (1 - t);
 
   Real r = 0.0;
-  for (int j = 0; j < 4; j++)
+  for (int j = 0; j < CONTROL_COUNT; j++)
     {
-      r += control_[j][a] * binomial_coefficient_3[j]
-           * tj * one_min_tj[3 - j];
+      r +b= control_[j][a] * binomial_coefficient[CONTROL_COUNT][j]
+           * tj * one_min_tj[CONTROL_COUNT-1 - j];
 
       tj *= t;
     }
@@ -118,16 +125,16 @@ Offset
 Bezier::curve_point (Real t) const
 {
   Real tj = 1;
-  Real one_min_tj[4];
+  Real one_min_tj[CONTROL_COUNT];
   one_min_tj[0] = 1;
-  for (int i = 1; i < 4; i++)
+  for (int i = 1; i < CONTROL_COUNT; i++)
     one_min_tj[i] = one_min_tj[i - 1] * (1 - t);
 
   Offset o;
-  for (int j = 0; j < 4; j++)
+  for (int j = 0; j < CONTROL_COUNT; j++)
     {
-      o += control_[j] * binomial_coefficient_3[j]
-           * tj * one_min_tj[3 - j];
+      o += control_[j] * binomial_coefficient[CONTROL_COUNT][j]
+           * tj * one_min_tj[CONTROL_COUNT-1 - j];
 
       tj *= t;
     }
@@ -163,25 +170,26 @@ Bezier::slope_at_point (Real t) const
 */
 struct Polynomial_cache
 {
-  Polynomial terms_[4];
+  Polynomial terms_[CONTROL_COUNT];
   Polynomial_cache ()
   {
-    for (int j = 0; j <= 3; j++)
+    for (int j = 0; j < CONTROL_COUNT; j++)
       terms_[j]
-        = binomial_coefficient_3[j]
+        = binomial_coefficient[CONTROL_COUNT][j]
           * Polynomial::power (j, Polynomial (0, 1))
-          * Polynomial::power (3 - j, Polynomial (1, -1));
+          * Polynomial::power (CONTROL_COUNT-1 - j, Polynomial (1, -1));
   }
 };
 
 static Polynomial_cache poly_cache;
 
+// polynomial what?
 Polynomial
 Bezier::polynomial (Axis a) const
 {
   Polynomial p (0.0);
   Polynomial q;
-  for (int j = 0; j <= 3; j++)
+  for (int j = 0; j < CONTROL_COUNT; j++)
     {
       q = poly_cache.terms_[j];
       q *= control_[j][a];
