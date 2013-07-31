@@ -334,6 +334,8 @@ Tie_formatting_problem::from_ties (vector<Grob *> const &ties)
         y_refpoint_ = r->common_refpoint (y_refpoint_, Y_AXIS);
     }
 
+  /// WTFLOL? For what do we have details in tie, if they are one for tie column?
+  /// Doesn't make sense.
   details_.from_grob (ties[0]);
 
   for (LEFT_and_RIGHT (d))
