@@ -51,14 +51,14 @@ public:
   Real slope_at_point (Real t) const;
   Real curve_coordinate (Real t, Axis) const;
 
-  static const int CONTROL_COUNT = 4;
+  static const int CONTROL_COUNT = 6;
 
   /*
-    Bezier curves always have 4 control points. Making this into an
+    Bezier curves always have CONTROL_COUNT control points. Making this into an
     vector<> gives unnecessary overhead, and makes debugging a royal
     pain.  */
 
-  Offset control_[4];
+  Offset control_[CONTROL_COUNT];
 };
 
 void scale (vector<Offset> *array, Real xscale, Real yscale);
