@@ -17,15 +17,27 @@
   along with LilyPond.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+// what does the "bow" in the filename mean????
+
 #include "misc.hh"
 #include "bezier.hh"
 
+// that's a very descriptive name, definitely...
+// is this the function that fulfills the specification in the big commment below?
 static Real
 F0_1 (Real x)
 {
   return 2 / M_PI * atan (M_PI * x / 2);
 }
 
+/*
+  what's this?  Does this calculate the height of a given slur?
+  Doesn't look like this.
+  I suppose this calculates the height of a slur shaped according
+  to some defaults.
+
+  What's h_inf?  is it the lim_{slurlength -> infty} (slurheight(slurlength)) ?
+  */
 Real
 slur_height (Real width, Real h_inf, Real r_0)
 {
@@ -33,6 +45,9 @@ slur_height (Real width, Real h_inf, Real r_0)
 }
 
 /*
+  This naming doesn't make sense.  'height' should describe the height of
+  the actual curve, not the vertical coordinates of the control points!
+
   ^                x                    x
   |
   height   <indent>
@@ -103,6 +118,7 @@ void
 get_slur_indent_height (Real *indent, Real *height,
                         Real width, Real h_inf, Real r_0)
 {
+  // ugh, hardcoded!!
   Real max_fraction = 1.0 / 3.1;
   *height = slur_height (width, h_inf, r_0);
 
@@ -110,6 +126,8 @@ get_slur_indent_height (Real *indent, Real *height,
   *indent = 2 * h_inf - sqr (q) * max_fraction / (width + q);
 }
 
+/* as far as i understand, this returns a default-shaped slur
+   for a given length. */
 Bezier
 slur_shape (Real width, Real h_inf, Real r_0)
 {
