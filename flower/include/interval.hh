@@ -62,6 +62,7 @@ struct Interval_t : public Drul_array<T>
      */
   void unite (Interval_t<T> h);
   void intersect (Interval_t<T> h);
+  // wouldn't it be more intuitive to name this "include point"?
   void add_point (T p)
   {
     at (LEFT) = min (at (LEFT), p);

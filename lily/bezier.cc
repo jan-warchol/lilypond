@@ -308,6 +308,10 @@ Bezier::extent (Axis a) const
   return iv;
 }
 
+/* counter-intuitive naming.  Points don't have extents.
+  apparently this calculates the extent of the Bezier,
+  looking through coordinates of the point
+  */
 Interval
 Bezier::control_point_extent (Axis a) const
 {
@@ -320,6 +324,8 @@ Bezier::control_point_extent (Axis a) const
 
 /**
    Flip around axis A
+
+   WTF?? Scaling isn't the same as flipping. --jw
 */
 void
 Bezier::scale (Real x, Real y)
@@ -331,6 +337,7 @@ Bezier::scale (Real x, Real y)
     }
 }
 
+// rotation implemented using complex number multiplication
 void
 Bezier::rotate (Real phi)
 {
@@ -354,6 +361,8 @@ Bezier::assert_sanity () const
             && !isinf (control_[i].length ()));
 }
 
+// this doesn't flip the bezier.
+// Rather, it reverses control point order while keeping the same shape.
 void
 Bezier::reverse ()
 {
