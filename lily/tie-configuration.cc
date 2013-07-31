@@ -133,6 +133,11 @@ Tie_configuration::add_score (Real s, string desc)
 
 /// Height of tie, measured between tip-points and top, or more specificly,
 /// height of curve in its middle point (half of length).
+
+// wouldn't it be simpler to have a direct tie_height(tie_length) function,
+// instead of calculating whole bezier curve in the process?
+// Current approach seems to be very broken to me.
+
 Real
 Tie_configuration::height (Tie_details const &details) const
 {
