@@ -167,8 +167,7 @@ Tie::get_default_dir (Grob *me)
    * if they have different directions, decides left one,
    * if only one is present, it decides,
    * if no one is present, decides tie position,
-   * if even it is not pesent (WTF?? is that possible?), than pick neutral direction.
-   * It is probably defined somehow by Tie_specification, i've seen sth like this there.
+   * if position is 0 (on middle line), pick from neutral-direction property.
    */
   if (stems[LEFT] && stems[RIGHT])
     {
