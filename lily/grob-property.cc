@@ -137,6 +137,7 @@ Grob::internal_set_value_on_alist (SCM *alist, SCM sym, SCM v)
 SCM
 Grob::internal_get_property_data (SCM sym) const
 {
+/// Dont forget, that it's constantly turned ON. EVERY property access is logged.
 #ifndef NDEBUG
   if (profile_property_accesses)
     note_property_access (&grob_property_lookup_table, sym);
@@ -166,7 +167,7 @@ Grob::internal_get_property (SCM sym) const
   SCM val = get_property_data (sym);
 
 #ifndef NDEBUG
-  /// Przypominam nieznacznie, że to jest włączone na stałe
+  /// Dont forget, that it's constantly turned ON.
   if (val == ly_symbol2scm ("calculation-in-progress"))
     {
       programming_error (to_string ("cyclic dependency: calculation-in-progress encountered for #'%s (%s)",
@@ -308,7 +309,7 @@ Grob::internal_get_object (SCM sym) const
   return SCM_EOL;
 }
 
-/// Jeżeli dobrze rozumiem, to sprawdza zasadniczo, czy Grob nie zrobił wcześniej suicide.
+/// If am i right, it checks, if Grob already suicided.
 bool
 Grob::is_live () const
 {

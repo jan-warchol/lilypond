@@ -323,6 +323,7 @@ LY_DEFINE (ly_grob_properties, "ly:grob-properties",
   LY_ASSERT_SMOB (Grob, grob, 1);
 
   /* FIXME: uhg? copy/read only? */
+  /* But what to fix? Maybe i dont understand Scheme, but for me it looks to be perfectly correct */
   return g->mutable_property_alist_;
 }
 
@@ -335,6 +336,7 @@ LY_DEFINE (ly_grob_basic_properties, "ly:grob-basic-properties",
   LY_ASSERT_SMOB (Grob, grob, 1);
 
   /* FIXME: uhg? copy/read only? */
+  /* But what to fix? Maybe i dont understand Scheme, but for me it looks to be perfectly correct */
   return g->immutable_property_alist_;
 }
 

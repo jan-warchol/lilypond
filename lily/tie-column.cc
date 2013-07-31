@@ -84,6 +84,9 @@ Tie_column::before_line_breaking (SCM smob)
   we can arrive here.
   Question: what is the relation of this function to the rest?
   Is this the starting point?
+  A:This function is triggered in Tie::calc_direction, so it's
+  probably nearer to the source. Property is got several times, but
+  calculation is of course done once.
   */
 MAKE_SCHEME_CALLBACK (Tie_column, calc_positioning_done, 1)
 SCM

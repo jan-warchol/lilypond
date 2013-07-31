@@ -76,6 +76,8 @@ Tie::head (Grob *me, Direction d)
 
       /// and if hd is the same as we ask for, then we return our head
       /// (i don't really know what's that), otherwise we return NULL.
+      /// Errata: it seems that me->get_object ("note-head") works, when
+      /// Tie is an Item (and therefore is connected only to one notehead).
       return (hd == d)
              ? unsmob_grob (me->get_object ("note-head"))
              : 0;

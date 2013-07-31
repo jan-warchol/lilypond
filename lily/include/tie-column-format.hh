@@ -20,6 +20,11 @@
 #ifndef TIE_COLUMN_FORMAT_HH
 #define TIE_COLUMN_FORMAT_HH
 
+/*
+ * I found information, that tie-column-format.cc has been removed in version 2.10.
+ * Therefore this file should probably be deleted. Quickly.
+ */
+
 #include "lily-proto.hh"
 #include "tie-configuration.hh"
 

@@ -24,6 +24,15 @@
 #include "skyline.hh"
 #include "grob-interface.hh"
 
+/*!
+ * Big warning for anyone who doesn't know:
+ * Do not expect any object to by of class Tie:
+ * this class is only container for functions and
+ * there is NO ANY SINGLE OBJECT of that class.
+ * Every tie is either Item or Spanner (both Grobs),
+ * not a Tie.
+ */
+
 class Tie
 {
 public:

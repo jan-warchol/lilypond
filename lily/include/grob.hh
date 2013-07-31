@@ -42,7 +42,6 @@ protected:
   Grob *original_;
 
   /* SCM data */
-  /// WTF is that?
   SCM immutable_property_alist_;
   SCM mutable_property_alist_;
   SCM object_alist_;
