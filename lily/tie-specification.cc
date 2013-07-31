@@ -19,6 +19,14 @@ Tie_specification::Tie_specification ()
     = column_ranks_[LEFT] = 0;
 }
 
+/**
+  there's a similar piece of code in
+  Tie_formatting_problem::set_manual_tie_configuration
+  Apparently, when that function handles user overrides to
+  TieColumn.tie-configuration, and this one handles overrides
+  to Tie.direction and Tie.staff-position.
+  Should this be separated like this?
+  */
 void
 Tie_specification::from_grob (Grob *tie)
 {
