@@ -41,6 +41,7 @@ public:
   int position_;
   Direction dir_;
   Real delta_y_;
+  Real height_;
   Drul_array<int> column_ranks_;
 
   /* computed. */

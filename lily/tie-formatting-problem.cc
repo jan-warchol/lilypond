@@ -44,10 +44,10 @@ Tie_formatting_problem::print_ties_configuration (Ties_configuration const *ties
   for (vsize i = 0; i < ties->size (); i++)
     {
       char const *man_pos = (specifications_[i].has_manual_position_) ? "(M)" : "";
-      char const *man_dir = (specifications_[i].has_manual_dir_) ? "(M)" : "";
+      char const *man_height = (specifications_[i].has_manual_height_) ? "(M)" : "";
       char const *dir = (ties->at (i).dir_ == UP) ? "up" : "dn";
 
-      printf ("(P%d%s, %s%s) ", ties->at (i).position_, man_pos, dir, man_dir);
+      printf ("(P%d%s, %s%s) ", ties->at (i).position_, man_pos, dir, man_height);
     }
   printf ("\n");
 }
@@ -889,8 +889,11 @@ Tie_formatting_problem::generate_base_chord_configuration ()
   for (vsize i = 0; i < specifications_.size (); i++)
     {
       Tie_configuration conf;
-      if (specifications_[i].has_manual_dir_)
-        conf.dir_ = specifications_[i].manual_dir_;
+      if (specifications_[i].has_manual_height_)
+        {
+          conf.height_ = fabs (specifications_[i].manual_height_);
+          conf.dir_ = Direction (sign (specifications_[i].manual_height_));
+        }
       if (specifications_[i].has_manual_position_)
         {
           conf.position_ = (int) my_round (specifications_[i].manual_position_);
@@ -1079,8 +1082,8 @@ Tie_formatting_problem::generate_single_tie_variations (Ties_configuration const
 
           int p = ties[0].position_ + i * d;
 
-          if (!specifications_[0].has_manual_dir_
-              || d == specifications_[0].manual_dir_)
+          if (!specifications_[0].has_manual_height_
+              || d == Direction (sign (specifications_[0].manual_height_)))
             {
               Tie_configuration_variation var;
               var.add_suggestion (0,
@@ -1111,7 +1114,7 @@ Tie_formatting_problem::generate_collision_variations (Ties_configuration const 
         {
           if (center <= last_center + center_distance_tolerance)
             {
-              if (!specifications_[i].has_manual_dir_)
+              if (!specifications_[i].has_manual_height_)
                 {
                   Tie_configuration_variation var;
                   var.add_suggestion (i,
@@ -1126,7 +1129,7 @@ Tie_formatting_problem::generate_collision_variations (Ties_configuration const 
                   vars.push_back (var);
                 }
 
-              if (!specifications_[i - 1].has_manual_dir_)
+              if (!specifications_[i - 1].has_manual_height_)
                 {
                   Tie_configuration_variation var;
                   var.add_suggestion (i - 1,
@@ -1205,8 +1208,8 @@ Tie_formatting_problem::set_manual_tie_configuration (SCM manual_configs)
 
           if (scm_is_number (scm_cdr (entry)))
             {
-              spec.has_manual_dir_ = true;
-              spec.manual_dir_ = Direction (scm_to_int (scm_cdr (entry)));
+              spec.has_manual_height_ = true;
+              spec.manual_height_ = Direction (scm_to_int (scm_cdr (entry)));
             }
         }
       k++;

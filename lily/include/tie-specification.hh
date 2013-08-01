@@ -31,12 +31,13 @@ struct Tie_specification
   Grob *tie_grob_;
 
   bool has_manual_position_;
-  bool has_manual_dir_;
+  bool has_manual_height_;
   bool has_manual_delta_y_;
   bool has_accidental_;
 
   Real manual_position_;
-  Direction manual_dir_;
+  // the sign of height is the direction.
+  Real manual_height_;
 
   Tie_specification ();
   int column_span () const;

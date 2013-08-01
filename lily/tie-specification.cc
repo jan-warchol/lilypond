@@ -8,11 +8,11 @@ Tie_specification::Tie_specification ()
 {
   tie_grob_ = 0;
   has_manual_position_ = false;
-  has_manual_dir_ = false;
+  has_manual_height_ = false;
   has_manual_delta_y_ = false;
   position_ = 0;
   manual_position_ = 0;
-  manual_dir_ = CENTER;
+  manual_height_ = CENTER;
   note_head_drul_[LEFT]
     = note_head_drul_[RIGHT] = 0;
   column_ranks_[RIGHT]
@@ -25,8 +25,8 @@ Tie_specification::from_grob (Grob *tie)
   tie_grob_ = tie;
   if (scm_is_number (tie->get_property_data ("direction")))
     {
-      manual_dir_ = to_dir (tie->get_property ("direction"));
-      has_manual_dir_ = true;
+      manual_height_ = to_dir (tie->get_property ("direction"));
+      has_manual_height_ = true;
     }
 
   position_ = Tie::get_position (tie);
