@@ -935,6 +935,10 @@ Tie_formatting_problem::generate_ties_configuration (Ties_configuration const &t
   return copy;
 }
 
+/*
+  First, create a new configuration, using manual configs where they exist.
+  (Why this is separate from set_manual_tie_configuration?)
+  */
 Ties_configuration
 Tie_formatting_problem::generate_base_chord_configuration ()
 {
@@ -961,6 +965,8 @@ Tie_formatting_problem::generate_base_chord_configuration ()
     }
 
   set_ties_config_standard_directions (&ties_config);
+
+  // WTF??
   for (vsize i = 0; i < ties_config.size (); i++)
     if (!specifications_[i].manual_position_)
       ties_config[i].position_ += ties_config[i].dir_;
@@ -1241,6 +1247,7 @@ Tie_formatting_problem::generate_collision_variations (Ties_configuration const 
 }
 
 // pretty straighforward, just going through a list.
+// UGH WTF, why this is called "configuration" while it modifies a "specification"?
 void
 Tie_formatting_problem::set_manual_tie_configuration (SCM manual_configs)
 {
