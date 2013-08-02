@@ -120,6 +120,7 @@ Tie_column::calc_positioning_done (SCM smob)
                                         problem.details_);
 
       // is this the end?  I mean, are these final control point?
+      // A: After some analysis i think that "yes".
       ties[i]->set_property ("control-points", cp);
       set_grob_direction (ties[i],
                           base[i].dir_);

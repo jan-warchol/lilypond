@@ -1004,9 +1004,12 @@ Tie_formatting_problem::find_best_variation (Ties_configuration const &base,
   return best;
 }
 
+//in what sense this is "optimal" configuration?
 Ties_configuration
 Tie_formatting_problem::generate_optimal_configuration ()
 {
+  // this name duplication confuses me (there's local base here, and the
+    // returned value will be assigned to an object named base as well)
   Ties_configuration base = generate_base_chord_configuration ();
   score_ties (&base);
 
@@ -1086,6 +1089,8 @@ Tie_formatting_problem::set_ties_config_standard_directions (Ties_configuration 
     }
 }
 
+// we run this if in the previous set of possible ties we didn't find
+// one good solution.
 vector<Tie_configuration_variation>
 Tie_formatting_problem::generate_extremal_tie_variations (Ties_configuration const &ties) const
 {
