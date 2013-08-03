@@ -106,6 +106,10 @@ Tie::get_column_rank (Grob *me, Direction d)
     col = dynamic_cast<Item *> (me)->get_column ();
   else
     {
+      /*
+        WTF? we don't need this if.  We could just write
+        h = span->get_bound (d)
+        */
       Grob *h = head (me, d);
       if (!h)
         h = span->get_bound (d);

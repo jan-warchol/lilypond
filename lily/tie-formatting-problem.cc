@@ -302,6 +302,7 @@ Tie_formatting_problem::from_tie (Grob *tie)
   ties.push_back (tie);
   from_ties (ties);
 
+  // WTF??  this will be called by from_ties above, no need to duplicate.
   details_.from_grob (tie);
 }
 
