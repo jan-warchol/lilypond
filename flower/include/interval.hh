@@ -94,6 +94,12 @@ struct Interval_t : public Drul_array<T>
   Interval_t (T m, T M) : Drul_array<T> (m, M)
   {
   }
+
+  template <class T2>
+  explicit Interval_t (Drul_array<T2> const &src) : Drul_array<T> (src[LEFT], src[RIGHT])
+  {
+  }
+
   Interval_t<T> &operator -= (T r)
   {
     *this += -r;

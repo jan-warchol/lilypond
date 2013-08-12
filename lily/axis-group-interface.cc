@@ -265,15 +265,15 @@ Axis_group_interface::adjacent_pure_heights (SCM smob)
       Direction d = to_dir (g->get_property_data ("direction"));
       d = (d == CENTER) ? UP : d;
 
-      Interval_t<int> rank_span = g->spanned_rank_interval ();
-      vsize first_break = lower_bound (ranks, (vsize)rank_span[LEFT], less<vsize> ());
-      if (first_break > 0 && ranks[first_break] >= (vsize)rank_span[LEFT])
+      Interval_t<vsize> rank_span (g->spanned_rank_interval ());
+      vsize first_break = lower_bound (ranks, rank_span[LEFT], less<vsize> ());
+      if (first_break > 0 && ranks[first_break] >= rank_span[LEFT])
         first_break--;
 
-      for (vsize j = first_break; j + 1 < ranks.size () && (int)ranks[j] <= rank_span[RIGHT]; ++j)
+      for (vsize j = first_break; j + 1 < ranks.size () && ranks[j] <= rank_span[RIGHT]; ++j)
         {
-          int start = ranks[j];
-          int end = ranks[j + 1];
+          vsize start = ranks[j];
+          vsize end = ranks[j + 1];
 
           // Take grobs that are visible with respect to a slightly longer line.
           // Otherwise, we will never include grobs at breakpoints which aren't

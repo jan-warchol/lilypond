@@ -465,7 +465,7 @@ Auto_beam_engraver::recheck_beam ()
   for (vsize i = 0; i < stems_->size () - 1;)
     {
       found_end = test_moment (STOP,
-                               grouping_->end_moment (i),
+                               grouping_->end_moment ((int)i),
                                shortest_mom_);
       if (!found_end)
         i++;
@@ -480,7 +480,7 @@ Auto_beam_engraver::recheck_beam ()
 
           /* Eliminate (and save) the items no longer part of the first beam */
 
-          new_grouping_ = grouping_->split_pattern (i);
+          new_grouping_ = grouping_->split_pattern ((int)i);
           new_stems_ = remove_end_stems (i);
 
           end_beam ();
