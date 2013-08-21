@@ -45,7 +45,7 @@ right_downflag_space# = .0 downflag_width#;
 save hip_thickness, foot_thickness;
 
 hip_thickness# = 0.7 linethickness# + 0.03 staff_space#;
-foot_thickness# = 0.6 linethickness# + 0.02 staff_space#;
+foot_thickness# = 0.7 linethickness# + 0.02 staff_space#;
 
 define_pixels (hip_thickness, foot_thickness);
 
@@ -63,7 +63,7 @@ def draw_flag (expr center, flare, dims, hip_depth, foot_wid,
 
 	c = 0.7;
 
-	penpos1 (flare, 90);
+	penpos1 (flare*1.08, 90);
 	penpos2 (whatever, 0);
 
 	x2r - x2l = hround (hip_thickness);
@@ -71,7 +71,7 @@ def draw_flag (expr center, flare, dims, hip_depth, foot_wid,
 	penpos3 (foot_thickness, -20.0);
 
 	z1r = center;
-	z2r = center + (xpart (dims), -ypart (dims) * hip_depth);
+	z2r = center + (xpart (dims), -ypart (dims) * hip_depth * 0.95);
 	z3r = center + (xpart (dims) * foot_wid, -ypart (dims));
 
 	x2r := hround x2r;
