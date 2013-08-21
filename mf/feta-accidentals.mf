@@ -164,7 +164,7 @@ def draw_meta_sharp (expr width, offset) =
 
 	beamslope = sharp_beamheight / beamwidth;
 
-	pickup pencircle scaled 2 blot_diameter;
+	pickup pencircle scaled 2.3 blot_diameter;
 
 	rt x2 - lft x1 = beamwidth;
 	z2 = z1 + whatever * (beamwidth, sharp_beamheight);
@@ -196,7 +196,7 @@ def draw_sharp(expr arrowup, arrowdown) =
 	save outer_space, interbeam;
 	save stemlength, extendleft, extendright, height, depth;
 
-	stemwidth# := stafflinethickness# + .05 staff_space#;
+	stemwidth# := stafflinethickness# + .02 staff_space#;
 	define_whole_blacker_pixels (stemwidth);
 
 	interbeam := 1.05 staff_space_rounded;
@@ -490,8 +490,8 @@ def draw_natural (expr arrowup, arrowdown) =
 	pair ne;
 	path pat_top, pat_bottom;
 
-	top_stem_thick# = stafflinethickness# + .10 staff_space#;
-	stemwidth# = 0.09 staff_space# + .5 stafflinethickness#;
+	top_stem_thick# = 0.08 staff_space# + .8 stafflinethickness#;
+	stemwidth# = 0.08 staff_space# + .8 stafflinethickness#;
 	define_whole_blacker_pixels (top_stem_thick, stemwidth);
 
 	stemlength# = 1.5 staff_space#;
@@ -517,8 +517,8 @@ def draw_natural (expr arrowup, arrowdown) =
 
 	pickup pencircle scaled stemwidth;
 
-	brush_scale_up := 1.0;
-	brush_scale_down := 1.0;
+	brush_scale_up := 1;
+	brush_scale_down := 1;
 	% to look nice, arrowed stems must be less brushed
 	if arrowup:
 		brush_scale_up := 0.85;
@@ -686,7 +686,7 @@ def draw_meta_flat (expr xcenter, w, crook_fatness, arrowup, arrowdown) =
 	fi;
 	bottom_overshoot = stafflinethickness;
 
-	bottom_stem_thick# = 0.06 staff_space# + 0.6 stafflinethickness#;
+	bottom_stem_thick# = 0.0 staff_space# + 0.6 stafflinethickness#;
 	top_stem_thick# = 0.1 staff_space# + 1.2 stafflinethickness#;
 	top_stem_thick_orig# = top_stem_thick#;
 	if arrowup:
@@ -749,12 +749,12 @@ def draw_meta_flat (expr xcenter, w, crook_fatness, arrowup, arrowdown) =
 
 	y4l - y4r = top_crook_thinness;
 	y5r = .15 staff_space;
-	x5l = hround (w + xcenter);
+	x5l = hround (w*1.03 + xcenter);
 	y4 = staff_space / 2;
 	x4r = .45 [x5r, x3r];
 	y4l := vround y4l;
 
-	penpos5 (crook_fatness, -175);
+	penpos5 (crook_fatness*1.1, -175);
 
 	bot_crook_dir = unitvector ((x5l, 0) - z11);
 	z8 = z11 + whatever * bot_crook_dir;
