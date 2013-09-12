@@ -37,26 +37,9 @@ using @ref{LilyDev}.}
 
 @enumerate
 @item
-If you haven't already, download and install Git.
-
-@itemize
-
-@item Windows users: download the @code{.exe} file labeled
-@qq{Full installer for official Git} from:
-
-@example
-@uref{http://code.google.com/p/msysgit/downloads/list}
-@end example
-
-@item Other operating systems: either install @command{git} with
-your package manager, or download it from the @qq{Binaries}
-section of:
-
-@example
-@uref{http://git-scm.com/download}
-@end example
-
-@end itemize
+If you haven't already, download and install Git
+using your package manager, or from
+@uref{http://git-scm.com/download}.
 
 
 @item
@@ -121,7 +104,7 @@ multiple projects concurrently.
 @subsection Setting up
 
 @warning{These instructions assume that you are using the
-command-line version of Git 1.5 or higher.  Windows users should
+command-line version of Git 1.8 or higher.  Windows users should
 skip to @ref{Git on Windows}.}
 
 @menu
@@ -717,107 +700,6 @@ up to use it.  Also, the HTTP protocol is slowest, so it should
 only be used as a last resort.
 
 
-@node Downloading individual branches
-@unnumberedsubsubsec Downloading individual branches
-
-@warning{obsolete, should be deleted!}
-
-
-Once you have initialized an empty Git repository on your system
-(see @ref{Initializing a repository}), you can download a remote
-branch into it.  Make sure you know which branch you want to start
-with.
-
-To download the @code{master} branch, enter the following:
-
-@example
-git remote add -ft master -m master \
-  origin git://git.sv.gnu.org/lilypond.git/
-@end example
-
-To download the @code{translation} branch, enter:
-
-@example
-git remote add -ft translation -m \
-  translation origin git://git.sv.gnu.org/lilypond.git/
-@end example
-
-The @command{git@tie{}remote@tie{}add} process could take up to
-ten minutes, depending on the speed of your connection.  The
-output will be something like this:
-
-@example
-Updating origin
-remote: Counting objects: 235967, done.
-remote: Compressing objects: 100% (42721/42721), done.
-remote: Total 235967 (delta 195098), reused 233311 (delta 192772)
-Receiving objects: 100% (235967/235967), 68.37 MiB | 479 KiB/s, done.
-Resolving deltas: 100% (195098/195098), done.
-From git://git.sv.gnu.org/lilypond
- * [new branch]      master     -> origin/master
-From git://git.sv.gnu.org/lilypond
- * [new tag]         flower/1.0.1 -> flower/1.0.1
- * [new tag]         flower/1.0.10 -> flower/1.0.10
-⋮
- * [new tag]         release/2.9.6 -> release/2.9.6
- * [new tag]         release/2.9.7 -> release/2.9.7
-@end example
-
-When @command{git@tie{}remote@tie{}add} is finished, the remote
-branch should be downloaded into your repository---though not yet
-in a form that you can use.  In order to browse the source code
-files, you need to @emph{create} and @emph{checkout} your own
-local branch.  In this case, however, it is easier to have Git
-create the branch automatically by using the @command{checkout}
-command on a non-existent branch.  Enter the following:
-
-@example
-git checkout -b @var{branch} origin/@var{branch}
-@end example
-
-@noindent
-where @code{@var{branch}} is the name of your tracking branch,
-either @code{master} or @code{translation}.
-
-Git will issue some warnings; this is normal:
-
-@example
-warning: You appear to be on a branch yet to be born.
-warning: Forcing checkout of origin/master.
-Branch master set up to track remote branch master from origin.
-Already on 'master'
-@end example
-
-By now the source files should be accessible---you should be able
-to edit any files in the @file{$LILYPOND_GIT} directory using a
-text editor of your choice.  But don't start just yet!  Before
-editing any source files, learn how to keep your changes organized
-and prevent problems later---read @ref{Basic Git procedures}.
-
-@subsubheading Technical Details
-
-The @command{git@tie{}remote@tie{}add} command should add some
-lines to your local repository's @file{.git/config} file:
-
-@example
-[remote "origin"]
-        url = git://git.sv.gnu.org/lilypond.git/
-        fetch = +refs/heads/master:refs/remotes/origin/master
-@end example
-
-
-@node Downloading all remote branches
-@unnumberedsubsubsec Downloading all remote branches
-
-
-To download all remote branches at once, you can @command{clone}
-the entire repository:
-
-@example
-git clone git://git.sv.gnu.org/lilypond.git
-@end example
-
-
 @node Other branches
 @unnumberedsubsubsec Other branches
 
@@ -832,10 +714,10 @@ which is not yet stable enough to be added to the @code{master}
 branch.
 
 @item @code{stable/XYZ}:
-The branches are kept for archival reasons.
+These branches are kept for archival reasons.
 
 @item @code{archive/XYZ}:
-The branches are kept for archival reasons.
+These branches are kept for archival reasons.
 
 @end itemize
 
@@ -1014,11 +896,6 @@ To delete a branch, enter:
 git branch -d @var{name}
 @end example
 
-Git will ask you for confirmation if it sees that data would be
-lost by deleting the branch.  Use @option{-D} instead of @option{-d}
-to bypass this.  Note that you cannot delete a branch if it is
-currently checked out.
-
 
 @node Listing branches and remotes
 @unnumberedsubsubsec Listing branches and remotes
@@ -1114,13 +991,6 @@ current branch with this command:
 
 @example
 git log -10 --oneline
-@end example
-
-If you're using an older version of Git and get an @q{unrecognized
-argument} error, use this instead:
-
-@example
-git log -10 --pretty=oneline --abbrev-commit
 @end example
 
 More interactive lists of the commits on the remote @code{master}
