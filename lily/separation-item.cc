@@ -197,8 +197,8 @@ Separation_item::print (SCM smob)
   Stencil ret;
   if (Skyline_pair *s = Skyline_pair::unsmob (me->get_property ("horizontal-skylines")))
     {
-      ret.add_stencil (Lookup::points_to_line_stencil (0.1, (*s)[LEFT].to_points (Y_AXIS)).in_color (255, 255, 0));
-      ret.add_stencil (Lookup::points_to_line_stencil (0.1, (*s)[RIGHT].to_points (Y_AXIS)).in_color (0, 255, 255));
+      ret.add_stencil (Lookup::points_to_line_stencil (0.03, (*s)[LEFT].to_points (Y_AXIS)).in_color (1, 1, 0.7));
+      ret.add_stencil (Lookup::points_to_line_stencil (0.03, (*s)[RIGHT].to_points (Y_AXIS)).in_color (0.7, 1, 1));
     }
   return ret.smobbed_copy ();
 }

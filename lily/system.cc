@@ -629,10 +629,12 @@ System::get_paper_system ()
         {
           Stencil up
             = Lookup::points_to_line_stencil (0.1, (*skylines)[UP].to_points (X_AXIS));
+          up.translate(Offset (0, 0.05));
           Stencil down
             = Lookup::points_to_line_stencil (0.1, (*skylines)[DOWN].to_points (X_AXIS));
-          sys_stencil.add_stencil (up.in_color (255, 0, 0));
-          sys_stencil.add_stencil (down.in_color (0, 255, 0));
+          down.translate(Offset (0, -0.05));
+          sys_stencil.add_stencil (up.in_color (1, 0.7, 0.7));
+          sys_stencil.add_stencil (down.in_color (0.7, 1, 0.7));
         }
     }
 
