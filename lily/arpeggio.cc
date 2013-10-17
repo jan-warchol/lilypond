@@ -166,7 +166,9 @@ Arpeggio::brew_chord_bracket (SCM smob)
                                         Interval ())
                    * Staff_symbol_referencer::staff_space (me);
 
-  Real lt = me->layout ()->get_dimension (ly_symbol2scm ("line-thickness"));
+  Real global_lt = me->layout ()->get_dimension (ly_symbol2scm ("line-thickness"));
+  Real th_property = robust_scm2double (me->get_property ("thickness"), 1);
+  Real lt = global_lt * th_property;
   Real sp = 1.5 * Staff_symbol_referencer::staff_space (me);
   Real dy = heads.length () + sp;
   Real x = 0.7;
