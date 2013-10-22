@@ -26,6 +26,8 @@
     (non-horizontal-penalty . 15)
     (max-slope . 1.1)
     (max-slope-factor . 10)
+    (min-gap-above-staffline . 0.3)
+    (min-gap-below-staffline . 0.15)
     (free-head-distance . 0.3)
     (free-slur-distance . 0.8)
     (extra-object-collision-penalty . 50)

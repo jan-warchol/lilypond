@@ -54,6 +54,10 @@ Slur_score_parameters::fill (Grob *me)
     = get_detail (details, ly_symbol2scm ("max-slope"));
   max_slope_factor_
     = get_detail (details, ly_symbol2scm ("max-slope-factor"));
+  min_gap_above_staffline_
+    = get_detail (details, ly_symbol2scm ("min-gap-above-staffline"));
+  min_gap_below_staffline_
+    = get_detail (details, ly_symbol2scm ("min-gap-below-staffline"));
   free_head_distance_
     = get_detail (details, ly_symbol2scm ("free-head-distance"));
   absolute_closeness_measure_

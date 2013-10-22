@@ -34,6 +34,8 @@ struct Slur_score_parameters
   Real non_horizontal_penalty_;
   Real max_slope_;
   Real max_slope_factor_;
+  Real min_gap_above_staffline_;
+  Real min_gap_below_staffline_;
   Real extra_object_collision_penalty_;
   Real accidental_collision_;
   Real free_slur_distance_;

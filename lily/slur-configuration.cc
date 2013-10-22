@@ -31,10 +31,42 @@
 #include "tie.hh"
 #include "warn.hh"
 
+// Move slur's "belly" (the middle section, where it becomes flat)
+// so that it avoids the stafflines. There are two distinct cases:
+//
+// belly above line:
+//
+//    _          _..------.._
+//  x |     _.-''            ''-._
+// ___|___.'______________________'._____staffline
+//    ^ .'                          '.
+//     /                              \
+//
+//
+// belly below line:
+//
+// __________.___________________________staffline
+//         x |
+//           ^   _..------.._
+//          _.-''            ''-._
+//        .'                      '.
+//      .'                          '.
+//
+//
+// We call x (distance between slur and staffline) "clearance" or "gap".
+// In the "belly above" case we need more clearance than in the other case.
+//
+// The function is implemented so that we're more likely to increase curvature
+// rather than decrease, because we want to avoid too flat slurs.
+//
+// Note that we also want the slur tips to avoid stafflines, but that's done
+// in another function.
+
 Bezier
 avoid_staff_line (Slur_score_state const &state,
                   Bezier bez)
 {
+  // Get the point(s) where the curve is horizontal (i.e. the belly):
   Offset horiz (1, 0);
   vector<Real> ts = bez.solve_derivative (horiz);
 
@@ -43,27 +75,52 @@ avoid_staff_line (Slur_score_state const &state,
       && (state.extremes_[LEFT].staff_ == state.extremes_[RIGHT].staff_)
       && state.extremes_[LEFT].staff_ && state.extremes_[RIGHT].staff_)
     {
-      Real y = bez.curve_point (ts[0])[Y_AXIS];
+      // There could be more than one solution if we supported S-slurs.
+      Real t = ts[0];
+      Real y = bez.curve_point (t)[Y_AXIS];
 
       Grob *staff = state.extremes_[LEFT].staff_;
+      Real const staff_th = Staff_symbol_referencer::line_thickness (staff);
+      Real const slur_th = state.thickness_ * staff_th * 10;
+      Interval const min_gap = Interval (state.parameters_.min_gap_below_staffline_,
+                                         state.parameters_.min_gap_above_staffline_);
 
-      Real p = 2 * (y - staff->relative_coordinate (state.common_[Y_AXIS], Y_AXIS))
-               / state.staff_space_;
+      // normalized to staffspaces and upward slurs.
+      Real norm_y = (y - staff->relative_coordinate (state.common_[Y_AXIS], Y_AXIS))
+                    / state.staff_space_
+                    * state.dir_;
 
-      Real const round = my_round (p);
-      Real const frac = p - round;
-      if (fabs (frac) < 4 * state.thickness_
-          && Staff_symbol_referencer::on_staff_line (staff, int (round)))
+      // TODO: to handle weird staves well, we should round to staffline positions.
+      Real const round = my_round (norm_y);
+      Real const gap = fabs (norm_y - round) - (slur_th + staff_th) / 2;
+      Direction which_side = (round <= norm_y) ? UP : DOWN;
+
+      if (gap < min_gap [which_side]
+          && Staff_symbol_referencer::on_staff_line (staff, int (2 * round)))
         {
-          Direction resolution_dir = frac ? state.dir_ : CENTER;
-
-          // TODO: parameter
-          Real newp = round + resolution_dir * 5 * state.thickness_;
-
-          Real dy = (newp - p) * state.staff_space_ / 2.0;
-
-          bez.control_[1][Y_AXIS] += dy;
-          bez.control_[2][Y_AXIS] += dy;
+          Real correction = (min_gap [which_side] - gap) * which_side;
+          correction *= state.staff_space_ * state.dir_;
+          /*
+            We apply the correction in two steps: first we move the whole
+            slur by a fraction of the correction, and then we increase
+            the curvature by moving middle control-points (We could have
+            moved only the middle control-points, but that could disturb
+            the curvature too much):
+          */
+          bez.translate (Offset (0, 0.4 * correction));
+          /*
+            Now, the rest of the correction is applied by increasing curvature.
+            The belly position is given by the following equation
+            b = P0*(1-t)^3 + P2*t*(1-t)^2 + P3*(1-t)*t^2 + P4*t^3
+            where P0-P3 are the control points - see
+            http://en.wikipedia.org/wiki/B%C3%A9zier_curve#Higher-order_curves
+            P0 and P3 will remain unchanged, so
+            correction = dP1*3*t*(t-1)^2 + dP2*3*(1-t)*t^2
+            and dP1=dP2.
+          */
+          Real mid_pts_cor = 0.6 * correction / (3 * (t - (t * t)));
+          bez.control_[1][Y_AXIS] += mid_pts_cor;
+          bez.control_[2][Y_AXIS] += mid_pts_cor;
         }
     }
   return bez;
