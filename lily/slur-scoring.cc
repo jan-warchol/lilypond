@@ -176,6 +176,10 @@ Slur_score_state::get_bound_info () const
                 {
                   Axis ax = Axis (a);
                   Interval s = extremes[d].stem_->extent (common_[ax], ax);
+                  // this shouldn't be done using extents, but skylines.
+                  // with extents, slur end is sometimes too far from the note, e.g.
+                  // { \override Slur positions = #'(0 . 0.5) c'8*4^( e') }
+                  // (when compiled with 2.17.29)
                   if (extremes[d].flag_)
                     s.unite (extremes[d].flag_->extent (common_[ax], ax));
                   if (s.is_empty ())
@@ -518,9 +522,9 @@ Slur_score_state::get_base_attachments () const
             y = extremes_[d].stem_extent_[Y_AXIS][dir_];
           else if (head)
             y = head->extent (common_[Y_AXIS], Y_AXIS)[dir_];
-          y += dir_ * 0.5 * staff_space_;
+          y += dir_ * 0.5 * staff_space_; // parametrize this 0.5
 
-          y = move_away_from_staffline (y, head);
+          y = move_away_from_staffline (y, head); // this shouldn't be done at this moment
 
           Grob *fh = Note_column::first_head (extremes_[d].note_column_);
           x
@@ -550,7 +554,7 @@ Slur_score_state::get_base_attachments () const
           if (extremes_[-d].bound_ != col)
             {
               y = robust_relative_extent (col, common_[Y_AXIS], Y_AXIS)[dir_];
-              y += dir_ * 0.5 * staff_space_;
+              y += dir_ * 0.5 * staff_space_; // parametrize this 0.5
 
               if (get_grob_direction (col) == dir_
                   && Note_column::get_stem (col)
@@ -560,7 +564,7 @@ Slur_score_state::get_base_attachments () const
           else
             y = base_attachment[-d][Y_AXIS];
 
-          y = move_away_from_staffline (y, col);
+          y = move_away_from_staffline (y, col); // this shouldn't be done at this moment
 
           base_attachment[d] = Offset (x, y);
         }
@@ -587,6 +591,7 @@ Real
 Slur_score_state::move_away_from_staffline (Real y,
                                             Grob *on_staff) const
 {
+  // TODO shouldn't this function be merged with Slur_configuration::avoid_staff_line ?
   if (!on_staff)
     return y;
 
@@ -674,9 +679,13 @@ Slur_score_state::enumerate_attachments (Drul_array<Real> end_ys) const
   Real minimum_length = staff_space_
                         * robust_scm2double (slur_->get_property ("minimum-length"), 2.0);
 
+  // widen the area of searched possibilities by 2 staffspaces
+  os[LEFT][Y_AXIS] -= 2;
   for (int i = 0; dir_ * os[LEFT][Y_AXIS] <= dir_ * end_ys[LEFT]; i++)
     {
       os[RIGHT] = base_attachments_[RIGHT];
+      // widen the area of searched possibilities by 2 staffspaces
+      os[RIGHT][Y_AXIS] -= 2;
       for (int j = 0; dir_ * os[RIGHT][Y_AXIS] <= dir_ * end_ys[RIGHT]; j++)
         {
 
@@ -692,6 +701,7 @@ Slur_score_state::enumerate_attachments (Drul_array<Real> end_ys) const
                   stem_y.widen (0.25 * staff_space_);
                   if (stem_y.contains (os[d][Y_AXIS]))
                     {
+                      // TODO: parametrize this
                       os[d][X_AXIS] = extremes_[d].stem_extent_[X_AXIS][-d]
                                       - d * 0.3;
                       attach_to_stem[d] = true;
@@ -701,6 +711,14 @@ Slur_score_state::enumerate_attachments (Drul_array<Real> end_ys) const
                            && !extremes_[d].stem_extent_[X_AXIS].is_empty ())
 
                     os[d][X_AXIS] = extremes_[d].stem_extent_[X_AXIS].center ();
+                }
+              if (extremes_[d].note_column_) // broken, should get the extent of just noteheads
+                {
+                  Interval nc_ext = extremes_[d].note_column_->extent (common_[Y_AXIS], Y_AXIS);
+                  nc_ext.widen (-0.15 * staff_space_); // ugh, this should be smarter.
+                  if (nc_ext.contains (os[d][Y_AXIS]))
+                      os[d][X_AXIS] = extremes_[d].note_column_->extent (common_[X_AXIS], X_AXIS)[-d]
+                                      - d * 0.3; // parametrize
                 }
             }
 
@@ -738,9 +756,11 @@ Slur_score_state::enumerate_attachments (Drul_array<Real> end_ys) const
 
           scores.push_back (Slur_configuration::new_config (os, scores.size ()));
 
+          // TODO this increment should be user-settable
           os[RIGHT][Y_AXIS] += dir_ * staff_space_ / 2;
         }
 
+      // TODO this increment should be user-settable
       os[LEFT][Y_AXIS] += dir_ * staff_space_ / 2;
     }
 
