@@ -111,7 +111,7 @@ avoid_staff_line (Slur_score_state const &state,
           /*
             Now, the rest of the correction is applied by increasing curvature.
             The belly position is given by the following equation
-            b = P0*(1-t)^3 + P2*t*(1-t)^2 + P3*(1-t)*t^2 + P4*t^3
+            b = P0*(1-t)^3 + P1*t*(1-t)^2 + P2*(1-t)*t^2 + P3*t^3
             where P0-P3 are the control points - see
             http://en.wikipedia.org/wiki/B%C3%A9zier_curve#Higher-order_curves
             P0 and P3 will remain unchanged, so
