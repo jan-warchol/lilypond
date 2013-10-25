@@ -34,7 +34,7 @@
 // Move slur's "belly" (the middle section, where it becomes flat)
 // so that it avoids the stafflines. There are two distinct cases:
 //
-// belly above line:
+// belly above line (staffline inside the slur):
 //
 //    _          _..------.._
 //  x |     _.-''            ''-._
@@ -43,7 +43,7 @@
 //     /                              \
 //
 //
-// belly below line:
+// belly below line (staffline outside the slur):
 //
 // __________.___________________________staffline
 //         x |
@@ -66,7 +66,7 @@ Bezier
 avoid_staff_line (Slur_score_state const &state,
                   Bezier bez)
 {
-  // Get the point(s) where the curve is horizontal (i.e. the belly):
+  // Get the point(s) where the curve is horizontal:
   Offset horiz (1, 0);
   vector<Real> ts = bez.solve_derivative (horiz);
 
@@ -82,8 +82,16 @@ avoid_staff_line (Slur_score_state const &state,
       Grob *staff = state.extremes_[LEFT].staff_;
       Real const staff_th = Staff_symbol_referencer::line_thickness (staff);
       Real const slur_th = state.thickness_ * staff_th * 10;
-      Interval const min_gap = Interval (state.parameters_.min_gap_below_staffline_,
-                                         state.parameters_.min_gap_above_staffline_);
+
+      // For very slanted slurs, where the horizontal part is very close
+      // to the slur end (for example in { d''4( g') } ), we want to make
+      // the minimum gap smaller.  Experiments show that 2/3 of the normal
+      // value works very well, so we use a parabola satisfying
+      // fac(0) = fac(1) = 2/3, fac(0.5) = 1.
+      Real fac = (t - t*t + 0.5) * 4/3;
+
+      Interval const min_gap = Interval (fac * state.parameters_.min_gap_below_staffline_,
+                                         fac * state.parameters_.min_gap_above_staffline_);
 
       // normalized to staffspaces and upward slurs.
       Real norm_y = (y - staff->relative_coordinate (state.common_[Y_AXIS], Y_AXIS))
@@ -103,11 +111,15 @@ avoid_staff_line (Slur_score_state const &state,
           /*
             We apply the correction in two steps: first we move the whole
             slur by a fraction of the correction, and then we increase
-            the curvature by moving middle control-points (We could have
-            moved only the middle control-points, but that could disturb
-            the curvature too much):
+            the curvature by moving middle control-points even further.
+            When t approaches 0 or 1, which happens e.g. in
+            { d''4( g') }
+            { \override Slur #'positions = #'(2 . 0)  d''4( d') }
+            we do the correction just by moving the whole slur
+            (to avoid problems with the middle pts in next step)
           */
-          bez.translate (Offset (0, 0.4 * correction));
+          Real factor = fabs (t - 0.5) + 0.5;
+          bez.translate (Offset (0, factor * correction));
           /*
             Now, the rest of the correction is applied by increasing curvature.
             The belly position is given by the following equation
@@ -116,9 +128,9 @@ avoid_staff_line (Slur_score_state const &state,
             http://en.wikipedia.org/wiki/B%C3%A9zier_curve#Higher-order_curves
             P0 and P3 will remain unchanged, so
             correction = dP1*3*t*(t-1)^2 + dP2*3*(1-t)*t^2
-            and dP1=dP2.
+            and dP1=dP2. Solving this equation, we get:
           */
-          Real mid_pts_cor = 0.6 * correction / (3 * (t - (t * t)));
+          Real mid_pts_cor = (1 - factor) * correction / (3 * (t - (t * t)));
           bez.control_[1][Y_AXIS] += mid_pts_cor;
           bez.control_[2][Y_AXIS] += mid_pts_cor;
         }
