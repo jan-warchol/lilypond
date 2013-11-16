@@ -445,7 +445,7 @@ fet_endchar;
 
 fet_beginchar ("portato/single tenuto", "tenuto");
 	save thick;
-	thick# = 1.6 linethickness#;
+	thick# = 1.8 linethickness#;
 	define_whole_blacker_pixels (thick);
 
 	set_char_box (.6 staff_space#, .6 staff_space#,
@@ -457,7 +457,7 @@ fet_endchar;
 
 def draw_portato =
 	save thick, dot_size;
-	thick# = 1.4 linethickness#;
+	thick# = 1.6 linethickness#;
 	dot_size# = 2.4 linethickness# + 0.08 staff_space#;
 	define_whole_blacker_pixels (thick, dot_size);
 
