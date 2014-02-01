@@ -283,7 +283,7 @@ begingroup;
 	z1 = 0.5 [z1l, z1r];
 	z2 = 0.5 [z2l, z2r];
 	y10 = ycenter;
-	z10 = whatever [z2, z1] + left * bulb_diam * stretch;
+	z10 = whatever [z2, z1] + left * bulb_diam * 1.15 stretch;
 
 	% this enforces similar bulb shapes for lower resolutions
 	x10 := hround x10;
