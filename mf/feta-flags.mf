@@ -45,7 +45,7 @@ right_downflag_space# = .0 downflag_width#;
 save hip_thickness, foot_thickness;
 
 hip_thickness# = 0.8 linethickness# + 0.07 staff_space#;
-foot_thickness# = 0.6 linethickness# + 0.05 staff_space#;
+foot_thickness# = 0.7 linethickness# + 0.08 staff_space#;
 
 define_pixels (hip_thickness, foot_thickness);
 
@@ -58,13 +58,17 @@ define_pixels (hip_thickness, foot_thickness);
 def draw_flag (expr center, flare, dims, hip_depth, foot_wid,
 	       hip_thickness, foot_thickness, show_labels) =
 	save c;
+	save ang;
+    pair ang;
 
 	clearxy;
 
-	c = 0.7;
+	c = 2;
 
 	penpos1 (flare, 90);
 	penpos2 (whatever, 0);
+	
+	ang = (1, -4);
 
 	x2r - x2l = hround (hip_thickness);
 
@@ -76,16 +80,17 @@ def draw_flag (expr center, flare, dims, hip_depth, foot_wid,
 
 	x2r := hround x2r;
 	y2r := vround y2r;
+	%z4 := z1
 
 	outer_path := z3r{curl c}
 		      .. z2r{up}
-		      .. {up}z1r;
+		      .. {-ang}z1r;
 
 	if show_labels = 1:
 		penlabels (1, 2, 3);
 	fi;
 
-	fill z1l{curl 0}
+	fill z1l{curl 0.5}
 	     ..tension 1.1.. z2l{down}
 	     ..	{curl c}simple_serif (z3l, z3r, 80)
 	     & outer_path
