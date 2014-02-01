@@ -322,7 +322,7 @@ def draw_gclef (expr reduction) =
 	% with stafflines, so we make reduced clef's loop a bit bigger.
 	reduced_loop_correction := min (max (0.94, (0.6 + 0.46 * reduction)), 1);
 
-	thinness = 0.095 staff_space + 0.75 linethickness;
+	thinness = 0.04 staff_space + 0.8 linethickness;
 	downstroke_dir = unitvector (14, -75);
 	downstroke_angle = angle downstroke_dir;
 	bot_angle = -180;		% downstroke_angle - 87
@@ -332,8 +332,8 @@ def draw_gclef (expr reduction) =
 
 	breapth_factor = 21/14;
 	inner_thick_end = 45;
-	inner_start_angle = downstroke_angle - 43;
-	thickness = .33 reduced_ss + 1.1 linethickness;
+	inner_start_angle = downstroke_angle - 38;
+	thickness = .38 reduced_ss + 1.1 linethickness;
 
 	thinnib = thinness;
 
@@ -365,13 +365,13 @@ def draw_gclef (expr reduction) =
 	y6 = ypart center + 1.95 reduced_ss / reduced_loop_correction;
 	% penpos6 is computed later
 
-	z7l - z6 = whatever * (z5 - z6);
+	z7l - z6 = whatever * (z5 - 30 z6);
 	y7l = 3.38 reduced_ss / reduced_loop_correction;
 	penpos7 (thickness, upward_swoosh_angle);
 
 	x9 = .75 [x10, x7r];
 	top y9l = 4.78 reduced_ss / reduced_loop_correction;
-	penpos9 (1.45 thickness, -70);
+	penpos9 (1 thickness, -70);
 
 	x11 - x13r = 1.44 * reduced_ss + 0.5 thinnib;
 	y11 = ypart center - 45/28 reduced_ss;
