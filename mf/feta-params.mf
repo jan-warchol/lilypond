@@ -273,7 +273,7 @@ def draw_outside_ellipse (expr ellipticity, tilt, superness, slant) =
 
         save scaling, width;
 
-        scaling# := noteheight# / (2 ypart (top_point));
+        scaling# := 1.05 noteheight# / (2 ypart (top_point));
         width# := 2 xpart (right_point) * scaling#;
         define_pixels (scaling, width);
        set_char_box (0, width#, noteheight# / 2, noteheight# / 2);
@@ -297,7 +297,7 @@ enddef;
 
 
 def draw_quarter_path =
-        draw_outside_ellipse (1.4 - puff_up_factor / 3.0, 31, 0.707, 0);
+        draw_outside_ellipse (1.3 - puff_up_factor / 3.0, 31, 0.707, 0);
 enddef;
 
 test_outlines := 0;
