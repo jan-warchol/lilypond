@@ -29,13 +29,13 @@ def draw_meta_flat (expr xcenter, w, crook_fatness, arrowup, arrowdown) =
 	% TODO: parameterize this
 	%
 	if w >= 0.75 staff_space:
-		smaller_hole = 0.35 stafflinethickness;
+		smaller_hole = 0 stafflinethickness;
 	else:
 		smaller_hole = 0;
 	fi;
 	crook_thinness = .7 stafflinethickness + .06 staff_space;
 	top_crook_thinness = 1 stafflinethickness + .065 staff_space;
-	clearing = 1.7 stafflinethickness;
+	clearing = 2.7 stafflinethickness;
 	clearing_orig = clearing;
 	if arrowup:
 		clearing := 0.5 staff_space;
@@ -43,7 +43,7 @@ def draw_meta_flat (expr xcenter, w, crook_fatness, arrowup, arrowdown) =
 	bottom_overshoot = stafflinethickness;
 
 	bottom_stem_thick# = 0.06 staff_space# + 0.6 stafflinethickness#;
-	top_stem_thick# = 0.1 staff_space# + 1.2 stafflinethickness#;
+	top_stem_thick# = 0.06 staff_space# + 0.6 stafflinethickness#;
 	top_stem_thick_orig# = top_stem_thick#;
 	if arrowup:
 		% to look nice, arrowed stems should be less brushed

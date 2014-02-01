@@ -9,7 +9,7 @@ save default_width, default_height, onestemmed_height;
 save default_interbeam_dist, triples_interbeam_dist;
 save default_beam_thickness, stem_thickness;
 
-default_width# := 1.1 staff_space#;
+default_width# := 0.92 staff_space#;
 default_height# := 3 staff_space#;
 onestemmed_height# := 2.66 staff_space#;
 define_pixels (default_width);
@@ -17,8 +17,8 @@ define_pixels (default_width);
 default_interbeam_dist := 1.05 staff_space_rounded;
 triples_interbeam_dist := 1.2 staff_space_rounded;
 
-default_beam_thickness# := 0.3 staff_space# + stafflinethickness#;
-stem_thickness# := stafflinethickness# + .05 staff_space#;
+default_beam_thickness# := 0.27 staff_space# + stafflinethickness#;
+stem_thickness# := 0.6 stafflinethickness# + .06 staff_space#;
 define_whole_blacker_pixels (stem_thickness);
 
 
@@ -72,7 +72,7 @@ def draw_sharp (expr arrowup, arrowdown) =
         set_char_box (0, default_width#, half_height#, half_height#);
         d := d - feta_space_shift;
 
-        dist_between_stems := hround (7 / 16 * default_width);
+        dist_between_stems := hround (8 / 16 * default_width);
         outer_space := hround ((w - dist_between_stems - stem_thickness) / 2);
 
         w := 2 outer_space + dist_between_stems + stem_thickness;

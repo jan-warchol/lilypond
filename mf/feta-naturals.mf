@@ -9,12 +9,12 @@ save stem_thickness, stem_end_thickness_multiplier;
 save beam_thickness, beam_slant, hole_highest_point;
 
 full_height# := 3 staff_space#;
-full_width# := 2/3 staff_space#;
-stem_thickness# := 0.09 staff_space# + 0.5 stafflinethickness#;
-stem_end_thickness_multiplier := 10/7;
-beam_slant := 1.266 stafflinethickness;
-beam_thickness := 0.485 staff_space -  stafflinethickness;
-hole_highest_point := 0.5 (staff_space - stafflinethickness);
+full_width# := 0.72 staff_space#;
+stem_thickness# := 0.06 staff_space# + 0.6 stafflinethickness#;
+stem_end_thickness_multiplier := 1;
+beam_slant := 4 stafflinethickness;
+beam_thickness := 0.35 staff_space;
+hole_highest_point := 0.58 (staff_space - stafflinethickness);
 
 
 def draw_natural (expr arrowup, arrowdown) =
