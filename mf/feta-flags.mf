@@ -26,8 +26,8 @@ path outer_path;
 % the down-flag can be bigger.
 %
 
-upflag_width# = .65 black_notehead_width# + stemthickness# / 2;
-downflag_width# = .833 black_notehead_width# + stemthickness# / 2;
+upflag_width# = .8 black_notehead_width# + stemthickness# / 2;
+downflag_width# = .9 black_notehead_width# + stemthickness# / 2;
 
 right_upflag_space# = .0 upflag_width#;
 right_downflag_space# = .0 downflag_width#;
@@ -44,8 +44,8 @@ right_downflag_space# = .0 downflag_width#;
 
 save hip_thickness, foot_thickness;
 
-hip_thickness# = 1.0 linethickness# + 0.069 staff_space#;
-foot_thickness# = 1.2055 linethickness# + 0.06 staff_space#;
+hip_thickness# = 0.8 linethickness# + 0.07 staff_space#;
+foot_thickness# = 0.6 linethickness# + 0.05 staff_space#;
 
 define_pixels (hip_thickness, foot_thickness);
 
@@ -141,11 +141,11 @@ def upstemsingleflag (expr shortening) =
 
 	flag_count = 1;
 	total_depth# = (3 - shortening) * staff_space# - blot_diameter# / 2;
-	flare = staff_space;
+	flare = 0.8 staff_space;
 	flagspace# = staff_space#;
-	hip_depth_ratio = .72;
+	hip_depth_ratio = .68;
 	hip_width# = upflag_width# - hip_thickness# / 2;
-	foot_width_ratio = .8;
+	foot_width_ratio = .75;
 
 	(flag_count - 1) * flagspace# + foot_depth# = total_depth#;
 
@@ -317,11 +317,11 @@ def downstemsingleflag (expr shortening) =
 
 	flag_count = 1;
 	total_depth# = (2.75 - shortening) * staff_space#;
-	flare = staff_space;
+	flare = 0.8 staff_space;
 	flagspace# = .9 staff_space#;
-	hip_depth_ratio = .74;
+	hip_depth_ratio = .7;
 	hip_width# = downflag_width# - hip_thickness# / 2;
-	foot_width_ratio = .85;
+	foot_width_ratio = .75;
 
 	(flag_count - 1) * flagspace# + foot_depth# = total_depth#;
 
