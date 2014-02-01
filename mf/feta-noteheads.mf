@@ -255,7 +255,7 @@ fet_endchar;
 
 
 fet_beginchar ("Half notehead", "s1");
-	draw_outside_ellipse (1.53 - puff_up_factor / 3.0, 34, 0.66, 0.17);
+	draw_outside_ellipse (1.45 - puff_up_factor / 3.0, 34, 0.67, 0.17);
 	undraw_inside_ellipse (3.25, 33, 0.81, 2.5 stafflinethickness#);
 
 	half_notehead_width# := charwd;

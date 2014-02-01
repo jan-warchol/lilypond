@@ -297,7 +297,7 @@ enddef;
 
 
 def draw_quarter_path =
-        draw_outside_ellipse (1.49 - puff_up_factor / 3.0, 31, 0.707, 0);
+        draw_outside_ellipse (1.4 - puff_up_factor / 3.0, 31, 0.707, 0);
 enddef;
 
 test_outlines := 0;
