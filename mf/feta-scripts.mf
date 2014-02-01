@@ -445,10 +445,10 @@ fet_endchar;
 
 fet_beginchar ("portato/single tenuto", "tenuto");
 	save thick;
-	thick# = 1.6 linethickness#;
+	thick# = 2 linethickness#;
 	define_whole_blacker_pixels (thick);
 
-	set_char_box (.6 staff_space#, .6 staff_space#,
+	set_char_box (.7 staff_space#, .7 staff_space#,
 		      thick# / 2, thick# / 2);
 
 	draw_rounded_block ((-b, -thick / 2), (w, thick / 2), thick);
