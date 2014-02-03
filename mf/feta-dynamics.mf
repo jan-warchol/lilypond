@@ -404,7 +404,7 @@ fet_beginchar ("dynamic p", "p")
 	whatever [z17l, z17r] =  z4l;
 	y17 = 7/16 ex;
 	x6l = 0;
-	y6l = -descender + serif_thick / 2;
+	y6l = -descender;
 	z1l = z6l - whatever * dir (110);
 	y1r = 0.5 ex;
 	y2r = ex;
@@ -424,6 +424,7 @@ fet_beginchar ("dynamic p", "p")
 	y5l = y5r + cheek_medium * ypart dir (55);
 	z9 = z6r + whatever * up;
 	y9 = .2 [y5l, y5r];
+	z88 = .12 [z6, z8];
 
 	p := z2r{right}
 	     .. {dir (-60)}z8{dir 60}
@@ -432,6 +433,7 @@ fet_beginchar ("dynamic p", "p")
 	     ..tension 1.1.. z5r{left}
 	     .. {curl 1}z9
 	     -- z6r
+	     -- z88
 	     -- z6l
 	     -- z7{up}
 	     .. z2l{left}
@@ -459,7 +461,7 @@ fet_beginchar ("dynamic p", "p")
 	       .. cycle;
 
 	penlabels (1, 2, 3, 4, 5, 6, 17);
-	labels (7, 8, 9);
+	labels (7, 8, 9, 88);
 
 	pickup pencircle scaled serif_thick;
 
@@ -498,17 +500,6 @@ fet_beginchar ("dynamic p", "p")
 	labels (15, 16);
 
 %	draw
-	fill z15{-updir}
-	     .. z14l{direction 0.85 of serif}
-	     .. z11l{-dir (dishing_angle)}
-	     .. z11r{dir (dishing_angle)}
-	     .. z14r{-direction 0.85 of serif}
-	     .. z13r{-direction 0.05 of serif}
-	     .. z10r{dir (-dishing_angle)}
-	     .. z10l{-dir (-dishing_angle)}
-	     .. z13l{direction 0.05 of serif}
-	     .. z16{updir}
-	     -- cycle;
 fet_endchar;
 
 
