@@ -385,8 +385,8 @@ fet_beginchar ("dynamic p", "p")
 	stem_thick = 2/6 ex;
 	cheek_thick = 13/32 ex;
 	cheek_width = 0.72 ex;
-	left_serif_protrude = 18/60 ex;
-	right_serif_protrude = 15/60 ex;
+	left_serif_protrude = 0/60 ex;
+	right_serif_protrude = 0/60 ex;
 
 	currenttransform := currenttransform slanted slant;
 
