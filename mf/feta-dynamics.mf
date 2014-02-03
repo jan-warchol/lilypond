@@ -372,19 +372,19 @@ fet_beginchar ("dynamic p", "p")
 	path serif, p;
 	pair tmp, updir;
 
-	set_char_box (0, 15/12 ex#, descender#, 1.0 ex#);
+	set_char_box (0, 13/12 ex#, descender#, 1.0 ex#);
 
 	twiddle_thick = med_thick;
-	cheek_medium = 1/6 ex;
+	cheek_medium = 1/12 ex;
 
-	dishing_angle = 5;
+	dishing_angle = 8;
 	fill_up = 1.5 serif_thick;
 	straigh_len = 0.5 ex;
 	lower_overshoot = .3 serif_thick;
 
-	stem_thick = 2/6 ex;
-	cheek_thick = 13/32 ex;
-	cheek_width = 0.72 ex;
+	stem_thick = 2/7 ex;
+	cheek_thick = 10/32 ex;
+	cheek_width = 0.65 ex;
 	left_serif_protrude = 0/60 ex;
 	right_serif_protrude = 0/60 ex;
 
