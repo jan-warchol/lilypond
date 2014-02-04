@@ -390,7 +390,7 @@ fet_beginchar ("dynamic p", "p")
 
 	currenttransform := currenttransform slanted slant;
 
-	penpos1 (twiddle_thick, -slant - 5);
+	penpos1 (twiddle_thick, -slant - 25);
 	penpos2 (cheek_medium, 90 - slant);
 	penpos3 (cheek_medium, 90 - slant);
 
@@ -405,8 +405,8 @@ fet_beginchar ("dynamic p", "p")
 	y17 = 7/16 ex;
 	x6l = 0;
 	y6l = -descender;
-	z1l = z6l - whatever * dir (110);
-	y1r = 0.5 ex;
+	z1l = z6l - whatever * dir (105);
+	y1r = 0.75 ex;
 	y2r = ex;
 	z7 = whatever * up + z6l;
 	y7 = 43/60 ex;
