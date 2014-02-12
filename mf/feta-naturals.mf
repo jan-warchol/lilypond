@@ -10,7 +10,7 @@ save beam_thickness, beam_slant, hole_highest_point;
 
 full_height# := 3 staff_space#;
 full_width# := 2/3 staff_space#;
-stem_thickness# := 0.08 staff_space# + 0.8 stafflinethickness#;
+stem_thickness# := 0.08 staff_space# + 0.6 stafflinethickness#;
 stem_end_thickness_multiplier := 1;
 beam_slant := 1.266 stafflinethickness;
 beam_thickness := 0.485 staff_space -  stafflinethickness;
