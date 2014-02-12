@@ -1,14 +1,14 @@
 @c -*- coding: utf-8; mode: texinfo; documentlanguage: fr -*-
 
 @ignore
-    Translation of GIT committish: b7cb11ea159572f2dc55b405db01a06c4dccea7d
+    Translation of GIT committish: 5c35684285613e8960e2dd4324559e1ee3774b9b
 
     When revising a translation, copy the HEAD committish of the
     version that you are working on.  For details, see the Contributors'
     Guide, node Updating translation committishes..
 @end ignore
 
-@c \version "2.17.27"
+@c \version "2.19.2"
 
 @c Translators: Matthieu Jacquot
 @c Translation checkers: Jean-Charles Malahieude
@@ -194,7 +194,7 @@ symbols = {
   c4-.^"Allegro" d( e)
   f4-.\f g a^\fermata
   \mark \default
-  c8_.\<\( c16 c ~ c2\!
+  c8_.\<\( c16 c ~ 2\!
   c'2.\prall\)
 }
 
@@ -220,7 +220,7 @@ symbols = {
   c4-.^"Allegro" d( e)
   f4-.\f g a^\fermata
   \mark \default
-  c8_.\<\( c16 c ~ c2\!
+  c8_.\<\( c16 c ~ 2\!
   c'2.\prall\)
 }
 
@@ -252,7 +252,7 @@ corde à vide aura toujours préséance.  Ce comportement se modifie par
 l'activation de @code{restrainOpenStrings}.
 
 @lilypond[quote,ragged-right,verbatim]
-\layout { \override Voice.StringNumber.stencil = ##f }
+\layout { \omit Voice.StringNumber }
 \new StaffGroup <<
    \new Staff \relative c {
      \clef "treble_8"
@@ -290,7 +290,7 @@ instruction est abrégée en @code{\tabChordRepeats}.
 
 @lilypond[quote,verbatim]
 guitar = \relative c' {
-  r8 <gis-2 cis-3 b-0>~ q4 q8~ q q4
+  r8 <gis-2 cis-3 b-0>~ q4 q8~ 8 q4
 }
 
 \new StaffGroup <<
@@ -312,7 +312,7 @@ seconde alternative d'une répétition.
 ties = \relative c' {
   \repeat volta 2 {
     e2. f4~
-    f2 g2~
+    2 g2~
   }
   \alternative {
      { g4 f2. }
@@ -352,7 +352,7 @@ ces cases entre parenthèses.
 ties = \relative c' {
   \repeat volta 2 {
     e2. f4~
-    f2 g2~ }
+    2 g2~ }
   \alternative {
     { g4 f2. }
     { g4\repeatTie c,2. }
@@ -394,7 +394,7 @@ Les indications de sons harmoniques ainsi que les glissandos
 peuvent être ajoutés aux tablatures.
 
 @lilypond[verbatim,quote]
-\layout { \override Voice.StringNumber.stencil = ##f }
+\layout { \omit Voice.StringNumber }
 firstHarmonic = {
   d'4\4\harmonic
   g'4\3\harmonic
@@ -551,7 +551,7 @@ basse, il sonnera donc une octave en dessous de ce qui est écrit.
 @lilypond[quote,ragged-right,verbatim]
 <<
   \new Voice \with {
-    \override StringNumber.stencil = ##f
+    \omit StringNumber
   } {
     \clef "bass_8"
     \relative c, {

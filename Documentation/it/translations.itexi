@@ -16,8 +16,74 @@ td { border: 1px solid black; text-align: center; }
 
 @end html
 @end ifhtml
-@emph{Ultimo aggiornamento Wed Sep 25 09:19:45 UTC 2013
+@emph{Ultimo aggiornamento Wed Dec 18 12:23:14 UTC 2013
 }
+@multitable @columnfractions  0.166666666667 0.166666666667 0.166666666667 0.166666666667 0.166666666667 0.166666666667
+
+@headitem
+Cambiamenti in LilyPond
+@tab Traduttori
+@tab Revisori
+@tab Tradotto
+@tab Aggiornato
+@tab Altre informazioni
+@item
+Section titles
+@*
+1453
+@tab Federico Bruni
+@tab 
+@tab 
+@ifhtml
+
+@html
+<span style="background-color: #1fff1f">sì</span>
+@end html
+@end ifhtml
+@ifnothtml
+sì
+@end ifnothtml
+@tab 
+@ifhtml
+
+@html
+<span style="background-color: #1fff1f">sì</span>
+@end html
+@end ifhtml
+@ifnothtml
+sì
+@end ifnothtml
+@tab pre-GDP
+@item
+LilyPond --- \TITLE\
+@*
+1139
+@tab Federico Bruni
+@tab 
+@tab 
+@ifhtml
+
+@html
+<span style="background-color: #1fff1f">sì</span>
+@end html
+@end ifhtml
+@ifnothtml
+sì
+@end ifnothtml
+@tab 
+@ifhtml
+
+@html
+<span style="background-color: #1fff1f">sì</span>
+@end html
+@end ifhtml
+@ifnothtml
+sì
+@end ifnothtml
+@tab pre-GDP
+@end multitable
+
+
 @multitable @columnfractions  0.166666666667 0.166666666667 0.166666666667 0.166666666667 0.166666666667 0.166666666667
 
 @headitem
@@ -84,7 +150,7 @@ sì
 @item
 1 Tutorial
 @*
-2535
+2578
 @tab Federico Bruni
 @tab Luca Rossetto Casel
 @tab 
@@ -111,7 +177,7 @@ sì
 @item
 2 Notazione comunemente utilizzata
 @*
-4283
+4396
 @tab Federico Bruni
 @tab Luca Rossetto Casel
 @tab 
@@ -165,28 +231,28 @@ sì
 @item
 4 Modifica dell'output
 @*
-16194
+16191
 @tab Federico Bruni
 @tab Luca Rossetto Casel
 @tab 
 @ifhtml
 
 @html
-<span style="background-color: #dfef77">parzialmente (98 %)</span>
+<span style="background-color: #1fff1f">sì</span>
 @end html
 @end ifhtml
 @ifnothtml
-parzialmente (98 %)
+sì
 @end ifnothtml
 @tab 
 @ifhtml
 
 @html
-<span style="background-color: #33ff21">parzialmente</span>
+<span style="background-color: #1fff1f">sì</span>
 @end html
 @end ifhtml
 @ifnothtml
-parzialmente
+sì
 @end ifnothtml
 @tab pre-GDP
 @item
@@ -339,7 +405,7 @@ sì
 @item
 1.2 Ritmi
 @*
-6961
+6890
 @tab Federico Bruni
 @tab Luca Rossetto Casel
 @tab 
@@ -437,17 +503,71 @@ sì
 @ifhtml
 
 @html
-<span style="background-color: #25fe1f">parzialmente</span>
+<span style="background-color: #1fff1f">sì</span>
 @end html
 @end ifhtml
 @ifnothtml
-parzialmente
+sì
 @end ifnothtml
 @tab pre-GDP
 @item
 1.6 Notazione del rigo
 @*
-2457
+2476
+@tab Federico Bruni
+@tab 
+@tab 
+@ifhtml
+
+@html
+<span style="background-color: #1fff1f">sì</span>
+@end html
+@end ifhtml
+@ifnothtml
+sì
+@end ifnothtml
+@tab 
+@ifhtml
+
+@html
+<span style="background-color: #1fff1f">sì</span>
+@end html
+@end ifhtml
+@ifnothtml
+sì
+@end ifnothtml
+@tab pre-GDP
+@item
+1.7 Note editoriali
+@*
+954
+@tab Federico Bruni
+@tab 
+@tab 
+@ifhtml
+
+@html
+<span style="background-color: #1fff1f">sì</span>
+@end html
+@end ifhtml
+@ifnothtml
+sì
+@end ifnothtml
+@tab 
+@ifhtml
+
+@html
+<span style="background-color: #1fff1f">sì</span>
+@end html
+@end ifhtml
+@ifnothtml
+sì
+@end ifnothtml
+@tab pre-GDP
+@item
+1.8 Testo
+@*
+2816
 @tab Federico Bruni
 @tab 
 @tab 
@@ -540,7 +660,7 @@ sì
 @item
 1 Eseguire @command{lilypond}
 @*
-4525
+4537
 @tab Federico Bruni
 @tab Luca Rossetto Casel
 @tab 
@@ -567,7 +687,7 @@ sì
 @item
 2 Aggiornare i file con @command{convert-ly}
 @*
-1424
+1484
 @tab Federico Bruni
 @tab Luca Rossetto Casel
 @tab 
@@ -584,11 +704,11 @@ sì
 @ifhtml
 
 @html
-<span style="background-color: #62ff28">parzialmente</span>
+<span style="background-color: #1fff1f">sì</span>
 @end html
 @end ifhtml
 @ifnothtml
-parzialmente
+sì
 @end ifnothtml
 @tab pre-GDP
 @item
@@ -621,7 +741,7 @@ sì
 @item
 4 Programmi esterni
 @*
-2805
+2817
 @tab Federico Bruni
 @tab Luca Rossetto Casel
 @tab 
@@ -768,7 +888,7 @@ sì
 @item
 Download
 @*
-1197
+1201
 @tab Federico Bruni
 @tab Luca Rossetto Casel
 @tab 

@@ -1,14 +1,14 @@
 @c -*- coding: utf-8; mode: texinfo; documentlanguage: fr -*-
 
 @ignore
-    Translation of GIT committish: 34f7824737173f1b485c8989dd0de6b45c8b7c2a
+    Translation of GIT committish: 5c35684285613e8960e2dd4324559e1ee3774b9b
 
     When revising a translation, copy the HEAD committish of the
     version that you are working on.  For details, see the Contributors'
     Guide, node Updating translation committishes..
 @end ignore
 
-@c \version "2.17.28"
+@c \version "2.19.2"
 
 @c Translators: Valentin Villenave, Jean-Charles Malahieude
 @c Translation checkers: Jean-Jacques Gerbaud
@@ -663,8 +663,8 @@ Une liaison de prolongation constitue de fait un mélisme :
   \new Voice = "melody" {
     \time 3/4
     f4 g2 ~ |
-    g4 e2 ~ |
-    e8
+    4 e2 ~ |
+    8
   }
   \new Lyrics \lyricsto "melody" {
     Ky -- ri -- e __
@@ -768,7 +768,7 @@ définir @code{melismaBusyProperties} :
     \time 3/4
     \set melismaBusyProperties = #'()
     c4 d ( e )
-    g8 [ f ] f4 ~ f
+    g8 [ f ] f4 ~ 4
   }
   \new Lyrics \lyricsto "melody" {
     Ky -- ri -- e e -- le -- i -- son
@@ -797,7 +797,7 @@ par un simple caractère souligné pour chaque note à inclure :
     \time 3/4
     \set melismaBusyProperties = #'()
     c4 d ( e )
-    g8 [ f ] ~ f4 ~ f
+    g8 [ f ] ~ 4 ~ f
   }
   \new Lyrics \lyricsto "melody" {
     Ky -- ri -- _ e __ _ _ _
@@ -1180,7 +1180,7 @@ de mesure, il faut ajouter
     \Lyrics
       \consists "Bar_engraver"
       \consists "Separating_line_group_engraver"
-      \override BarLine.transparent = ##t
+      \hide BarLine
   @}
 @}
 @end example
@@ -3033,7 +3033,7 @@ indiquer les hauteurs ; le rythme de la mélodie est donné par le
 rythme et l'accentuation des paroles elles-mêmes.
 
 @lilypond[verbatim,quote]
-stemOff = { \override Staff.Stem.transparent = ##t }
+stemOff = { \hide Staff.Stem }
 
 \relative c' {
   \stemOff

@@ -2,7 +2,7 @@
 
 %%%% This file is part of LilyPond, the GNU music typesetter.
 %%%%
-%%%% Copyright (C) 2003--2012 Han-Wen Nienhuys <hanwen@xs4all.nl>
+%%%% Copyright (C) 2003--2014 Han-Wen Nienhuys <hanwen@xs4all.nl>
 %%%%                          Jan Nieuwenhuizen <janneke@gnu.org>
 %%%%
 %%%% LilyPond is free software: you can redistribute it and/or modify
@@ -221,6 +221,14 @@ barNumberCheck =
 					 "Barcheck failed got ~a expect ~a"
 					 cbn n))))))
 
+beamExceptions =
+#(define-scheme-function (parser location music) (ly:music?)
+   (_i "Extract a value suitable for setting
+@code{Timing.beamExceptions} from the given pattern with explicit
+beams in @var{music}.  A bar check @code{|} has to be used between
+bars of patterns in order to reset the timing.")
+   (extract-beam-exceptions music))
+
 bendAfter =
 #(define-event-function (parser location delta) (real?)
    (_i "Create a fall or doit of pitch interval @var{delta}.")
@@ -245,7 +253,15 @@ bookOutputSuffix =
 breathe =
 #(define-music-function (parser location) ()
    (_i "Insert a breath mark.")
-   (make-music 'BreathingEvent))
+   (make-music 'BreathingEvent
+     'midi-length
+     (lambda (len context)
+       ;;Shorten by half, or by up to a second, but always by a power of 2
+       (let* ((desired (min (ly:moment-main (seconds->moment 1 context))
+                            (* (ly:moment-main len) 1/2)))
+              (scale (inexact->exact (ceiling (/ (log desired) (log 1/2)))))
+              (breath (ly:make-moment (expt 1/2 scale))))
+         (ly:moment-sub (ly:make-moment (ly:moment-main len)) breath)))))
 
 clef =
 #(define-music-function (parser location type) (string?)
@@ -328,25 +344,30 @@ in a CueVoice oriented by @var{dir}.")
 
 
 displayLilyMusic =
-#(define-music-function (parser location music) (ly:music?)
+#(define-music-function (parser location port music) ((output-port?) ly:music?)
    (_i "Display the LilyPond input representation of @var{music}
-to the console.")
-   (newline)
-   (display-lily-music music parser)
+to @var{port}, defaulting to the console.")
+   (let ((port (or port (current-output-port))))
+     (newline port)
+     (display-lily-music music parser port))
    music)
 
 displayMusic =
-#(define-music-function (parser location music) (ly:music?)
-   (_i "Display the internal representation of @var{music} to the console.")
-   (newline)
-   (display-scheme-music music)
+#(define-music-function (parser location port music) ((output-port?) ly:music?)
+   (_i "Display the internal representation of @var{music} to
+@var{port}, default to the console.")
+   (let ((port (or port (current-output-port))))
+     (newline port)
+     (display-scheme-music music port))
    music)
 
 displayScheme =
-#(define-scheme-function (parser location expr) (scheme?)
-   (_i "Display the internal representation of @var{expr} to the console.")
-   (newline)
-   (display-scheme-music expr)
+#(define-scheme-function (parser location port expr) ((output-port?) scheme?)
+   (_i "Display the internal representation of @var{expr} to
+@var{port}, default to the console.")
+   (let ((port (or port (current-output-port))))
+     (newline port)
+     (display-scheme-music expr port))
    expr)
 
 
@@ -434,7 +455,7 @@ to the preceding note or rest as a post-event with @code{-}.")
 	       'automatically-numbered (not mark)
 	       'text (or mark (make-null-markup))
 	       'footnote-text footnote)))
-     #{ \tweak footnote-music #mus #item #}))
+     #{ \once \tweak footnote-music #mus #item #}))
 
 grace =
 #(def-grace-function startGraceMusic stopGraceMusic
@@ -495,9 +516,7 @@ If @var{item} is a symbol list of form @code{GrobName} or
 @code{Context.GrobName}, the result is an override for the grob name
 specified by it.  If @var{item} is a music expression, the result is
 the same music expression with an appropriate tweak applied to it.")
-   (if (ly:music? item)
-       #{ \tweak transparent ##t #item #}
-       #{ \override #item . transparent = ##t #}))
+   #{ \tweak transparent ##t #item #})
 
 inStaffSegno =
 #(define-music-function (parser location) ()
@@ -694,6 +713,48 @@ octaveCheck =
    (make-music 'RelativeOctaveCheck
                'pitch pitch))
 
+offset =
+#(define-music-function (parser location property offsets item)
+  (symbol-list-or-symbol? scheme? symbol-list-or-music?)
+   (_i "Offset the default value of @var{property} of @var{item} by
+@var{offsets}.  If @var{item} is a string, the result is
+@code{\\override} for the specified grob type.  If @var{item} is
+a music expression, the result is the same music expression with an
+appropriate tweak applied.")
+  (if (ly:music? item)
+      ; In case of a tweak, grob property path is Grob.property
+      (let ((prop-path (check-grob-path
+                         (if (symbol? property)
+                             (list property)
+                             property)
+                         parser location
+                         #:start 1 #:default #t #:min 2 #:max 2)))
+        (if prop-path
+            ; If the head of the grob property path is a symbol--i.e.,
+            ; a grob name, produce a directed tweak.  Otherwise, create
+            ; an ordinary tweak.
+            (if (symbol? (car prop-path))
+                #{
+                  \tweak #prop-path #(offsetter (second prop-path) offsets) #item
+                #}
+                #{
+                  \tweak #(second prop-path) #(offsetter (second prop-path) offsets) #item
+                #})
+            item))
+      ; In case of an override, grob property path is Context.Grob.property.
+      (let ((prop-path (check-grob-path
+                         (append item
+                                 (if (symbol? property)
+                                     (list property)
+                                     property))
+                         parser location
+                         #:default 'Bottom #:min 3 #:max 3)))
+        (if prop-path
+            #{
+              \override #prop-path = #(offsetter (third prop-path) offsets)
+            #}
+            (make-music 'Music)))))
+ 
 omit =
 #(define-music-function (parser location item) (symbol-list-or-music?)
    (_i "Set @var{item}'s @samp{stencil} property to @code{#f},
@@ -703,21 +764,28 @@ If @var{item} is a symbol list of form @code{GrobName} or
 @code{Context.GrobName}, the result is an override for the grob name
 specified by it.  If @var{item} is a music expression, the result is
 the same music expression with an appropriate tweak applied to it.")
-   (if (ly:music? item)
-       #{ \tweak stencil ##f #item #}
-       #{ \override #item . stencil = ##f #}))
+   #{ \tweak stencil ##f #item #})
 
 once =
 #(define-music-function (parser location music) (ly:music?)
-   (_i "Set @code{once} to @code{#t} on all layout instruction events in @var{music}.")
-   (music-map
-    (lambda (m)
-      (cond ((music-is-of-type? m 'layout-instruction-event)
-	     (set! (ly:music-property m 'once) #t))
-	    ((ly:duration? (ly:music-property m 'duration))
-	     (ly:music-warning m (_ "Cannot apply \\once to timed music"))))
-      m)
-    music))
+   (_i "Set @code{once} to @code{#t} on all layout instruction events
+in @var{music}.  This will complain about music with an actual
+duration.  As a special exception, if @var{music} contains
+@samp{tweaks} it will be silently ignored in order to allow for
+@code{\\once \\tweak} to work as both one-time override and proper
+tweak.")
+   (if (not (pair? (ly:music-property music 'tweaks)))
+       (for-some-music
+        (lambda (m)
+          (cond ((music-is-of-type? m 'layout-instruction-event)
+                 (set! (ly:music-property m 'once) #t)
+                 #t)
+                ((ly:duration? (ly:music-property m 'duration))
+                 (ly:music-warning m (_ "Cannot apply \\once to timed music"))
+                 #t)
+                (else #f)))
+        music))
+   music)
 
 ottava =
 #(define-music-function (parser location octave) (integer?)
@@ -1205,7 +1273,7 @@ appropriate tweak applied.")
        (if (>= total-found 2)
            (helper siblings offsets)
            (offset-control-points (car offsets)))))
-   #{ \tweak control-points #shape-curve #item #})
+   #{ \once \tweak control-points #shape-curve #item #})
 
 shiftDurations =
 #(define-music-function (parser location dur dots arg)
@@ -1213,9 +1281,7 @@ shiftDurations =
    (_i "Change the duration of @var{arg} by adding @var{dur} to the
 @code{durlog} of @var{arg} and @var{dots} to the @code{dots} of @var{arg}.")
 
-   (music-map
-    (lambda (x)
-      (shift-one-duration-log x dur dots)) arg))
+   (shift-duration-log arg dur dots))
 
 single =
 #(define-music-function (parser location overrides music)
@@ -1433,9 +1499,13 @@ an indirectly created grob (@samp{Accidental} is caused by
 are affected.
 
 As a special case, @var{item} may be a symbol list specifying a grob
-path, in which case @code{\\once\\override} is called on it instead of
+path, in which case @code{\\override} is called on it instead of
 creating tweaked music.  This is mainly useful when using
 @code{\\tweak} as as a component for building other functions.
+
+If this use case would call for @code{\\once \\override} rather than a
+plain @code{\\override}, writing @code{\\once \\tweak @dots{}} can be
+convenient.
 
 @var{prop} can contain additional elements in which case a nested
 property (inside of an alist) is tweaked.")
@@ -1456,12 +1526,12 @@ property (inside of an alist) is tweaked.")
        ;; We could just throw this at \override and let it sort this
        ;; out on its own, but this way we should get better error
        ;; diagnostics.
-       (let ((a (check-grob-path item parser location
-                                 #:default 'Bottom #:min 2 #:max 2))
-             (b (check-grob-path prop parser location
-                                 #:start 2)))
-         (if (and a b)
-             #{ \once\override #(append a b) = #value #}
+       (let ((p (check-grob-path
+                 (append item (if (symbol? prop) (list prop) prop))
+                 parser location
+                 #:default 'Bottom #:min 3)))
+         (if p
+             #{ \override #p = #value #}
              (make-music 'Music)))))
 
 undo =

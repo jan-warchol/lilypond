@@ -1,7 +1,7 @@
 /*
   This file is part of LilyPond, the GNU music typesetter.
 
-  Copyright (C) 1997--2012 Jan Nieuwenhuizen <janneke@gnu.org>
+  Copyright (C) 1997--2014 Jan Nieuwenhuizen <janneke@gnu.org>
 
   LilyPond is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -46,9 +46,24 @@ public:
 class Midi_channel_item : public Midi_item
 {
 public:
+  virtual ~Midi_channel_item ();
   int channel_;
   DECLARE_CLASSNAME (Midi_channel_item);
   Midi_channel_item (Audio_item *ai);
+};
+
+/**
+   Midi control function value changes.
+*/
+class Midi_control_function_value_change : public Midi_channel_item
+{
+public:
+  DECLARE_CLASSNAME (Midi_control_function_value_change);
+  Midi_control_function_value_change (Audio_control_function_value_change *ai);
+  virtual ~Midi_control_function_value_change ();
+  virtual string to_string () const;
+  Audio_control_function_value_change::Control control_;
+  Real value_;
 };
 
 class Midi_duration : public Midi_item

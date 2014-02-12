@@ -1,6 +1,6 @@
 ;;;; This file is part of LilyPond, the GNU music typesetter.
 ;;;;
-;;;; Copyright (C) 1998--2012 Jan Nieuwenhuizen <janneke@gnu.org>
+;;;; Copyright (C) 1998--2014 Jan Nieuwenhuizen <janneke@gnu.org>
 ;;;; Han-Wen Nienhuys <hanwen@xs4all.nl>
 ;;;;
 ;;;; LilyPond is free software: you can redistribute it and/or modify
@@ -673,6 +673,20 @@ and duration-log @var{log}."
                                     (prepend (+ x 7) (cons x l))))
           (prepend first-position '())))))
 
+(define-public (key-signature-interface::alteration-position
+                step alter c0-position)
+;; Deprecated.  Not a documented interface, and no longer used in LilyPond,
+;; but needed for a popular file, LilyJAZZ.ily for version 2.16
+  (if (pair? step)
+    (+ (cdr step) (* (car step) 7) c0-position)
+    (let* ((c-pos (modulo c0-position 7))
+           (hi (list-ref
+                 (if (< alter 0)
+                   '(2 3 4 2 1 2 1) ; position of highest flat
+                   '(4 5 4 2 3 2 3)); position of highest sharp
+                 c-pos)))
+      (- hi (modulo (- hi (+ c-pos step)) 7)))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; annotations
 
@@ -898,8 +912,8 @@ and duration-log @var{log}."
 
          (left-x (+ padding
                     (max
-                     (interval-end (ly:grob-robust-relative-extent
-                                    left-span common X))
+                     (interval-end (ly:generic-bound-extent
+                                    left-span common))
                      (if
                       (and dots
                            (close
@@ -909,7 +923,7 @@ and duration-log @var{log}."
                        (ly:grob-robust-relative-extent dots common X))
                       (- INFINITY-INT)))))
          (right-x (max (- (interval-start
-                           (ly:grob-robust-relative-extent right-span common X))
+                           (ly:generic-bound-extent right-span common))
                           padding)
                        (+ left-x minimum-length)))
          (self-x (ly:grob-relative-coordinate spanner common X))

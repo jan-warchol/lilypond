@@ -112,7 +112,7 @@ def warranty ():
 
 %s
 %s
-''' % ( _ ('Copyright (c) %s by') % '2001--2012',
+''' % ( _ ('Copyright (c) %s by') % '2001--2014',
         '\n  '.join (authors),
         _ ("Distributed under terms of the GNU General Public License."),
         _ ("It comes with NO WARRANTY.")))
@@ -443,7 +443,10 @@ def split_output_files(directory):
     Return value is a set of strings.
     """
     files = []
-    for subdir in glob.glob (os.path.join (directory, '[a-f0-9][a-f0-9]')):
+    def globquote(x):
+        return re.sub ("[][*?]", r"[\g<0>]", x)
+    for subdir in glob.glob (os.path.join (globquote (directory),
+                                           '[a-f0-9][a-f0-9]')):
         base_subdir = os.path.split (subdir)[1]
         sub_files = [os.path.join (base_subdir, name)
                      for name in os.listdir (subdir)]

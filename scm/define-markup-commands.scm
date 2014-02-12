@@ -1,6 +1,6 @@
 ;;;; This file is part of LilyPond, the GNU music typesetter.
 ;;;;
-;;;; Copyright (C) 2000--2012  Han-Wen Nienhuys <hanwen@xs4all.nl>
+;;;; Copyright (C) 2000--2014  Han-Wen Nienhuys <hanwen@xs4all.nl>
 ;;;;                  Jan Nieuwenhuizen <janneke@gnu.org>
 ;;;;
 ;;;; LilyPond is free software: you can redistribute it and/or modify
@@ -889,20 +889,10 @@ grestore
   "
 @cindex paths, drawing
 @cindex drawing paths
-Draws a path with line thickness @var{thickness} according to the
+Draws a path with line @var{thickness} according to the
 directions given in @var{commands}.  @var{commands} is a list of
 lists where the @code{car} of each sublist is a drawing command and
 the @code{cdr} comprises the associated arguments for each command.
-
-Line-cap styles and line-join styles may be customized by
-overriding the @code{line-cap-style} and @code{line-join-style}
-properties, respectively.  Available line-cap styles are
-@code{'butt}, @code{'round}, and @code{'square}.  Available
-line-join styles are @code{'miter}, @code{'round}, and
-@code{'bevel}.
-
-The property @code{filled} specifies whether or not the path is
-filled with color.
 
 There are seven commands available to use in the list
 @code{commands}: @code{moveto}, @code{rmoveto}, @code{lineto},
@@ -926,6 +916,16 @@ current subpath in the active path.
 Note that a sequence of commands @emph{must} begin with a
 @code{moveto} or @code{rmoveto} to work with the SVG output.
 
+Line-cap styles and line-join styles may be customized by
+overriding the @code{line-cap-style} and @code{line-join-style}
+properties, respectively.  Available line-cap styles are
+@code{'butt}, @code{'round}, and @code{'square}.  Available
+line-join styles are @code{'miter}, @code{'round}, and
+@code{'bevel}.
+
+The property @code{filled} specifies whether or not the path is
+filled with color.
+
 @lilypond[verbatim,quote]
 samplePath =
   #'((moveto 0 0)
@@ -937,6 +937,10 @@ samplePath =
 
 \\markup {
   \\path #0.25 #samplePath
+
+  \\override #'(line-join-style . miter) \\path #0.25 #samplePath
+
+  \\override #'(filled . #t) \\path #0.25 #samplePath
 }
 @end lilypond"
   (let* ((half-thickness (/ thickness 2))
@@ -1014,13 +1018,9 @@ samplePath =
 
 (define-markup-list-command (score-lines layout props score)
   (ly:score?)
-  "
-This is the same as the @code{\\score} markup but delivers its
-systems as a list of lines.  This is not usually called directly by
-the user.  Instead, it is called when the parser encounters
-@code{\\score} in a context where only markup lists are allowed.  When
-used as the argument of a toplevel @code{\\markuplist}, the result can
-be split across pages."
+  "This is the same as the @code{\\score} markup but delivers its
+systems as a list of lines.  Its @var{score} argument is entered in
+braces like it would be for @code{\\score}."
   (let ((output (ly:score-embedded-format score layout)))
 
     (if (ly:music-output? output)
@@ -3958,7 +3958,7 @@ Make a fraction of two markups.
 (define-markup-command (normal-size-super layout props arg)
   (markup?)
   #:category font
-  #:properties ((baseline-skip))
+  #:properties ((font-size 0))
   "
 @cindex setting superscript in standard font size
 
@@ -3974,13 +3974,12 @@ Set @var{arg} in superscript with a normal font size.
 @end lilypond"
   (ly:stencil-translate-axis
    (interpret-markup layout props arg)
-   (* 0.5 baseline-skip) Y))
+   (* 1.0 (magstep font-size)) Y))
 
 (define-markup-command (super layout props arg)
   (markup?)
   #:category font
-  #:properties ((font-size 0)
-                (baseline-skip))
+  #:properties ((font-size 0))
   "
 @cindex superscript text
 
@@ -4001,7 +4000,7 @@ Set @var{arg} in superscript.
     layout
     (cons `((font-size . ,(- font-size 3))) props)
     arg)
-   (* 0.5 baseline-skip)
+   (* 1.0 (magstep font-size)) ; original font-size
    Y))
 
 (define-markup-command (translate layout props offset arg)
@@ -4026,8 +4025,7 @@ is a pair of numbers representing the displacement in the X and Y axis.
 (define-markup-command (sub layout props arg)
   (markup?)
   #:category font
-  #:properties ((font-size 0)
-                (baseline-skip))
+  #:properties ((font-size 0))
   "
 @cindex subscript text
 
@@ -4049,13 +4047,13 @@ Set @var{arg} in subscript.
     layout
     (cons `((font-size . ,(- font-size 3))) props)
     arg)
-   (* -0.5 baseline-skip)
+   (* -0.75 (magstep font-size)) ; original font-size
    Y))
 
 (define-markup-command (normal-size-sub layout props arg)
   (markup?)
   #:category font
-  #:properties ((baseline-skip))
+  #:properties ((font-size 0))
   "
 @cindex setting subscript in standard font size
 
@@ -4071,7 +4069,7 @@ Set @var{arg} in subscript with a normal font size.
 @end lilypond"
   (ly:stencil-translate-axis
    (interpret-markup layout props arg)
-   (* -0.5 baseline-skip)
+   (* -0.75 (magstep font-size))
    Y))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

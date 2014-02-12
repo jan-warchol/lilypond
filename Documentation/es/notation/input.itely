@@ -1,14 +1,14 @@
 @c -*- coding: utf-8; mode: texinfo; documentlanguage: es -*-
 
 @ignore
-    Translation of GIT committish: 9352789b729682d683482c2852cc7b53e9dcdc70
+    Translation of GIT committish: ff7d82711b47d3d31f26e1e6fc012c4055a20059
 
     When revising a translation, copy the HEAD committish of the
     version that you are working on.  For details, see the Contributors'
     Guide, node Updating translation committishes..
 @end ignore
 
-@c \version "2.17.6"
+@c \version "2.19.2"
 
 @node Entrada y salida generales
 @chapter Entrada y salida generales
@@ -377,7 +377,7 @@ una de estas definiciones del mismo tipo en el nivel más alto, las
 definiciones se combinan, pero en situaciones de conflicto las
 definiciones más tardías tienen preferencia.  Para ver los detalles
 sobre cómo afecta al bloque @code{\layout}, consulte
-@ref{El bloque \layout}.
+@ref{El bloque layout,,El bloque @code{@bs{}layout}}.
 
 @item
 Una expresión directa de Scheme, como
@@ -543,7 +543,8 @@ Manual de aprendizaje:
 
 Referencia de la notación:
 @ref{Explicación de los títulos},
-@ref{El bloque \layout}.
+@ref{El bloque layout,,El bloque @code{@bs{}layout}}.
+
 
 @node Títulos y encabezamientos
 @section Títulos y encabezamientos
@@ -2542,7 +2543,7 @@ partitura:
   }
   \addlyrics { O \markup { \concat { Ph \char ##x0153 be! } } }
 }
-\markup { "Copyright 2008--2012" \char ##x00A9 }
+\markup { "Copyright 2008--2014" \char ##x00A9 }
 @end lilypond
 
 @cindex copyright, símbolo de
@@ -3234,8 +3235,8 @@ volumen general MIDI está limitado al intervalo desde 0.2 hasta
       \set Staff.midiInstrument = #"flute"
       \new Voice \relative c''' {
         r2 g\mp g fis~
-        fis4 g8 fis e2~
-        e4 d8 cis d2
+        4 g8 fis e2~
+        4 d8 cis d2
       }
     }
     \new Staff {
@@ -3284,8 +3285,8 @@ de la flauta.
       \set Staff.midiMaximumVolume = #0.9
       \new Voice \relative c''' {
         r2 g\mp g fis~
-        fis4 g8 fis e2~
-        e4 d8 cis d2
+        4 g8 fis e2~
+        4 d8 cis d2
       }
     }
     \new Staff {
@@ -3359,8 +3360,8 @@ anterior.
       \set Staff.midiInstrument = #"flute"
       \new Voice \relative c''' {
         r2 g\mp g fis~
-        fis4 g8 fis e2~
-        e4 d8 cis d2
+        4 g8 fis e2~
+        4 d8 cis d2
       }
     }
     \new Staff {

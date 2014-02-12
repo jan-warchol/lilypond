@@ -1,7 +1,7 @@
 /*
   This file is part of LilyPond, the GNU music typesetter.
 
-  Copyright (C) 1997--2012 Han-Wen Nienhuys <hanwen@xs4all.nl>
+  Copyright (C) 1997--2014 Han-Wen Nienhuys <hanwen@xs4all.nl>
   Jan Nieuwenhuizen <janneke@gnu.org>
 
   LilyPond is free software: you can redistribute it and/or modify
@@ -58,7 +58,9 @@ Midi_walker::Midi_walker (Audio_staff *audio_staff, Midi_track *track)
   index_ = 0;
   items_ = audio_staff->audio_items_;
   vector_sort (items_, audio_item_less);
-  last_tick_ = 0;
+  //Pieces that begin with grace notes start at negative times. This
+  //is OK - MIDI output doesn't use absolute ticks, only differences.
+  last_tick_ = items_.empty () ? 0 : items_[0]->audio_column_->ticks ();
   percussion_ = audio_staff->percussion_;
   merge_unisons_ = audio_staff->merge_unisons_;
 }

@@ -1,6 +1,6 @@
 %%%% This file is part of LilyPond, the GNU music typesetter.
 %%%%
-%%%% Copyright (C) 1996--2012 Han-Wen Nienhuys <hanwen@xs4all.nl>
+%%%% Copyright (C) 1996--2014 Han-Wen Nienhuys <hanwen@xs4all.nl>
 %%%%                          Jan Nieuwenhuizen <janneke@gnu.org>
 %%%%
 %%%% LilyPond is free software: you can redistribute it and/or modify
@@ -26,10 +26,12 @@
   \name Staff
   \accepts Voice
   \accepts CueVoice
+  \accepts NullVoice
   \defaultchild Voice
 
   \consists "Staff_performer"
   \consists "Key_performer"
+  \consists "Midi_control_function_performer"
 }
 
 \context {
@@ -48,6 +50,7 @@
   \alias Staff
   \consists "Staff_performer"
   \consists "Key_performer"
+  \consists "Midi_control_function_performer"
 }
 
 \context {
@@ -59,6 +62,7 @@
   \defaultchild VaticanaVoice
   \consists "Staff_performer"
   \consists "Key_performer"
+  \consists "Midi_control_function_performer"
 }
 
 \context {
@@ -70,6 +74,7 @@
   \alias Staff
   \consists "Staff_performer"
   \consists "Key_performer"
+  \consists "Midi_control_function_performer"
 }
 
 \context {
@@ -175,6 +180,20 @@
 \context {
   \type "Performer_group"
   \name "Devnull"
+}
+
+\context {
+  \type "Performer_Group"
+  \name NullVoice
+  \alias Staff
+  \alias Voice
+  %% needed for melismata
+  %% TODO: at least the tie performer likely does not work without the
+  %% Note_performer, but I don't know how to shut note output off in
+  %% MIDI.
+  \consists "Tie_performer"
+  \consists "Beam_performer"
+  \consists "Slur_performer"
 }
 
 \context {

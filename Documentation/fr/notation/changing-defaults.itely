@@ -1,14 +1,14 @@
 @c -*- coding: utf-8; mode: texinfo; documentlanguage: fr -*-
 
 @ignore
-    Translation of GIT committish: 34f7824737173f1b485c8989dd0de6b45c8b7c2a
+    Translation of GIT committish: ba8e0139b12ce248a00d8621104117f92bac34a6
 
     When revising a translation, copy the HEAD committish of the
     version that you are working on.  For details, see the Contributors'
     Guide, node Updating translation committishes..
 @end ignore
 
-@c \version "2.17.20"
+@c \version "2.19.2"
 
 @c Translators: Valentin Villenave, Jean-Charles Malahieude
 @c Translation checkers: Gilles Thibault
@@ -1188,7 +1188,7 @@ Manuel de notation :
 @ref{Contextes de bas niveau -- les voix},
 @ref{La commande de fixation (set)},
 @ref{La commande de dérogation (override)},
-@ref{Le bloc \layout}.
+@ref{Le bloc layout}.
 
 
 @node Définition de nouveaux contextes
@@ -1232,7 +1232,7 @@ jazz.
   \consists "Pitch_squash_engraver"
   squashedPosition = #0
   \override NoteHead.style = #'slash
-  \override Flag.transparent = ##t
+  \hide Flag
   \alias Voice
 }
 \context { \Staff
@@ -1302,7 +1302,7 @@ aucune hampe :
 
 @example
 \override NoteHead.style = #'slash
-\override Stem.transparent = ##t
+\hide Stem
 @end example
 
 Tous ces modules doivent communiquer sous le contrôle du contexte.  Les
@@ -1332,7 +1332,7 @@ Récapitulons ; on se retrouve avec le bloc suivant :
   \consists "Pitch_squash_engraver"
   squashedPosition = #0
   \override NoteHead.style = #'slash
-  \override Flag.transparent = ##t
+  \hide Flag
   \alias Voice
 @}
 @end example
@@ -2582,20 +2582,69 @@ pour la première rencontrée dans le fichier source.
 @subsection @code{\set} ou @code{\override}
 @translationof set versus override
 
-@c TODO -- This section is probably unnecessary now.
+@c TODO -- Should't a bunch of that be explained earlier?
 
-@ignore
-Si les propriétés peuvent être modifiées de deux façons, par les
-commandes @code{\set} et @code{\override}, c'est qu'il y a deux types de
-propriétés.
+@funindex \set
+@funindex \override
 
-La propriété @code{fontSize} est une exception : c'est un raccourci, qui
-équivaudrait à saisir @w{@code{\override @dots{} #'font-size}} pour tous
-les objets textuels.  Dans la mesure où il s'agit d'une manipulation
-très courante, une propriété spéciale a été créée.  Elle doit être
-modifiée avec la commande @code{\set}.
+Les instructions @code{\set} et @code{\override} manipulent toutes deux
+des propriétés associées à des contextes.  Dans tous les cas, ces
+propriétés tiennent compte de la hiérarchie des contextes : les
+propriétés qui n'ont pas été définies dans le contexte lui-même
+héritent des valeurs de leur contexte parent respectif.
 
-@end ignore
+Les valeurs et durée de vie des propriétés d'un contexte sont dynamiques
+et ne sont accessibles qu'au moment où la musique est interprétée.  Lors
+de la création d'un contexte, ses propriétés sont initialisées à partir
+de la définition du contexte correspondant et de ses éventuelles
+adaptations.  Toute modification ultérieure ne sera obtenue que par des
+commandes d'adaptation des propriétés, libellées au sein même de la
+musique.
+
+Les définitions d'un objet graphique (@emph{graphical object} abrégé en
+@emph{grob}) constituent une catégorie spécifique de propriétés de
+contexte.  Dans la mesure où leur structure, enregistrement et
+utilisation diffèrent des propriétés de contextes habituelles, on ne
+peut y accéder qu'à l'aide d'un jeu de commandes différent et font
+l'objet d'un traitement à part au sein de la documentation.
+
+Contrairement aux propriétés de contextes habituelles, les définitions
+de @emph{grob} sont subdivisées en propriétés de @emph{grob}.  Un
+@emph{grob} est créé par un graveur lors de l'interprétation d'une
+expression musicale et reçoit ses propriétés initiales à partir de la
+définition de @emph{grob} en cours dans le contexte du graveur.  Le
+graveur (ou tout autre « agent » de LilyPond) peut alors ajouter ou
+modifier des propriétés à cet objet, sans pour autant affecter la
+définition du @emph{grob} dans ce contexte.
+
+Ce que nous appelons « propriétés de @emph{grob} » dans le cadre
+de l'affinage par l'utilisateur sont en fait les propriétés de la
+définition d'un objet dans un contexte.  Contrairement aux propriétés
+de contexte habituelles, les définitions d'un @emph{grob} doivent être
+enregistrées pour pouvoir garder trace de ses composants, les propriétés
+individuelles du @emph{grob} (ainsi que leurs sous-propriétés),
+séparément.  Il sera dès lors possible de définir ces composants dans
+différents contextes et ainsi disposer d'une définition globale du
+@emph{grob} à l'instant où la création de cet objet assemblera les
+éléments relatifs aux différents contextes attachés au contexte en cours
+et à ses parents.
+
+Les définitions de @emph{grob} se manipulent à l'aide des commandes
+@code{\override} et @code{\revert}, et leur nom commence par une
+capitale (comme @samp{NoteHead}) alors que les propriétés de contexte
+ordinaires -- elles commencent par une minuscule -- se manipulent avec
+@code{\set} et @code{\unset}.
+
+@cindex tweak, relation avec @code{\override}
+@funindex \tweak
+@funindex \overrideProperty
+
+Les instructions spéciales @code{\tweak} et @code{\overrideProperty}
+modifient les propriétés de @emph{grob} en court-circuitant totalement
+les propriétés de contexte.  En fait, elles capturent les @emph{grobs}
+au moment de leur création pour y injecter directement des propriétés soit
+émanant d'un événement musical retouché, soit lorsqu'ils sont d'une
+qualité particulière.
 
 
 @node Modification de listes associatives
@@ -3414,6 +3463,8 @@ certains objets ; elles sont couvertes par une rubrique spécifique.
 
 @cindex stencil, suppression
 
+@funindex \omit
+
 Tout objet de rendu se voit attribuer une propriété @code{stencil}.
 Elle est par défaut définie par la fonction chargée de dessiner cet
 objet.  Lorsque cette propriété est désactivée de force -- en lui
@@ -3429,12 +3480,25 @@ a a
 a a a
 @end lilypond
 
+Cette opération relativement courante fait l'objet du racourci
+@code{\omit} :
+
+@lilypond[quote,verbatim,relative=1]
+a1 a
+\omit Score.BarLine
+a a
+\undo \omit Score.BarLine
+a a a
+@end lilypond
+
 
 @node Transparence des objets
 @unnumberedsubsubsec Transparence des objets
 @translationof Making objects transparent
 
 @cindex transparent, objet
+
+@funindex \hide
 
 Tout objet de rendu dispose d'une propriété de transparence, qui est par
 défaut définie à @code{#f}.  Le fait de l'activer rendra l'objet
@@ -3443,6 +3507,15 @@ transparent tout en préservant la place qu'il occupe.
 @lilypond[quote,verbatim,relative=2]
 a4 a
 \once \override NoteHead.transparent = ##t
+a a
+@end lilypond
+
+Cette opération relativement courante fait l'objet du racourci
+@code{\hide} :
+
+@lilypond[quote,verbatim,relative=2]
+a4 a
+\once \hide NoteHead
 a a
 @end lilypond
 
@@ -3862,6 +3935,7 @@ approches permettant de fignoler l'apparence d'une partition.
 * Regroupement vertical d'objets graphiques::
 * Modification des stencils::
 * Modification de l'allure des éléments::
+* Modification de bandeaux avec rupture::
 * Conteneurs requalifiants::
 @end menu
 
@@ -4143,13 +4217,13 @@ Chaque objet possède son propre point de référence par défaut, sur
 lequel viendra s'aligner les indications de repère :
 
 @lilypond[verbatim,quote,relative=1]
-% The rehearsal mark will be aligned to right edge of the Clef
+% The rehearsal mark will be aligned to the right edge of the Clef
 \override Score.RehearsalMark.break-align-symbols = #'(clef)
 \key a \major
 \clef treble
 \mark "↓"
 e1
-% The rehearsal mark will be centered above the Time Signature
+% The rehearsal mark will be aligned to the left edge of the Time Signature
 \override Score.RehearsalMark.break-align-symbols = #'(time-signature)
 \key a \major
 \clef treble
@@ -4381,7 +4455,7 @@ des plus heureuses, même en optant pour un @code{\tieDown}.
 
 @lilypond[verbatim,quote,relative=1]
 <<
-  { e1~ e }
+  { e1~ 1 }
 \\
   { r4 <g c,> <g c,> <g c,> }
 >>
@@ -4429,7 +4503,7 @@ de portée :
 <<
   {
     \shape #'((0 . 0.5) (0 . 0.5) (0 . 0.5) (0 . 0.5)) Tie
-    e1~ e
+    e1~ 1
   }
 \\
   { r4 <g c,> <g c,> <g c,> }
@@ -4552,6 +4626,117 @@ néanmoins influer sur la propriété @code{tie-configuration} de l'objet
 @seealso
 Référence des propriétés internes :
 @rinternals{TieColumn}.
+
+
+@node Modification de bandeaux avec rupture
+@subsection Modification de bandeaux avec rupture
+@translationof Modifying broken spanners
+
+@menu
+* Utilisation de alterBroken::
+@end menu
+
+@node Utilisation de alterBroken
+@unnumberedsubsubsec Utilisation de @code{@bs{}alterBroken}
+@translationof Using alterBroken
+
+@cindex extenseur, modification
+@cindex bandeau, modification
+@cindex bandeau avec rupture, modification
+@cindex extension avec rupture, modification
+@funindex \alterBroken
+
+Lorsqu'un bandeau ou l'extension d'un objet rencontre un saut de ligne
+ou une rupture, chacun de ses tronçons hérite des attributs de l'objet
+originel.  Par voie de conséquence, la modification d'une extension avec
+rupture produira les mêmes effets sur chacun des segments.  Dans
+l'exemple ci-dessous, la modification apportée à @code{thickness}
+s'applique aussi bien avant qu'après le saut de ligne.
+
+@lilypond[verbatim,quote,ragged-right,relative=2]
+r2
+\once\override Slur.thickness = 10
+c8( d e f
+\break
+g8 f e d) r2
+@end lilypond
+
+La commande @code{\alterBroken} permet de modifier indépendamment
+l'apparence de chacune des parties d'un bandeau.  Selon le cas, cette
+commande génèrera soit un @code{\override}, soit un @code{\tweak} qui
+s'appliquera à la propriété du bandeau.
+
+La commande @code{\alterBroken} répond à la syntaxe :
+
+@example
+[-]@code{\alterBroken} @var{propriété} @var{valeurs} @var{élément}
+@end example
+
+L'argument @var{valeurs} est constitué d'une liste de valeurs, une pour
+chaque tronçon.  Lorsque @var{élément} est un nom d'objet graphique,
+tels @code{Slur} ou @code{Staff.PianoPedalBracket}, il en résulte un
+@code{\override} du type de @emph{grob} spécifié.  Lorsque @var{élément}
+est une expression musicale comme « ( » ou « [ », en résulte cette même
+expression musicale à laquelle s'applique un @code{\tweak}.
+@c closing ) and ]
+
+Le tiret introduisant la commande @code{\alterBroken} est impératif dans
+le cadre d'un @code{\tweak} ; il est superflu pour un @code{\override}.
+
+Dans sa variante @code{\override}, la commande @code{\alterBroken} peut
+se préfixer d'un @code{\once} ou d'un @code{\temporary} qui seront
+annulés par un @code{\revert} suivi de la @var{propriété}.
+
+Le code ci-dessous applique un @code{\override} indépendant à chacun
+des segments du phrasé de l'exemple précédent :
+
+@lilypond[verbatim,quote,ragged-right,relative=2]
+r2
+\alterBroken thickness #'(10 1) Slur
+c8( d e f
+\break
+g8 f e d) r2
+@end lilypond
+
+La commande @code{\alterBroken} peut s'utiliser avec tout objet étendu,
+y compris @code{Tie}, @code{PhrasingSlur}, @code{Beam} et
+@code{TextSpanner}.  Par exemple, un éditeur préparant une édition
+critique pourrait faire ressortir l'absence d'une partie de liaison de
+phrasé dans l'une des sources, en optant pour un tracé pointillé du
+seul segment ajouté.  L'exemple ci-dessous illustre la manière de
+procéder, ici avec la variante @code{\tweak} de la commande :
+
+@lilypond[verbatim,quote,ragged-right,relative=2]
+% The empty list is conveniently used below, because it is the
+% default setting of dash-definition, resulting in a solid curve.
+c2-\alterBroken dash-definition #'(() ((0 1.0 0.4 0.75))) \(e
+\break
+g2 e\)
+@end lilypond
+
+Il est important de considérer que @code{\alterBroken} affectera à
+chaque portion d'un bandeau interrompu la valeur correspondante de
+@var{valeurs}.  Si d'aventure il y a moins de valeurs que de tronçons,
+toute portion additionnelle se verra assigner une liste vide.  Ceci peut
+conduire à des résultats inattendus dans le cas où la propriété de rendu
+ne bascule pas sur une liste vide par défaut.  En pareil cas, chaque
+segment devrait se voir assigner une valeur appropriée.
+
+
+@knownissues
+Les sauts de ligne peuvent intervenir à différents endroits pour
+répondre à des modifications de mise en forme.  Les réglages adoptés par
+@code{\alterBroken} peuvent devenir inadaptés si le bandeau n'est plus
+rompu ou est découpé en plus de segments que prévu.  L'introduction
+explicite d'un @code{\break} peut alors pallier ces situations.
+
+La commande @code{\alterBroken} est inopérante sur les propriétés d'un
+bandeau qui sont traitées avant la procédure de saut de ligne, comme
+@code{direction}.
+
+@seealso
+Manuel d'extension :
+@rextend{Retouches complexes}.
 
 
 @node Conteneurs requalifiants

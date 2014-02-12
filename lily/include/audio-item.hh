@@ -1,7 +1,7 @@
 /*
   This file is part of LilyPond, the GNU music typesetter.
 
-  Copyright (C) 1996--2012 Jan Nieuwenhuizen <janneke@gnu.org>
+  Copyright (C) 1996--2014 Jan Nieuwenhuizen <janneke@gnu.org>
 
   LilyPond is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -82,7 +82,7 @@ public:
 class Audio_note : public Audio_item
 {
 public:
-  Audio_note (Pitch p, Moment m, bool tie_event, Pitch transposition);
+  Audio_note (Pitch p, Moment m, bool tie_event, Pitch transposition, int velocity);
 
   // with tieWaitForNote, there might be a skip between the tied notes!
   void tie_to (Audio_note *, Moment skip = 0);
@@ -93,6 +93,7 @@ public:
   Moment length_mom_;
   Pitch transposing_;
   Audio_dynamic *dynamic_;
+  int extra_velocity_;
 
   Audio_note *tied_;
   bool tie_event_;
@@ -135,6 +136,38 @@ public:
 
   int beats_;
   int one_beat_;
+};
+
+class Audio_control_function_value_change : public Audio_item
+{
+public:
+  // Supported control functions.
+  enum Control
+  {
+    BALANCE = 0, PAN_POSITION, REVERB_LEVEL, CHORUS_LEVEL,
+    // pseudo value for representing the size of the enum; must be kept last
+    NUM_CONTROLS
+  };
+
+  Audio_control_function_value_change (Control control, Real value);
+
+  // Information about a context property corresponding to a control function
+  // (name, the corresponding enumeration value, and the allowed range for the
+  // value of the context property).
+  struct Context_property
+  {
+    const char *name_;
+    Control control_;
+    Real range_min_;
+    Real range_max_;
+  };
+
+  // Mapping from supported control functions to the corresponding context
+  // properties.
+  static const Context_property context_properties_[];
+
+  Control control_;
+  Real value_;
 };
 
 int moment_to_ticks (Moment);

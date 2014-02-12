@@ -1,13 +1,13 @@
 @c -*- coding: utf-8; mode: texinfo; documentlanguage: es -*-
 @ignore
-    Translation of GIT committish: 41f7c759bd648f347a08fb0b4a82f5248d3c7ef4
+    Translation of GIT committish: 6e4e9c4eacb94d68c11fd6b9062da4f724114860
 
     When revising a translation, copy the HEAD committish of the
     version that you are working on.  For details, see the Contributors'
     Guide, node Updating translation committishes..
 @end ignore
 
-@c \version "2.17.6"
+@c \version "2.19.2"
 
 @node Notación de los pentagramas
 @section Notación de los pentagramas
@@ -495,11 +495,8 @@ plica de las figuras.
 { f4 d g, e }
 @end lilypond
 
-Sin embargo, es posible fijar el grosor de las líneas adicionales de
-forma independiente del de las líneas de la pauta.  Los dos valores
-requeridos multiplican el grosor de la línea de la pauta con el
-espaciado de las líneas y después se suman para obtener el grosor de
-las líneas adicionales.
+También es posible fijar el grosor de las líneas adicionales de
+forma independiente del de las líneas de la pauta.
 
 @lilypond[verbatim,quote,relative=2]
 \new Staff \with {
@@ -509,7 +506,14 @@ las líneas adicionales.
 { f'4 a, a,, f }
 @end lilypond
 
-Pueden alterarse las posiciones verticales de las líneas adicionales:
+@noindent
+El primer valor se multiplica por
+el grosor de las líneas del pentagrama,
+el segundo por el ancho de un espacio del pentagrama, y después
+los dos valores se suman para obtener el grosor de
+las líneas adicionales.
+
+Se pueden alterar las posiciones de las líneas adicionales:
 
 @lilypond[verbatim,quote,relative=2]
 \new Staff \with {
@@ -652,7 +656,7 @@ en ejemplo siguiente.
 <<
   \new Staff = "ossia" \with {
     \remove "Time_signature_engraver"
-    \override Clef.transparent = ##t
+    \hide Clef
     fontSize = #-3
     \override StaffSymbol.staff-space = #(magstep -3)
     \override StaffSymbol.thickness = #(magstep -3)
@@ -690,7 +694,7 @@ sobre @code{\RemoveEmptyStaves}, consulte @ref{Ocultar pentagramas}.
 <<
   \new Staff = "ossia" \with {
     \remove "Time_signature_engraver"
-    \override Clef.transparent = ##t
+    \hide Clef
     fontSize = #-3
     \override StaffSymbol.staff-space = #(magstep -3)
     \override StaffSymbol.thickness = #(magstep -3)
@@ -869,7 +873,7 @@ utilice las siguientes sobreescrituras de valores en vez de quitar el
 grabador:
 
 @example
-\override StaffSymbol.stencil = ##f
+\omit StaffSymbol
 \override NoteHead.no-ledgers = ##t
 @end example
 
@@ -961,7 +965,7 @@ Sin embargo, si los nombres de instrumento son más largos, éstos no se
 centran para un grupo de pentagramas a no ser que se aumenten los
 valores del sangrado, @code{indent}, y del sangrado corto,
 @code{short-indent}.  Para ver más detalles sobre estos ajustes,
-consulte @ref{Variables de \paper para desplazamientos y sangrados}.
+consulte @ref{Variables de paper para desplazamientos y sangrados,,Variables de @code{@bs{}paper} para desplazamientos y sangrados}.
 
 @lilypond[verbatim,quote,ragged-right]
 \relative c'' {
@@ -1057,13 +1061,13 @@ musical para declarar el cambio de instrumento:
   R1*16
   \instrumentSwitch "contrabassoon"
   c,,2 g \break
-  c,1 ~ | c1
+  c,1 ~ | 1
 }
 @end lilypond
 
 @seealso
 Referencia de la notación:
-@ref{Variables de \paper para desplazamientos y sangrados},
+@ref{Variables de paper para desplazamientos y sangrados,,Variables de @code{@bs{}paper} para desplazamientos y sangrados},
 @ref{Modificar los complementos (plug-ins) de contexto}.
 
 Fragmentos de código:

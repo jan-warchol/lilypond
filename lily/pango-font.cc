@@ -1,7 +1,7 @@
 /*
   This file is part of LilyPond, the GNU music typesetter.
 
-  Copyright (C) 2004--2012 Han-Wen Nienhuys <hanwen@xs4all.nl>
+  Copyright (C) 2004--2014 Han-Wen Nienhuys <hanwen@xs4all.nl>
 
   LilyPond is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,7 +22,8 @@
 #define PANGO_ENABLE_BACKEND
 
 #include <pango/pangoft2.h>
-#include <freetype/ftxf86.h>
+#include "freetype.hh"
+#include FT_XFREE86_H
 
 #include <map>
 #include <cstdio>

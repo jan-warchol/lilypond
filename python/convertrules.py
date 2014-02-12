@@ -3667,7 +3667,7 @@ def conv(str):
 def conv(str):
     str = re.sub (r"\\stringTuning\s*\\notemode(\s*)@?\{\s*(.*?)\s*@?}",
                   r"\\stringTuning\1\2", str)
-    if re.search (r'\bstaff-padding\b', str):
+    if re.search (r'[^-\w]staff-padding[^-\w]', str):
         stderr_write (NOT_SMART % "staff-padding")
         stderr_write (_ ("Staff-padding now controls the distance to the baseline, not the nearest point."))
     return str
@@ -3681,6 +3681,34 @@ def conv(str):
 # Should we warn about any remaining Dynamic_engraver?  Possibly it
 # will do the job just fine.
     str = re.sub ("New_dynamic_engraver", "Dynamic_engraver", str)
+    return str
+
+@rule ((2, 17, 97), r'''(make-relative (a b) b ...) -> make-relative (a b) #{ a b #}...''')
+def conv (str):
+    str = re.sub (r"(\(make-relative\s+\(\s*(([A-Za-z][-_A-Za-z0-9]*)" +
+                  r"(?:\s+[A-Za-z][-_A-Za-z0-9]*)*)\s*\)\s*)\3(?=\s)",
+                  r"\1(make-event-chord (list \2))", str)
+    str = re.sub (r"(\(make-relative\s+\(\s*([A-Za-z][-_A-Za-z0-9]*" +
+                  r"(?:\s+([A-Za-z][-_A-Za-z0-9]*))+)\s*\)\s*)\3(?=\s)",
+                  r"\1(make-sequential-music (list \2))", str)
+    return str
+
+@rule ((2, 18, 0),
+       _ ("bump version for release"))
+def conv (str):
+    return str
+
+@rule ((2, 19, 2), r"\lyricsto \new/\context/... -> \new/\context/... \lyricsto")
+def conv (str):
+    word=r'(?:#?"[^"]*"|\b' + wordsyntax + r'\b)'
+    str = re.sub (r"(\\lyricsto\s*" + word + r"\s*)(\\(?:new|context)\s*" + word
+                  + r"(?:\s*=\s*" + word + r")?\s*)",
+                  r"\2\1", str)
+    str = re.sub (r"(\\lyricsto\s*" + word + r"\s*)\\lyricmode\b\s*",
+                  r"\1", str)
+    str = re.sub (r"(\\lyricsto\s*" + word + r"\s*)\\lyrics\b\s*",
+                  r"\\new Lyrics \1", str)
+    str = re.sub (r'\\lyricmode\s*(\\lyricsto\b)', r"\1", str)
     return str
 
 # Guidelines to write rules (please keep this at the end of this file)

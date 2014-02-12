@@ -1,13 +1,13 @@
 @c -*- coding: utf-8; mode: texinfo; documentlanguage: it -*-
 @ignore
-    Translation of GIT committish: 41f7c759bd648f347a08fb0b4a82f5248d3c7ef4
+    Translation of GIT committish: 6e4e9c4eacb94d68c11fd6b9062da4f724114860
 
     When revising a translation, copy the HEAD committish of the
     version that you are working on.  For details, see the Contributors'
     Guide, node Updating translation committishes..
 @end ignore
 
-@c \version "2.17.6"
+@c \version "2.19.2"
 
 @c Translators: Federico Bruni
 @c Translation checkers:
@@ -493,14 +493,8 @@ questa modifica ha effetto anche sui tagli addizionali e sui gambi.
 { f4 d g, e }
 @end lilypond
 
-Tuttavia, è possibile impostare lo spessore dei tagli addizionali in modo
+È anche possibile impostare lo spessore dei tagli addizionali in modo
 indipendente dalle linee del rigo.
-@c Traduzione riformulata in base a questa spiegazione: http://lists.gnu.org/archive/html/bug-lilypond/2013-09/msg00055.html
-@c in attesa che sia risolto https://code.google.com/p/lilypond/issues/detail?id=3556
-La proprietà @code{ledger-line-thickness} richiede due valori che vengono
-usati per calcolare il valore dello spessore dei tagli addizionali, dato dalla
-somma: (primo valore * spessore del rigo) + (secondo valore * spaziatura del
-rigo).
 
 @lilypond[verbatim,quote,relative=2]
 \new Staff \with {
@@ -509,6 +503,11 @@ rigo).
 }
 { f'4 a, a,, f }
 @end lilypond
+
+@noindent
+Il primo valore viene moltiplicato per lo spessore della linea del rigo, il
+secondo per la spaziatura del rigo; la somma dei due valori definisce il
+nuovo valore dello spessore del taglio addizionale.
 
 Si possono modificare le posizioni verticali dei tagli addizionali:
 
@@ -647,7 +646,7 @@ esempio.
 <<
   \new Staff = "ossia" \with {
     \remove "Time_signature_engraver"
-    \override Clef.transparent = ##t
+    \hide Clef
     fontSize = #-3
     \override StaffSymbol.staff-space = #(magstep -3)
     \override StaffSymbol.thickness = #(magstep -3)
@@ -685,7 +684,7 @@ su @code{\Staff \RemoveEmptyStaves} si trovano in @ref{Hiding staves}.
 <<
   \new Staff = "ossia" \with {
     \remove "Time_signature_engraver"
-    \override Clef.transparent = ##t
+    \hide Clef
     fontSize = #-3
     \override StaffSymbol.staff-space = #(magstep -3)
     \override StaffSymbol.thickness = #(magstep -3)
@@ -859,7 +858,7 @@ potrebbero verificarsi degli errori di formattazione.  In questo caso,
 conviene usare i seguenti comandi invece di togliere l'incisore:
 
 @example
-\override StaffSymbol.stencil = ##f
+\omit StaffSymbol
 \override NoteHead.no-ledgers = ##t
 @end example
 
@@ -1046,7 +1045,7 @@ dell'espressione musicale, :
   R1*16
   \instrumentSwitch "contrabassoon"
   c,,2 g \break
-  c,1 ~ | c1
+  c,1 ~ | 1
 }
 @end lilypond
 
@@ -1284,7 +1283,7 @@ d,,4 r a r
 @end lilypond
 
 I comandi @code{\cueClef} e @code{\cueClefUnset} si possono usare anche
-senza un'esplicito contesto @code{CueVoice}.
+senza un esplicito contesto @code{CueVoice}.
 
 @lilypond[verbatim,noragged-right,relative=1]
 \clef "bass"
@@ -1539,3 +1538,6 @@ le pause nel contesto @code{Voice} e quelle in @code{CueVoice}.  Quando si usa
 @code{\cueDuringWithClef} o @code{\transposedCueDuring}, l'argomento ulteriore
 richiesto da entrambi deve venire dopo la citazione e la direzione.
 
+
+@c  LocalWords:  fluteNotes oboeNotes clarinetNotes bassoonNotes
+@c  LocalWords:  piccoloNotes bassClarinetNotes

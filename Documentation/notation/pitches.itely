@@ -7,7 +7,7 @@
     Guide, node Updating translation committishes..
 @end ignore
 
-@c \version "2.17.18"
+@c \version "2.19.2"
 
 
 @node Pitches
@@ -405,7 +405,7 @@ Accidentals on tied notes are only printed at the beginning of a
 new system:
 
 @lilypond[verbatim,quote,relative=2,ragged-right]
-cis1~ cis~
+cis1~ 1~
 \break
 cis
 @end lilypond
@@ -1225,10 +1225,10 @@ any @code{\override} done to the @var{Clef} will also need to be
 applied, as a separate @code{\override}, to the @var{ClefModifier}
 grob.
 
-@lilypond[fragment,quote,relative=1]
+@lilypond[fragment,quote,verbatim,relative=1]
 \new Staff \with {
-  \override ClefModifier.color = #red
   \override Clef.color = #blue
+  \override ClefModifier.color = #red
 }
 
 \clef "treble_8" c4
@@ -3072,8 +3072,8 @@ rhythm.  Such note heads can be created:
   e8 e g a a16( bes) a8 g
   \improvisationOn
   e8 ~
-  e2 ~ e8 f4 f8 ~
-  f2
+  2 ~ 8 f4 f8 ~
+  2
   \improvisationOff
   a16( bes) a8 g e
 }

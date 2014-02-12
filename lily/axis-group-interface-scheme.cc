@@ -1,7 +1,7 @@
 /*
   This file is part of LilyPond, the GNU music typesetter.
 
-  Copyright (C) 2005--2012 Han-Wen Nienhuys <hanwen@xs4all.nl>
+  Copyright (C) 2005--2014 Han-Wen Nienhuys <hanwen@xs4all.nl>
 
   LilyPond is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -43,6 +43,20 @@ LY_DEFINE (ly_relative_group_extent, "ly:relative-group-extent",
   Interval ext = Axis_group_interface::relative_group_extent (ga ? ga->array () : elts,
                                                               unsmob_grob (common),
                                                               (Axis) scm_to_int (axis));
+  return ly_interval2scm (ext);
+}
+
+LY_DEFINE (ly_generic_bound_extent, "ly:generic-bound-extent",
+           2, 0, 0, (SCM grob, SCM common),
+           "Determine the extent of @var{grob} relative to @var{common} along"
+           " the X axis, finding its extent as a bound when it a has"
+           " @code{bound-alignment-interfaces} property list set and"
+           " otherwise the full extent.")
+{
+  LY_ASSERT_SMOB (Grob, grob, 1);
+  LY_ASSERT_SMOB (Grob, common, 2);
+
+  Interval ext = Axis_group_interface::generic_bound_extent (unsmob_grob (grob), unsmob_grob (common), X_AXIS);
   return ly_interval2scm (ext);
 }
 

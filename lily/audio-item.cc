@@ -1,7 +1,7 @@
 /*
   This file is part of LilyPond, the GNU music typesetter.
 
-  Copyright (C) 1997--2012 Jan Nieuwenhuizen <janneke@gnu.org>
+  Copyright (C) 1997--2014 Jan Nieuwenhuizen <janneke@gnu.org>
 
   LilyPond is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -44,11 +44,13 @@ Audio_item::Audio_item ()
 {
 }
 
-Audio_note::Audio_note (Pitch p, Moment m, bool tie_event, Pitch transposing)
+Audio_note::Audio_note (Pitch p, Moment m, bool tie_event, Pitch transposing,
+                        int velocity)
   : pitch_ (p),
     length_mom_ (m),
     transposing_ (transposing),
     dynamic_ (0),
+    extra_velocity_ (velocity),
     tied_ (0),
     tie_event_ (tie_event)
 {
@@ -204,3 +206,19 @@ Audio_text::Audio_text (Audio_text::Type type, const string &text_string)
   type_ = type;
 }
 
+Audio_control_function_value_change
+::Audio_control_function_value_change (Control control, Real value)
+  : control_ (control), value_ (value)
+{
+}
+
+const Audio_control_function_value_change::Context_property
+Audio_control_function_value_change::context_properties_[] = {
+  // property name, enum constant, lower bound for range, upper bound for range
+  { "midiBalance",     BALANCE,      -1.0, 1.0 },
+  { "midiPanPosition", PAN_POSITION, -1.0, 1.0 },
+  { "midiReverbLevel", REVERB_LEVEL,  0.0, 1.0 },
+  { "midiChorusLevel", CHORUS_LEVEL,  0.0, 1.0 },
+  // extra element to signify the end of the mapping, must be kept last
+  { 0,                 NUM_CONTROLS,  0.0, 0.0 }
+};

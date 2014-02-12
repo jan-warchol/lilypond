@@ -1,7 +1,7 @@
 @c -*- coding: utf-8; mode: texinfo; documentlanguage: it -*-
 
 @ignore
-    Translation of GIT committish: 45d0e015edc53abebada17a0fdb1d665f7edf900
+    Translation of GIT committish: ff7d82711b47d3d31f26e1e6fc012c4055a20059
 
     When revising a translation, copy the HEAD committish of the
     version that you are working on.  For details, see the Contributors'
@@ -271,7 +271,7 @@ Nessun output, nemmeno i messaggi di errore.
 Solo i messaggi di errore, niente avvisi o messaggi di elaborazione.
 
 @item WARN
-Avvisi e nessaggi di errore, nessun messaggio di elaborazione.
+Avvisi e messaggi di errore, nessun messaggio di elaborazione.
 
 @item BASIC_PROGRESS
 Messaggi di elaborazione di base (riuscita), avvisi e errori.
@@ -308,7 +308,7 @@ Genera PostScript.
 @cindex output, PNG (Portable Network Graphics)
 
 @item --png
-Genera immmagini di ogni pagina in formato PNG.  Questo implica
+Genera immagini di ogni pagina in formato PNG.  Questo implica
 @option{--ps}.  La risoluzione in DPI dell'immagine può essere impostata con
 @example
 -dresolution=110
@@ -530,9 +530,9 @@ redirige l'output nel file @code{FOO.log}.
 
 @item @code{max-markup-depth}
 @tab @code{1024}
-@tab Maximum depth for the markup tree. If a markup has more levels,
-assume it will not terminate on its own, print a warning and return a
-null markup instead.
+@tab Massima profondità per la struttura del blocco markup. Se un blocco markup ha
+più livelli, assume che non terminerà da solo, stampa un avviso e restituisce
+al suo posto un markup vuoto.
 
 @item @code{midi-extension}
 @tab @code{"midi"}
@@ -569,7 +569,7 @@ di output nella forma @code{mioFile.preview.estensione}, contenente i
 titoli e il primo sistema.  Se vengono usati i blocchi @code{\book} o
 @code{\bookpart}, i titoli di @code{\book}, @code{\bookpart} o @code{\score}
 appariranno nell'output, incluso il primo sistema di ogni blocco @code{\score}
-se la variabile @code{print-all-headers} di @code{\paper} è impistata
+se la variabile @code{print-all-headers} di @code{\paper} è impostata
 su @code{#t}.
 
 Per impedire il normale output, si usano le opzioni @option{-dprint-pages} o
@@ -935,7 +935,7 @@ comprese, è facile gestirle.
 * Messaggio di errore Unbound variable %::
 * Messaggio di errore FT_Get_Glyph_Name::
 * Avvertimento sul fatto che le affinità del rigo devono solo diminuire::
-* Messaggio di errore \new inaspettato::
+* Messaggio di errore new inaspettato::
 @end menu
 
 @node La musica esce dalla pagina
@@ -1063,9 +1063,9 @@ come un rigo inserendo
 all'inizio del contesto.  Per dettagli si veda @qq{Spacing of non-staff lines} in
 @ruser{Flexible vertical spacing within systems}.
 
-@node Messaggio di errore \new inaspettato
-@unnumberedsubsec Messaggio di errore @code{\new} inaspettato
-@translationof Error message unexpected \new
+@node Messaggio di errore new inaspettato
+@unnumberedsubsec Messaggio di errore @code{@bs{}new} inaspettato
+@translationof Error message unexpected new
 
 Un blocco @code{\score} deve contenere una @emph{singola} espressione musicale.
 Se invece contiene vari @code{\new Staff}, @code{\new StaffGroup} o simili
