@@ -332,7 +332,6 @@ If we give names, Bison complains.
 %token BOOK_IDENTIFIER
 %token CHORD_MODIFIER
 %token CHORD_REPETITION
-%token CONTEXT_DEF_IDENTIFIER
 %token CONTEXT_MOD_IDENTIFIER
 %token DRUM_PITCH
 %token PITCH_IDENTIFIER
@@ -675,9 +674,14 @@ identifier_init_nonumber:
 
 context_def_spec_block:
 	CONTEXT '{' context_def_spec_body '}'
-		{
+	{
 		$$ = $3;
-		unsmob_context_def ($$)->origin ()->set_spot (@$);
+		Context_def *td = unsmob_context_def ($$);
+		if (!td) {
+			$$ = Context_def::make_scm ();
+			td = unsmob_context_def ($$);
+		}
+		td->origin ()->set_spot (@$);
 	}
 	;
 
@@ -695,47 +699,54 @@ context_mod_arg:
 	}
 	;
 
-context_mod_embedded:
-	context_mod_arg
-	{
-		if (unsmob_music ($1)) {
-			SCM proc = parser->lexer_->lookup_identifier ("context-mod-music-handler");
-			$1 = scm_call_2 (proc, parser->self_scm (), $1);
-		}
-		if (unsmob_context_mod ($1))
-			$$ = $1;
-		else {
-			parser->parser_error (@1, _ ("not a context mod"));
-			$$ = Context_mod ().smobbed_copy ();
-		}
-	}
-	;
-
 
 context_def_spec_body:
 	/**/ {
-		$$ = Context_def::make_scm ();
-	}
-	| CONTEXT_DEF_IDENTIFIER {
-		$$ = $1;
+		$$ = SCM_UNSPECIFIED;
 	}
 	| context_def_spec_body context_mod {
-		if (!SCM_UNBNDP ($2))
+		if (!SCM_UNBNDP ($2)) {
+			Context_def *td = unsmob_context_def ($$);
+			if (!td) {
+				$$ = Context_def::make_scm ();
+				td = unsmob_context_def ($$);
+			}
 			unsmob_context_def ($$)->add_context_mod ($2);
+		}
 	}
 	| context_def_spec_body context_modification {
                 Context_def *td = unsmob_context_def ($$);
+		if (!td) {
+			$$ = Context_def::make_scm ();
+			td = unsmob_context_def ($$);
+		}
                 SCM new_mods = unsmob_context_mod ($2)->get_mods ();
                 for (SCM m = new_mods; scm_is_pair (m); m = scm_cdr (m)) {
                     td->add_context_mod (scm_car (m));
                 }
 	}
-	| context_def_spec_body context_mod_embedded {
-                Context_def *td = unsmob_context_def ($$);
-                SCM new_mods = unsmob_context_mod ($2)->get_mods ();
-                for (SCM m = new_mods; scm_is_pair (m); m = scm_cdr (m)) {
-                    td->add_context_mod (scm_car (m));
-                }
+	| context_def_spec_body context_mod_arg {
+		Context_def *td = unsmob_context_def ($1);
+		if (scm_is_eq ($2, SCM_UNSPECIFIED))
+			;
+		else if (!td && unsmob_context_def ($2))
+			$$ = $2;
+		else {
+			if (!td) {
+				$$ = Context_def::make_scm ();
+				td = unsmob_context_def ($$);
+			}
+			if (unsmob_music ($2)) {
+				SCM proc = parser->lexer_->lookup_identifier ("context-mod-music-handler");
+				$2 = scm_call_2 (proc, parser->self_scm (), $2);
+			}
+			if (Context_mod *cm = unsmob_context_mod ($2)) {
+				for (SCM m = cm->get_mods (); scm_is_pair (m); m = scm_cdr (m)) {
+					td->add_context_mod (scm_car (m));
+				}
+			} else
+				parser->parser_error (@2, _ ("not a context mod"));
+		}
 	}
 	;
 
@@ -1332,9 +1343,19 @@ context_mod_list:
                  if (md)
                      unsmob_context_mod ($1)->add_context_mods (md->get_mods ());
         }
-	| context_mod_list context_mod_embedded {
-		unsmob_context_mod ($1)->add_context_mods
-			(unsmob_context_mod ($2)->get_mods ());
+	| context_mod_list context_mod_arg {
+		if (scm_is_eq ($2, SCM_UNSPECIFIED))
+			;
+		else if (unsmob_music ($2)) {
+			SCM proc = parser->lexer_->lookup_identifier ("context-mod-music-handler");
+			$2 = scm_call_2 (proc, parser->self_scm (), $2);
+		}
+		if (unsmob_context_mod ($2))
+			unsmob_context_mod ($$)->add_context_mods
+				(unsmob_context_mod ($2)->get_mods ());
+		else {
+			parser->parser_error (@2, _ ("not a context mod"));
+		}
         }
         ;
 
@@ -2058,6 +2079,23 @@ optional_id:
 	}
 	;
 
+// We must not have lookahead tokens parsed in lyric mode.  In order
+// to save confusion, we take almost the same set as permitted with
+// \lyricmode and/or \lyrics.  However, music identifiers are also
+// allowed, and they obviously do not require switching into lyrics
+// mode for parsing.
+
+lyric_mode_music:
+	{
+		parser->lexer_->push_lyric_state ();
+	} grouped_music_list
+	{
+		parser->lexer_->pop_state ();
+		$$ = $2;
+	}
+	| MUSIC_IDENTIFIER
+	;
+
 complex_music:
 	music_function_call
 	| repeated_music		{ $$ = $1; }
@@ -2170,20 +2208,11 @@ mode_changing_head_with_context:
 	;
 
 new_lyrics:
-	ADDLYRICS { parser->lexer_->push_lyric_state (); }
-	/*cont */
-	composite_music {
-	/* Can also use music at the expensive of two S/Rs similar to
-           \repeat \alternative */
-		parser->lexer_->pop_state ();
-
-		$$ = scm_cons ($3, SCM_EOL);
+	ADDLYRICS lyric_mode_music {
+		$$ = scm_list_1 ($2);
 	}
-	| new_lyrics ADDLYRICS {
-		parser->lexer_->push_lyric_state ();
-	} composite_music {
-		parser->lexer_->pop_state ();
-		$$ = scm_cons ($4, $1);
+	| new_lyrics ADDLYRICS lyric_mode_music {
+		$$ = scm_cons ($3, $1);
 	}
 	;
 
@@ -2191,11 +2220,8 @@ re_rhythmed_music:
 	composite_music new_lyrics {
 		$$ = MAKE_SYNTAX ("add-lyrics", @$, $1, scm_reverse_x ($2, SCM_EOL));
 	} %prec COMPOSITE
-	| LYRICSTO simple_string {
-		parser->lexer_->push_lyric_state ();
-	} music {
-		parser->lexer_->pop_state ();
-		$$ = MAKE_SYNTAX ("lyric-combine", @$, $2, $4);
+	| LYRICSTO simple_string lyric_mode_music {
+		$$ = MAKE_SYNTAX ("lyric-combine", @$, $2, $3);
 	}
 	;
 
@@ -3469,7 +3495,13 @@ markup_uncomposed_list:
 		SCM nn = parser->lexer_->lookup_identifier ("pitchnames");
 		parser->lexer_->push_note_state (nn);
 	} '{' score_body '}' {
-		unsmob_score ($4)->origin ()->set_spot (@$);
+		Score *sc = unsmob_score ($4);
+		sc->origin ()->set_spot (@$);
+		if (sc->defs_.empty ()) {
+			Output_def *od = get_layout (parser);
+			sc->add_output_def (od);
+			od->unprotect ();
+		}
 		$$ = scm_list_1 (scm_list_2 (ly_lily_module_constant ("score-lines-markup-list"), $4));
 		parser->lexer_->pop_state ();
 	}
@@ -3546,7 +3578,13 @@ simple_markup:
 		SCM nn = parser->lexer_->lookup_identifier ("pitchnames");
 		parser->lexer_->push_note_state (nn);
 	} '{' score_body '}' {
-		unsmob_score ($4)->origin ()->set_spot (@$);
+		Score *sc = unsmob_score ($4);
+		sc->origin ()->set_spot (@$);
+		if (sc->defs_.empty ()) {
+			Output_def *od = get_layout (parser);
+			sc->add_output_def (od);
+			od->unprotect ();
+		}
 		$$ = scm_list_2 (ly_lily_module_constant ("score-markup"), $4);
 		parser->lexer_->pop_state ();
 	}
@@ -3608,16 +3646,12 @@ Lily_lexer::try_special_identifiers (SCM *destination, SCM sid)
 	} else if (scm_is_number (sid)) {
 		*destination = sid;
 		return NUMBER_IDENTIFIER;
-        } else if (unsmob_context_def (sid)) {
-                Context_def *def= unsmob_context_def (sid)->clone ();
-
-                *destination = def->self_scm ();
-                def->unprotect ();
-
-                return CONTEXT_DEF_IDENTIFIER;
+	} else if (unsmob_context_def (sid))
+	{
+		*destination = unsmob_context_def (sid)->clone ()->unprotect ();
+		return SCM_IDENTIFIER;
         } else if (unsmob_context_mod (sid)) {
                 *destination = unsmob_context_mod (sid)->smobbed_copy ();
-
                 return CONTEXT_MOD_IDENTIFIER;
 	} else if (Music *mus = unsmob_music (sid)) {
 		mus = mus->clone ();

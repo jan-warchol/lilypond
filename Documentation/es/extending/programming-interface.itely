@@ -7,7 +7,7 @@
     version that you are working on.  See TRANSLATION for details.
 @end ignore
 
-@c \version "2.17.6"
+@c \version "2.19.2"
 
 @node Interfaces para programadores
 @chapter Interfaces para programadores
@@ -983,7 +983,7 @@ rectángulos y añade una separación.
             \override #'(box-padding . 0.6) \box @{ #text @}#@}))
 @end lisp
 
-or, equivalently
+o, de forma equivalente,
 
 @lisp
 #(define-markup-command (double-box layout props text) (markup?)
@@ -1523,7 +1523,7 @@ arriba.
   \override Tie.after-line-breaking =
   #my-callback
   c1 ~ \break
-  c2 ~ c
+  c2 ~ 2
 }
 @end lilypond
 
