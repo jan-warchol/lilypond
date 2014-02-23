@@ -1836,7 +1836,6 @@
         (direction . ,UP)
         (extra-spacing-width . (+inf.0 . -inf.0))
         (font-size . 2)
-        (non-musical . #t)
         (outside-staff-horizontal-padding . 0.2)
         (outside-staff-priority . 1500)
         (padding . 0.8)
