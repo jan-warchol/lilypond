@@ -71,10 +71,10 @@
   (string-append "<!-- " s " -->\n"))
 
 (define-public (entity entity string . attributes-alist)
-  (if (equal? string "")
+  (if (string-null? string)
       (apply eoc entity attributes-alist)
       (string-append
-       (apply eo (cons entity attributes-alist)) string (ec entity))))
+       (apply eo entity attributes-alist) string (ec entity))))
 
 (define (offset->point o)
   (ly:format "~4f ~4f" (car o) (- (cdr o))))
@@ -83,7 +83,7 @@
   (define (helper lst)
     (if (null? lst)
         '()
-        (cons (format #f "~S ~S" (car lst) (- (cadr lst)))
+        (cons (ly:format "~4f ~4f" (car lst) (- (cadr lst)))
               (helper (cddr lst)))))
 
   (string-join (helper lst) " "))
@@ -615,7 +615,7 @@
    '(fill . "currentColor")))
 
 (define (setcolor r g b)
-  (format #f "<g color=\"rgb(~a%, ~a%, ~a%)\">\n"
+  (ly:format "<g color=\"rgb(~4f%, ~4f%, ~4f%)\">\n"
           (* 100 r) (* 100 g) (* 100 b)))
 
 ;; rotate around given point

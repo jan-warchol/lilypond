@@ -158,6 +158,8 @@ For instance,
   "Generate an expression that, once evaluated, may return an object
 equivalent to @var{obj}, that is, for a music expression, a
 @code{(make-music ...)} form."
+  (define (if-nonzero num)
+    (if (zero? num) '() (list num)))
   (cond (;; markup expression
          (markup? obj)
          (markup-expression->make-markup obj))
@@ -173,20 +175,28 @@ equivalent to @var{obj}, that is, for a music expression, a
                                  (ly:music-mutable-properties obj)))))
         (;; moment
          (ly:moment? obj)
-         `(ly:make-moment ,(ly:moment-main-numerator obj)
-                          ,(ly:moment-main-denominator obj)
-                          ,(ly:moment-grace-numerator obj)
-                          ,(ly:moment-grace-denominator obj)))
+         `(ly:make-moment
+           ,@(let ((main (ly:moment-main obj))
+                   (grace (ly:moment-grace obj)))
+               (cond ((zero? grace) (list main))
+                     ((negative? grace) (list main grace))
+                     (else ;;positive grace requires 4-arg form
+                      (list (numerator main)
+                            (denominator main)
+                            (numerator grace)
+                            (denominator grace)))))))
         (;; note duration
          (ly:duration? obj)
          `(ly:make-duration ,(ly:duration-log obj)
-                            ,(ly:duration-dot-count obj)
-                            ,(ly:duration-scale obj)))
+                            ,@(if (= (ly:duration-scale obj) 1)
+                                  (if-nonzero (ly:duration-dot-count obj))
+                                  (list (ly:duration-dot-count obj)
+                                        (ly:duration-scale obj)))))
         (;; note pitch
          (ly:pitch? obj)
          `(ly:make-pitch ,(ly:pitch-octave obj)
                          ,(ly:pitch-notename obj)
-                         ,(ly:pitch-alteration obj)))
+                         ,@(if-nonzero (ly:pitch-alteration obj))))
         (;; scheme procedure
          (procedure? obj)
          (or (procedure-name obj) obj))
@@ -1419,14 +1429,16 @@ Returns @code{#f} or the reason for the invalidation, a symbol."
          (car alteration-def))
         (else 0)))
 
-(define (check-pitch-against-signature context pitch barnum laziness octaveness)
+(define (check-pitch-against-signature context pitch barnum laziness octaveness all-naturals)
   "Checks the need for an accidental and a @q{restore} accidental against
 @code{localKeySignature}.  The @var{laziness} is the number of measures
 for which reminder accidentals are used (i.e., if @var{laziness} is zero,
 only cancel accidentals in the same measure; if @var{laziness} is three,
 we cancel accidentals up to three measures after they first appear.
 @var{octaveness} is either @code{'same-octave} or @code{'any-octave} and
-specifies whether accidentals should be canceled in different octaves."
+specifies whether accidentals should be canceled in different octaves.
+If @var{all-naturals} is ##t, notes that do not occur in @code{keySignature}
+also get an accidental."
   (let* ((ignore-octave (cond ((equal? octaveness 'any-octave) #t)
                               ((equal? octaveness 'same-octave) #f)
                               (else
@@ -1484,7 +1496,7 @@ specifies whether accidentals should be canceled in different octaves."
         (let* ((prev-alt (extract-alteration previous-alteration))
                (this-alt (ly:pitch-alteration pitch)))
 
-          (if (not (= this-alt prev-alt))
+          (if (or (and all-naturals (eq? #f previous-alteration)) (not (= this-alt prev-alt)))
               (begin
                 (set! need-accidental #t)
                 (if (and (not (= this-alt 0))
@@ -1511,7 +1523,13 @@ is, to the end of current measure.  A positive integer means that the
 accidental lasts over that many bar lines.  @w{@code{-1}} is `forget
 immediately', that is, only look at key signature.  @code{#t} is `forever'."
 
-  (check-pitch-against-signature context pitch barnum laziness octaveness))
+  (check-pitch-against-signature context pitch barnum laziness octaveness #f))
+
+(define-public ((make-accidental-dodecaphonic-rule octaveness laziness) context pitch barnum measurepos)
+  "Variation on function make-accidental-rule that creates an dodecaphonic
+accidental rule."
+
+  (check-pitch-against-signature context pitch barnum laziness octaveness #t))
 
 (define (key-entry-notename entry)
   "Return the pitch of an @var{entry} in @code{localKeySignature}.
@@ -1592,10 +1610,10 @@ look at bar lines nor different accidentals at the same note name."
                             (and (equal? entrybn barnum) (equal? entrymp measurepos)))))))))
 
 (define-public (dodecaphonic-no-repeat-rule context pitch barnum measurepos)
-  "An accidental rule that typesets an accidental before every note
-(just as in the dodecaphonic accidental style) @emph{except} if the note
-is immediately preceded by a note with the same pitch. This is a common
-accidental style in contemporary notation."
+  "An accidental rule that typesets an accidental before every
+note (just as in the dodecaphonic accidental style) @emph{except} if
+the note is immediately preceded by a note with the same pitch. This
+is a common accidental style in contemporary notation."
    (let* ((keysig (ly:context-property context 'localKeySignature))
           (entry (find-pitch-entry keysig pitch #t #t)))
      (if (not entry)
@@ -1614,9 +1632,13 @@ on the same staff line."
          (entry (find-pitch-entry keysig pitch #t #t)))
     (if (not entry)
         (cons #f #f)
-        (let* ((entrymp (key-entry-measure-position entry))
+        (let* ((global-entry (find-pitch-entry keysig pitch #f #f))
+               (key-acc (key-entry-alteration global-entry))
+               (acc (ly:pitch-alteration pitch))
+               (entrymp (key-entry-measure-position entry))
                (entrybn (key-entry-bar-number entry)))
-          (cons #f (not (and (equal? entrybn barnum) (equal? entrymp measurepos))))))))
+          (cons #f (not (or (equal? acc key-acc)
+                            (and (equal? entrybn barnum) (equal? entrymp measurepos)))))))))
 
 (define-public (set-accidentals-properties extra-natural
                                            auto-accs auto-cauts
@@ -1724,6 +1746,14 @@ as a context."
                                           ,dodecaphonic-no-repeat-rule)
                                           '()
                                           context))
+     ;; Variety of the dodecaphonic style. Each note gets an accidental,
+     ;; except notes that were already handled in the same measure.
+     ((equal? style 'dodecaphonic-first)
+      (set-accidentals-properties #f
+                                  `(Staff ,(make-accidental-dodecaphonic-rule 'same-octave 0))
+                                  '()
+                                  context))
+
      ;; Multivoice accidentals to be read both by musicians playing one voice
      ;; and musicians playing all voices.
      ;; Accidentals are typeset for each voice, but they ARE canceled across voices.

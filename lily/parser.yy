@@ -448,6 +448,17 @@ toplevel_expression:
 		{
 			SCM proc = parser->lexer_->lookup_identifier ("toplevel-score-handler");
 			scm_call_2 (proc, parser->self_scm (), $1);
+		} else if (Output_def * od = unsmob_output_def ($1)) {
+			SCM id = SCM_EOL;
+
+			if (od->c_variable ("is-paper") == SCM_BOOL_T)
+				id = ly_symbol2scm ("$defaultpaper");
+			else if (od->c_variable ("is-midi") == SCM_BOOL_T)
+				id = ly_symbol2scm ("$defaultmidi");
+			else if (od->c_variable ("is-layout") == SCM_BOOL_T)
+				id = ly_symbol2scm ("$defaultlayout");
+
+			parser->lexer_->set_identifier (id, $1);
 		} else if (!scm_is_eq ($1, SCM_UNSPECIFIED))
 			parser->parser_error (@1, _("bad expression type"));
 	}
@@ -821,6 +832,17 @@ book_body:
 		{
 			SCM proc = parser->lexer_->lookup_identifier ("book-score-handler");
 			scm_call_2 (proc, $1, $2);
+		} else if (Output_def *od = unsmob_output_def ($2)) {
+			SCM id = SCM_EOL;
+
+			if (od->c_variable ("is-paper") == SCM_BOOL_T)
+				id = ly_symbol2scm ("$defaultpaper");
+			else if (od->c_variable ("is-midi") == SCM_BOOL_T)
+				id = ly_symbol2scm ("$defaultmidi");
+			else if (od->c_variable ("is-layout") == SCM_BOOL_T)
+				id = ly_symbol2scm ("$defaultlayout");
+
+			parser->lexer_->set_identifier (id, $2);
 		} else if (!scm_is_eq ($2, SCM_UNSPECIFIED))
 			parser->parser_error (@2, _("bad expression type"));
 	}
@@ -891,6 +913,17 @@ bookpart_body:
 		{
 			SCM proc = parser->lexer_->lookup_identifier ("bookpart-score-handler");
 			scm_call_2 (proc, $1, $2);
+		} else if (Output_def *od = unsmob_output_def ($2)) {
+			SCM id = SCM_EOL;
+
+			if (od->c_variable ("is-paper") == SCM_BOOL_T)
+				id = ly_symbol2scm ("$defaultpaper");
+			else if (od->c_variable ("is-midi") == SCM_BOOL_T)
+				id = ly_symbol2scm ("$defaultmidi");
+			else if (od->c_variable ("is-layout") == SCM_BOOL_T)
+				id = ly_symbol2scm ("$defaultlayout");
+
+			parser->lexer_->set_identifier (id, $2);
 		} else if (!scm_is_eq ($2, SCM_UNSPECIFIED))
 			parser->parser_error (@2, _("bad expression type"));
 	}
@@ -915,86 +948,98 @@ score_block:
 	}
 	;
 
-score_headers:
-	/* empty */
-	{
-		$$ = SCM_EOL;
-	}
-	| score_headers
-	{
-		if (!scm_is_pair ($1)
-		    || !ly_is_module (scm_car ($1)))
-			$1 = scm_cons (ly_make_module (false), $1);
-		parser->lexer_->add_scope (scm_car ($1));
-	} lilypond_header
-	{
-		$$ = $1;
-	}
-	| score_headers output_def
-	{
-                Output_def *od = unsmob_output_def ($2);
-		if (od->lookup_variable (ly_symbol2scm ("is-paper")) == SCM_BOOL_T)
-		{
-			parser->parser_error (@2, _("\\paper cannot be used in \\score, use \\layout instead"));
-
-		}
-		else
-		{
-			if (scm_is_pair ($1) && ly_is_module (scm_car ($1)))
-				scm_set_cdr_x ($1, scm_cons ($2, scm_cdr ($1)));
-			else
-				$$ = scm_cons ($2, $1);
-		}
-	}
-	;
-
-		
-
 score_body:
-	score_headers music {
-		SCM scorify = ly_lily_module_constant ("scorify-music");
-		$$ = scm_call_2 (scorify, $2, parser->self_scm ());
-
-		if (scm_is_pair ($1) && ly_is_module (scm_car ($1)))
-		{
-			unsmob_score ($$)->set_header (scm_car ($1));
-			$1 = scm_cdr ($1);
-		}
-		for (SCM p = scm_reverse_x ($1, SCM_EOL);
-		     scm_is_pair (p); p = scm_cdr (p))
-		{
-			unsmob_score ($$)->
-				add_output_def (unsmob_output_def (scm_car (p)));
-		}
-	}
-	| embedded_scm_active {
-		if (!unsmob_score ($1))
-		{
+	score_items {
+		if (!unsmob_score ($1)) {
+			parser->parser_error (@1, _("Missing music in \\score"));
 			$$ = (new Score)->unprotect ();
-			parser->parser_error (@1, _("score expected"));
-		}
-	}
-	| score_body
-	{
-                Score *score = unsmob_score ($1);
-		if (!ly_is_module (score->get_header ()))
-			score->set_header (ly_make_module (false));
-		parser->lexer_->add_scope (score->get_header ());
-	} lilypond_header
-	| score_body output_def {
-                Output_def *od = unsmob_output_def ($2);
-		if (od->lookup_variable (ly_symbol2scm ("is-paper")) == SCM_BOOL_T)
-		{
-			parser->parser_error (@2, _("\\paper cannot be used in \\score, use \\layout instead"));
-
-		}
-		else
-		{
-			unsmob_score ($1)->add_output_def (od);
+			if (scm_is_pair ($1) && ly_is_module (scm_car ($1)))
+			{
+				unsmob_score ($$)->set_header (scm_car ($1));
+				$1 = scm_cdr ($1);
+			}
+			for (SCM p = scm_reverse_x ($1, SCM_EOL);
+			     scm_is_pair (p); p = scm_cdr (p))
+			{
+				unsmob_score ($$)->
+					add_output_def (unsmob_output_def (scm_car (p)));
+			}
 		}
 	}
 	| score_body error {
 		unsmob_score ($$)->error_found_ = true;
+	}
+	;
+
+score_item:
+	embedded_scm
+	| music
+	| output_def
+	;
+
+score_items:
+	/* empty */
+	{
+		$$ = SCM_EOL;
+	}
+	| score_items score_item
+	{
+		Output_def *od = unsmob_output_def ($2);
+		if (od) {
+			if (od->lookup_variable (ly_symbol2scm ("is-paper")) == SCM_BOOL_T)
+			{
+				parser->parser_error (@2, _("\\paper cannot be used in \\score, use \\layout instead"));
+				od = 0;
+				$2 = SCM_UNSPECIFIED;
+			}
+		} else if (!unsmob_score ($$)) {
+			if (unsmob_music ($2)) {
+				SCM scorify = ly_lily_module_constant ("scorify-music");
+				$2 = scm_call_2 (scorify, $2, parser->self_scm ());
+			}
+			if (unsmob_score ($2))
+			{
+				$$ = $2;
+				$2 = SCM_UNSPECIFIED;
+			}
+		}
+		Score *score = unsmob_score ($$);
+		if (score && scm_is_pair ($1)) {
+			if (ly_is_module (scm_car ($1)))
+			{
+				score->set_header (scm_car ($1));
+				$1 = scm_cdr ($1);
+			}
+			for (SCM p = scm_reverse_x ($1, SCM_EOL);
+			     scm_is_pair (p); p = scm_cdr (p))
+			{
+				score->add_output_def (unsmob_output_def (scm_car (p)));
+			}
+		}
+		if (od) {
+			if (score)
+				score->add_output_def (od);
+			else if (scm_is_pair ($$) && ly_is_module (scm_car ($$)))
+				scm_set_cdr_x ($$, scm_cons ($2, scm_cdr ($$)));
+			else
+				$$ = scm_cons ($2, $$);
+		} else if (!scm_is_eq ($2, SCM_UNSPECIFIED))
+			parser->parser_error (@2, _("Spurious expression in \\score"));
+	}
+	| score_items
+	{
+		if (Score *score = unsmob_score ($1)) {
+			if (!ly_is_module (score->get_header ()))
+				score->set_header (ly_make_module (false));
+			parser->lexer_->add_scope (score->get_header ());
+		} else {
+			if (!scm_is_pair ($1) || !ly_is_module (scm_car ($1)))
+				$1 = scm_cons (ly_make_module (false), $1);
+			parser->lexer_->add_scope (scm_car ($1));
+		}
+	} lilypond_header
+	{
+		$$ = $1;
 	}
 	;
 
@@ -1483,7 +1528,6 @@ function_arglist_nonbackup:
 			$$ = check_scheme_arg (parser, @4, t->unprotect (),
 					       $3, $2, n);
 		}
-		
 	}
 	| EXPECT_OPTIONAL EXPECT_SCM function_arglist_nonbackup '-' REAL
 	{
@@ -1760,7 +1804,6 @@ function_arglist_backup:
 				parser->lexer_->push_extra_token (@4, '-');
 			}
 		}
-		
 	}
 	| EXPECT_OPTIONAL EXPECT_SCM function_arglist_backup '-' REAL
 	{
@@ -2037,7 +2080,6 @@ function_arglist_common_reparse:
 			else
 				MYREPARSE (@4, $1, SCM_ARG, $4);
 		}
-		
 	}
 	| EXPECT_SCM function_arglist_optional '-' REAL
 	{
@@ -2315,7 +2357,7 @@ revert_arg_part:
 	| revert_arg_backup BACKUP SCM_ARG symbol_list_part
 	{
 		$$ = scm_append_x (scm_list_2 ($4, $3));
-	}		
+	}
 	;
 
 context_def_mod:
@@ -2599,6 +2641,10 @@ chord_body:
 	{
 		$$ = MAKE_SYNTAX ("event-chord", @$, scm_reverse_x ($2, SCM_EOL));
 	}
+	| FIGURE_OPEN figure_list FIGURE_CLOSE
+	{
+		$$ = MAKE_SYNTAX ("event-chord", @$, scm_reverse_x ($2, SCM_EOL));
+	}
 	;
 
 chord_body_elements:
@@ -2748,7 +2794,7 @@ post_event_nofinger:
 	{
 		$$ = $2;
 		unsmob_music ($$)->set_property ("direction", scm_from_int (DOWN));
-	}			
+	}
 	;
 
 post_event:
@@ -2776,7 +2822,7 @@ direction_less_event:
                a->set_property ("tremolo-type", $1);
                $$ = a->unprotect ();
         }
-	| event_function_event	
+	| event_function_event
 	;
 
 direction_reqd_event:
@@ -3115,13 +3161,6 @@ figure_list:
 	}
 	;
 
-figure_spec:
-	FIGURE_OPEN figure_list FIGURE_CLOSE {
-		$$ = scm_reverse_x ($2, SCM_EOL);
-	}
-	;
-
-
 optional_rest:
 	/**/   { $$ = SCM_BOOL_F; }
 	| REST { $$ = SCM_BOOL_T; }
@@ -3143,20 +3182,20 @@ pitch_or_music:
 				n = MY_MAKE_MUSIC ("RestEvent", @$);
 			else
 				n = MY_MAKE_MUSIC ("NoteEvent", @$);
-			
+
 			n->set_property ("pitch", $1);
 			if (SCM_UNBNDP ($5))
 				n->set_property ("duration",
 						 parser->default_duration_.smobbed_copy ());
 			else
 				n->set_property ("duration", $5);
-			
+
 			if (scm_is_number ($4))
 			{
 				int q = scm_to_int ($4);
 				n->set_property ("absolute-octave", scm_from_int (q-1));
 			}
-			
+
 			if (to_boolean ($3))
 				n->set_property ("cautionary", SCM_BOOL_T);
 			if (to_boolean ($2) || to_boolean ($3))
@@ -3167,7 +3206,9 @@ pitch_or_music:
 			$$ = n->unprotect ();
 		}
 	} %prec ':'
-	| simple_chord_elements post_events {
+	| new_chord post_events {
+		if (!parser->lexer_->is_chord_state ())
+                        parser->parser_error (@1, _ ("have to be in Chord mode for chords"));
 		if (scm_is_pair ($2)) {
 			if (unsmob_pitch ($1))
 				$1 = make_chord_elements (@1,
@@ -3204,22 +3245,6 @@ simple_element:
 		    }
 		ev->set_property ("duration", $2);
  		$$ = ev->unprotect ();
-	}
-	;
-
-// Can return a single pitch rather than a list.
-simple_chord_elements:
-	new_chord {
-                if (!parser->lexer_->is_chord_state ())
-                        parser->parser_error (@1, _ ("have to be in Chord mode for chords"));
-                $$ = $1;
-	}
-	| figure_spec optional_notemode_duration {
-		for (SCM s = $1; scm_is_pair (s); s = scm_cdr (s))
-		{
-			unsmob_music (scm_car (s))->set_property ("duration", $2);
-		}
-		$$ = $1;
 	}
 	;
 
@@ -3471,7 +3496,7 @@ markup_scm:
 		}
 	} BACKUP
 	;
-			
+
 
 markup_list:
 	markup_composed_list {
