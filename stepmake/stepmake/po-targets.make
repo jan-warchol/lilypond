@@ -9,7 +9,7 @@ XGETTEXT_OPTIONS = \
 	--package-name=$(package) \
 	--package-version=$(VERSION)
 
-sed-header = \# Translation of LilyPond\n\# Copyright \(C\) 1998--2012 Han-Wen Nienhuys, Jan Nieuwenhuizen.\n\# This file is distributed under the same license as the LilyPond package.
+sed-header = \# Translation of LilyPond\n\# Copyright \(C\) 1998--2014 Han-Wen Nienhuys, Jan Nieuwenhuizen.\n\# This file is distributed under the same license as the LilyPond package.
 sed-content = "Content-Type: text\/plain; charset=UTF-8\\n"
 
 ####
@@ -37,10 +37,10 @@ ifneq ($(strip $(ALL_PO_SOURCES)),)
 	 --keyword=_ --keyword=_f --keyword=_i \
 	 $(XGETTEXT_FLAGS) $(ALL_PO_SOURCES)
 endif
-endif
 	sed -i '1,2d' $(po-outdir)/$(package).po
 	sed -i -e 's/^\# This file is distributed.*/$(sed-header)/' $(po-outdir)/$(package).po
 	sed -i -e 's/^\"Content-Type: text\/plain.*/$(sed-content)/' $(po-outdir)/$(package).po
+endif
 
 
 po-update: po

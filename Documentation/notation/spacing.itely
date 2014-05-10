@@ -8,7 +8,7 @@
     Guide, node Updating translation committishes..
 @end ignore
 
-@c \version "2.17.28"
+@c \version "2.17.30"
 
 @ignore
 GDP TODO list
@@ -227,15 +227,18 @@ Installed Files:
 @unnumberedsubsubsec Setting the paper size
 
 @q{A4} is the default value when no explicit paper size is set. However,
-there are two functions that can be used to change it
-@code{set-default-paper-size},
+there are two functions that can be used to change it:
+
+@table @code
+@item set-default-paper-size
 
 @example
 #(set-default-paper-size "quarto")
 @end example
 
-which must always be placed at the toplevel scope. and
-@code{set-paper-size},
+which must always be placed at the toplevel scope, and
+
+@item set-paper-size
 
 @example
 \paper @{
@@ -244,9 +247,10 @@ which must always be placed at the toplevel scope. and
 @end example
 
 which must always be placed in a @code{\paper} block.
+@end table
 
 If the @code{set-default-paper-size} function is used in the toplevel
-scope, it must come before the any @code{\paper} block.
+scope, it must come before any @code{\paper} block.
 @code{set-default-paper-size} sets the paper size for all pages,
 whereas @code{set-paper-size} only sets the paper size for the pages
 that the @code{\paper} block applies to.  For example, if the
@@ -390,18 +394,16 @@ default value is scaled accordingly.
 @item ragged-bottom
 @funindex ragged-bottom
 
-If set to true, systems will not spread vertically down the page.
-This does not affect the last page.  This should be set to true
-for pieces that have only two or three systems per page, for
-example orchestral scores.
+If this is set to true,
+systems will be set at their natural spacing, neither compressed
+nor stretched vertically to fit the page.
 
 @item ragged-last-bottom
 @funindex ragged-last-bottom
 
-If set to false, systems will spread vertically down the last
-page.  Pieces that amply fill two pages or more should have this
-set to false.  It also affects the last page of book parts, i.e.
-parts of a book created with @code{\bookpart} blocks.
+If this is set to false, then the last page,
+and the last page in each section created with a @code{\bookpart} block,
+will be vertically justified in the same way as the earlier pages.
 
 @end table
 
@@ -1517,10 +1519,12 @@ The @code{\pageBreak} and @code{\noPageBreak} commands may also be
 inserted at top-level, between scores and top-level markups.
 
 There are also analogous settings to @code{ragged-right} and
-@code{ragged-last} which have the same effect on vertical spacing:
-@code{ragged-bottom} and @code{ragged-last-bottom}.  If set to
-@code{#t} the systems on all pages or just the last page
-respectively will not be justified vertically.  See
+@code{ragged-last} which have the same effect on vertical spacing.
+If @code{ragged-bottom} is set to @code{#t} the systems will not
+be justified vertically.  When @code{ragged-last-bottom} is set
+to @code{#t}, as it is by default, empty space is allowed at the
+bottom of the final page (or the final page in each
+@code{\bookpart}).  See
 @ref{Fixed vertical spacing paper variables,,Fixed vertical spacing @code{@bs{}paper} variables}.
 
 Page breaks are computed by the @code{page-breaking} function.  LilyPond
@@ -1997,80 +2001,62 @@ of these reference points:
 alignToZero = \with {
   \override VerticalAxisGroup.nonstaff-relatedstaff-spacing = #zero-space
   \override VerticalAxisGroup.nonstaff-nonstaff-spacing = #zero-space
+  \override VerticalAxisGroup.staff-affinity = #DOWN
+  \remove Text_engraver % avoid having two
+  \consists Text_engraver
 }
 lowerCaseChords = \with {
   chordNameLowercaseMinor = ##t
-}
-staffAffinityDown = \with {
-  \override VerticalAxisGroup.staff-affinity = #DOWN
 }
 labelContext =
 #(define-music-function
      (parser location context)
      (string?)
-   #{ s1*0^\markup { \typewriter #context } #})
+     #{ s1*0^\markup { \upright {\typewriter #context } } #})
 
 \layout {
   \context { \Dynamics    \alignToZero }
   \context { \FiguredBass \alignToZero }
   \context { \Lyrics      \alignToZero }
-  \context { \NoteNames   \alignToZero \staffAffinityDown }
-  \context { \ChordNames  \alignToZero
-                          \staffAffinityDown
-			  \lowerCaseChords }
-  \context { \FretBoards  \alignToZero \staffAffinityDown }
+  \context { \NoteNames   \alignToZero }
+  \context { \ChordNames  \alignToZero \lowerCaseChords }
+  \context { \FretBoards  \alignToZero }
   \context { \Score
-    \override BarLine.stencil = ##f
+    \omit BarLine
     \override DynamicText.self-alignment-X = #-1
     \override FretBoard.X-offset = #1.75
-    \override InstrumentName.minimum-Y-extent = #'(-2 . 2)
-    \override InstrumentName.extra-offset = #'(0 . -0.5)
-    \override TextScript.minimum-Y-extent = #'(-2 . 3)
-    \override TimeSignature.stencil = ##f
+    \override InstrumentName.minimum-Y-extent = #'(-1 . 2)
+    \textLengthOn
+    \omit TimeSignature
   }
 }
 
 %% These contexts have reference points at the baseline:
 %%   ChordNames, NoteNames, and Lyrics
 <<
-  \new ChordNames { \chords { g1:m } }
-  \new NoteNames { s1 | g1 | }
-  \new RhythmicStaff {
-    \set RhythmicStaff.instrumentName = #"baseline "
-    \textLengthOn
-    \labelContext "ChordNames " s1 |
-    \labelContext "NoteNames "  s1 |
-    \labelContext "Lyrics"     s1 |
-  }
-  \new Lyrics { \lyrics { \skip 1*2 | ghijk1 | } }
+  \new ChordNames { \chords { \labelContext "ChordNames"  g1:m } }
+  \new NoteNames { s1 |\labelContext "NoteNames"  g1 | }
+  \new Lyrics { \lyrics { \skip 1*2 | \labelContext "Lyrics" ghijk1 | } }
+  \new RhythmicStaff \with { instrumentName = #"baseline " } s1*3
 >>
 
 %% The reference point for Dynamics is the midline of 'm' in the font
 <<
-  \new RhythmicStaff {
-    \set RhythmicStaff.instrumentName = #"mid-height "
-    \labelContext "Dynamics" s1*3
-  }
-  \new Dynamics { s1\mp s\fp }
+  \new Dynamics { \labelContext "Dynamics" s1\mp s\fp }
+  \new RhythmicStaff \with { instrumentName = #"mid-height " } s1*3
 >>
 
 %% The reference point for FiguredBass is its highest point
 <<
-  \new RhythmicStaff {
-    \set RhythmicStaff.instrumentName = #"highest point "
-    \labelContext "FiguredBass" s1
-  }
-  \new FiguredBass { \figuremode { <6 5>1 } }
+  \new FiguredBass { \labelContext "FiguredBass" \figuremode { <6 5>1 } }
+  \new RhythmicStaff \with { instrumentName = #"highest point " } s1
 >>
 
 %% The reference point for FretBoards is the top line
 \include "predefined-guitar-fretboards.ly"
 <<
-  \new FretBoards { \chordmode { e1 } }
-  \new RhythmicStaff {
-    \set RhythmicStaff.instrumentName = #"top line "
-    \labelContext "FretBoards " s1
-  }
+  \new FretBoards { \labelContext "FretBoards" \chordmode { e1 } }
+  \new RhythmicStaff \with { instrumentName = #"top line " } s1
 >>
 @end lilypond
 
@@ -2782,8 +2768,7 @@ more space, shorter durations get less.  The shortest durations get a
 fixed amount of space (which is controlled by
 @code{shortest-duration-space} in the @rinternals{SpacingSpanner}
 object).  The longer the duration, the more space it gets: doubling a
-duration adds a fixed amount (this amount is controlled by
-@code{spacing-increment}) of space to the note.
+duration adds @code{spacing-increment} of space to the note.
 
 For example, the following piece contains lots of half, quarter, and
 8th notes; the eighth note is followed by 1 note head width (NHW).
@@ -3103,11 +3088,14 @@ proportional notation settings and examine how these settings interact.
 We start with the following one-measure example, which uses classical
 spacing with ragged-right turned on.
 
+@c The initial pitch is not necessary as long as RhythmicStaff is
+@c not preceded by other material in the score, but we don't want
+@c to explain that.
 @lilypond[quote,verbatim,ragged-right]
 \score {
   <<
     \new RhythmicStaff {
-      c'2 c'16 c' c' c' \tuplet 5/4 { c'16 c' c' c' c' }
+      c2 16 16 16 16 \tuplet 5/4 { 16 16 16 16 16 }
     }
   >>
 }
@@ -3132,7 +3120,7 @@ setting.
 \score {
   <<
     \new RhythmicStaff {
-      c'2 c'16 c' c' c' \tuplet 5/4 { c'16 c' c' c' c' }
+      c2 16 16 16 16 \tuplet 5/4 { 16 16 16 16 16 }
     }
   >>
  \layout {
@@ -3176,7 +3164,7 @@ larger reference durations space music tightly.
 \score {
   <<
     \new RhythmicStaff {
-      c'2 c'16 c' c' c' \tuplet 5/4 { c'16 c' c' c' c' }
+      c2 16 16 16 16 \tuplet 5/4 { 16 16 16 16 16 }
     }
   >>
   \layout {
@@ -3190,7 +3178,7 @@ larger reference durations space music tightly.
 \score {
   <<
     \new RhythmicStaff {
-      c'2 c'16 c' c' c' \tuplet 5/4 { c'16 c' c' c' c' }
+      c2 16 16 16 16 \tuplet 5/4 { 16 16 16 16 16 }
     }
   >>
   \layout {
@@ -3204,7 +3192,7 @@ larger reference durations space music tightly.
 \score {
   <<
     \new RhythmicStaff {
-      c'2 c'16 c' c' c' \tuplet 5/4 { c'16 c' c' c' c' }
+      c2 16 16 16 16 \tuplet 5/4 { 16 16 16 16 16 }
     }
   >>
   \layout {
@@ -3232,10 +3220,10 @@ tuplet.
 \score {
   <<
     \new RhythmicStaff {
-      c'2 c'16 c' c' c' \tuplet 5/4 { c'16 c' c' c' c' }
+      c2 16 16 16 16 \tuplet 5/4 { 16 16 16 16 16 }
     }
     \new RhythmicStaff {
-      \tuplet 9/8 { c'8 c' c' c' c' c' c' c' c' }
+      \tuplet 9/8 { c8 8 8 8 8 8 8 8 8 }
     }
   >>
 }
@@ -3250,10 +3238,10 @@ result.  Setting @code{proportionalNotationDuration} fixes this.
 \score {
   <<
     \new RhythmicStaff {
-      c'2 c'16 c' c' c' \tuplet 5/4 { c'16 c' c' c' c' }
+      c2 16 16 16 16 \tuplet 5/4 { 16 16 16 16 16 }
     }
     \new RhythmicStaff {
-      \tuplet 9/8 { c'8 c' c' c' c' c' c' c' c' }
+      \tuplet 9/8 { c8 8 8 8 8 8 8 8 8 }
     }
   >>
   \layout {
@@ -3275,10 +3263,10 @@ turn on @code{uniform-stretching}, which is a property of
 \score {
   <<
     \new RhythmicStaff {
-      c'2 c'16 c' c' c' \tuplet 5/4 { c'16 c' c' c' c' }
+      c2 16 16 16 16 \tuplet 5/4 { 16 16 16 16 16 }
     }
     \new RhythmicStaff {
-      \tuplet 9/8 { c'8 c' c' c' c' c' c' c' c' }
+      \tuplet 9/8 { c8 8 8 8 8 8 8 8 8 }
     }
   >>
   \layout {
@@ -3374,13 +3362,13 @@ property of @code{SpacingSpanner}.  Compare the two scores below:
 @lilypond[quote,verbatim,ragged-right]
 \new Staff {
   \set Score.proportionalNotationDuration = #(ly:make-moment 1/16)
-  c''8 c'' c'' \clef alto d' d'2
+  c''8 8 8 \clef alto d'2 2
 }
 
 \new Staff {
   \set Score.proportionalNotationDuration = #(ly:make-moment 1/16)
   \override Score.SpacingSpanner.strict-note-spacing = ##t
-  c''8 c'' c'' \clef alto d' d'2
+  c''8 8 8 \clef alto d'2 2
 }
 @end lilypond
 

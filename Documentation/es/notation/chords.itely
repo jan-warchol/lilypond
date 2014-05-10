@@ -1,14 +1,14 @@
 @c -*- coding: utf-8; mode: texinfo; documentlanguage: es -*-
 
 @ignore
-    Translation of GIT committish: f739a44f91a0b7ef5f634b6c4ca5b45c988798c1
+    Translation of GIT committish: 83c5b56f8a495df4fca2551957e0fd8757ec3651
 
     When revising a translation, copy the HEAD committish of the
     version that you are working on.  For details, see the Contributors'
     Guide, node Updating translation committishes..
 @end ignore
 
-@c \version "2.17.6"
+@c \version "2.17.30"
 
 @node Notación de acordes
 @section Notación de acordes
@@ -184,7 +184,7 @@ Acción predeterminada; produce una tríada mayor.
 @tab
 @lilypond[line-width=4\cm, noragged-right]
 \chordmode {
-  \override Staff.TimeSignature.stencil = ##f
+  \omit Staff.TimeSignature
   c1
 }
 @end lilypond
@@ -196,7 +196,7 @@ Acorde menor.  Este modificador baja la tercera.
 @tab
 @lilypond[line-width=4\cm, noragged-right]
 \chordmode {
-  \override Staff.TimeSignature.stencil = ##f
+  \omit Staff.TimeSignature
   c1:m c:m7
 }
 @end lilypond
@@ -210,7 +210,7 @@ existe, la séptima.
 @tab
 @lilypond[line-width=4\cm, noragged-right]
 \chordmode {
-  \override Staff.TimeSignature.stencil = ##f
+  \omit Staff.TimeSignature
   c1:dim c:dim7
 }
 @end lilypond
@@ -222,7 +222,7 @@ Acorde aumentado.  Este modificador eleva la quinta.
 @tab
 @lilypond[line-width=4\cm, noragged-right]
 \chordmode {
-  \override Staff.TimeSignature.stencil = ##f
+  \omit Staff.TimeSignature
   c1:aug
 }
 @end lilypond
@@ -236,7 +236,7 @@ modificador para crear una tríada mayor.
 @tab
 @lilypond[line-width=4\cm, noragged-right]
 \chordmode {
-  \override Staff.TimeSignature.stencil = ##f
+  \omit Staff.TimeSignature
   c1:maj c:maj7
 }
 @end lilypond
@@ -506,7 +506,7 @@ Sin Acorde).
 @funindex{\chords}
 
 @code{\chords @{ @dots{} @}} es una forma abreviada de escribir
-@code{\new ChordNames @{ \chordmode @{ @dots{} @}}.
+@code{\new ChordNames @{ \chordmode @{ @dots{} @} @}}.
 
 @lilypond[verbatim,quote,ragged-right]
 \chords {

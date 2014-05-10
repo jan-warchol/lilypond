@@ -1,6 +1,5 @@
-%% Translation of GIT committish: 16e827736538b0e0c850112e522de52de0d350da
+%% Translation of GIT committish: 5db593aa3737cf8c60f9c4c4fcbe317c2d832766
   texidoces = "
-
 Al escribir un bajo cifrado, podemos situar las cifras encima o debajo
 de las notas del bajo, mediante la definición de la propiedad
 @code{BassFigureAlignmentPositioning #'direction} (exclusivamente
@@ -14,4 +13,3 @@ a toda la partitura.
 
 "
   doctitlees = "Añadir un bajo cifrado encima o debajo de las notas"
-

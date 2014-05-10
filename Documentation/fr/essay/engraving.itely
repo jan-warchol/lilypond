@@ -1,14 +1,14 @@
 @c -*- coding: utf-8; mode: texinfo; documentlanguage: fr -*-
 
 @ignore
-    Translation of GIT committish: 785441aeb8cc557217d1b0658ef88d058f58eeb4
+    Translation of GIT committish: d46572826e777ed3e9fa4656535a6e9000f2ed9e
 
     When revising a translation, copy the HEAD committish of the
     version that you are working on.  For details, see the Contributors'
     Guide, node Updating translation committishes..
 @end ignore
 
-@c \version "2.17.11"
+@c \version "2.19.2"
 
 @c Translators: Jean-Charles Malahieude, John Mandereau, Gauvain Pocentek
 
@@ -92,8 +92,8 @@ c'est de la musique et c'est vivant.  Quant à l'édition moderne, elle a
 l'air terne et mécanique.
 
 Ce qui rend cette nouvelle édition différente n'est pas évident au
-premier coup d'œil : c'est propre et condensé, presque @qq{mieux}
-que l'autre dans la mesure où tout y est @qq{calculé} pour atteindre
+premier coup d'œil : c'est propre et condensé, presque « mieux »
+que l'autre dans la mesure où tout y est « calculé » pour atteindre
 l'uniformité.  À vrai dire, il nous a fallu un moment pour nous en
 rendre compte.  Notre but étant d'améliorer la notation informatisée, il
 nous fallait mettre le doigt sur ce qui ne va pas.
@@ -194,7 +194,7 @@ devenait un maître accompli qu'après une dizaine d'années de pratique.
 @end quotation
 
 LilyPond s'inspire du travail réalisé par les maîtres graveurs qui
-officiaient chez les éditeurs européens jusque dans les années 1950.
+officiaient chez les éditeurs européens jusque dans les années 1950.
 Ceux-ci sont bien  souvent considérés comme ayant atteint le sommet de
 leur art, et comptent dans leurs rangs des maisons telles que
 Bärenreiter, Duhem, Durand, Hofmeister, Peters ou Schott.  Au fil de
@@ -226,8 +226,8 @@ Les images ci-dessous mettent en évidence certaines différences entre
 l'art du graveur traditionnel et le résultat habituel sorti d'un
 ordinateur.  L'image de gauche est un fac-similé d'un bémol tiré
 d'une édition Bärenreiter traditionnelle ; celle de droite est
-issue de la même partition, éditée en 2000.  Bien que toutes deux soient
-imprimées avec le même encrage, la version @qq{ancienne} paraît plus
+issue de la même partition, éditée en 2000.  Bien que toutes deux soient
+imprimées avec le même encrage, la version « ancienne » paraît plus
 noire : les lignes de la portée y sont plus épaisses et le galbe du
 bémol de Bärenreiter est à la limite de la volupté.  Sur l'autre image,
 les lignes sont plus fines et le bémol semble raide, coincé.
@@ -591,7 +591,7 @@ interpréter.
 Nous allons maintenant examiner les éléments nécessaires à la création
 d'un logiciel capable d'imiter le rendu des partitions gravées à
 l'ancienne.  Nous commencerons par voir comment inculquer à l'ordinateur
-les @qq{bonnes manières} de la présentation.  Nous nous attarderons
+les « bonnes manières » de la présentation.  Nous nous attarderons
 ensuite sur l'analyse comparative par rapport aux éditions
 traditionnelles, avant de considérer le degré de flexibilité à y inclure
 pour être en mesure de gérer les différents cas de figure particuliers à
@@ -642,7 +642,7 @@ qui finalement ne les couvrirait pas tous.
 @end quotation
 
 @emph{Règles de formatage définies par l'exemple. Image tirée de
-l'ouvrage de Ted Ross @qq{The Art of Music Engraving}}
+l'ouvrage de Ted Ross « The Art of Music Engraving »}
 
 Plutôt que d'écrire une foultitude de règles qui embrasserait tous les
 cas de figure possibles et imaginables en matière de mise en forme, nous
@@ -653,8 +653,8 @@ terme de moins bonne qualité, et nous opterons pour celle étant la moins
 mauvaise.
 
 Voici, à titre d'exemple, trois configurations possibles pour le tracé
-d'une liaison ; LilyPond leur attribue individuellement une @qq{note
-de laideur}.  Le premier essai se voit attribuer 15,39 points
+d'une liaison ; LilyPond leur attribue individuellement une « note
+de laideur ».  Le premier essai se voit attribuer 15,39 points
 notamment pour l'effleurement de la tête de note.
 
 @lilypond
@@ -803,9 +803,9 @@ proche d'une qualité de publication que les précédentes.
 @translationof Getting things right
 
 Nous pouvons aussi évaluer les capacités de LilyPond dans ses choix, en
-comparant ses résultats avec ce que génèrent d'autres d'autres logiciels
-du marché.  Notre choix s'est porté sur Finale 2008, l'un des
-logiciels les plus populaires notamment en Amérique du Nord.  Son plus
+comparant ses résultats avec ce que génèrent d'autres logiciels du
+marché.  Notre choix s'est porté sur Finale 2008, l'un des logiciels les
+plus populaires notamment en Amérique du Nord. Son plus
 proche concurrent est Sibelius, très répandu sur le marché européen.
 
 Pour cette analyse comparative, nous avons choisi la fugue en sol mineur
@@ -934,7 +934,7 @@ collide = \once \override NoteColumn.force-hshift = #0
         \new Voice { \voiceTwo bes \collide bes }
       >>
     }
-    \new Lyrics \lyricsto "sample" \lyricmode { "bien " " mauvais" }
+    \new Lyrics \lyricsto "sample" { "bien " " mauvais" }
   >>
 }
 @end lilypond
@@ -1231,7 +1231,7 @@ rendre compte des apports de la notation contemporaine.  La notation
 musicale couvre cinq siècles de musique, allant de la simple monodie à
 de gigantesques contrepoints orchestraux.
 
-Comment intégrer un tel monstre aux si nombreux visages ? Notre solution
+Comment intégrer un tel monstre aux si nombreux visages ? Notre solution
 est de clairement distinguer la notation -- @emph{quels} symboles
 utiliser -- de la gravure -- @emph{où} les placer.  Pour appréhender la
 notation, nous l'avons disséquée en éléments simples (et
@@ -1481,7 +1481,7 @@ vers le haut (ou la droite) pour le second.
     \context {
       \Score
       \override SpacingSpanner.spacing-increment = #3
-      \override TimeSignature.transparent = ##t
+      \hide TimeSignature
     }
   }
 }
@@ -1521,7 +1521,7 @@ Les valeurs prédéfinies de certaines variables font aussi partie des
 règles de formatage.  Chaque objet possède des variables contenant des
 procédures.  Ces procédures réalisent le formatage prédéfini, dont
 l'apparence peut être changée en remplaçant ces procédures par d'autres.
-Dans l'exemple suivant, la règle permettant à l'objet @qq{tête de note}
+Dans l'exemple suivant, la règle permettant à l'objet « tête de note »
 de dessiner son symbole est modifiée au cours de l'extrait
 musical :
 
@@ -1682,17 +1682,18 @@ aux fins de les utiliser dans des sites internet ou des présentations
 multimédia.
 
 Vous avez constaté, au fil de notre propos, que le format source est
-purement textuel et peut donc être réutilisé dans d'autres formats
-basés sur une description textuelle comme @LaTeX{}, HTML ou -- ce qui
-est le cas pour la documentation de LilyPond -- Texinfo.  À l'aide du
-script @command{lilypond-book} fournit avec LilyPond, les fragments
-de code insérés feront place à une image dans le fichier résultant,
-qu'il soit au format PDF ou HTML.  Il existe aussi une extension pour
-OpenOffice.org -- OOoLilyPond -- qui permet d'insérer des extraits dans
-un document.
+purement textuel et peut donc être réutilisé dans d'autres formats basés
+sur une description textuelle comme @LaTeX{}, HTML ou -- ce qui est le
+cas pour la documentation de LilyPond -- Texinfo.  À l'aide du script
+@command{lilypond-book} fourni avec LilyPond, les fragments de code
+insérés feront place à une image dans le fichier résultant, qu'il soit
+au format PDF ou HTML.  Il existe aussi une extension pour
+OpenOffice.org et LibreOffice -- OOoLilyPond -- qui permet d'insérer des
+extraits dans un document.
 
 Pour mieux voir LilyPond en action, consulter la documentation ou
 accéder directement au logiciel, rendez-vous sur www.lilypond.org.
+
 
 @page
 @node Comparatif (BWV 861)
@@ -1775,9 +1776,9 @@ partI = \relative c' {
   fis8 d' ees g, fis4 g
   r8 a16 bes c8 bes16 a d8 r r4
   r2 r8 d16 ees f8 ees16 d
-  ees4 ~ ees16 d c bes a4 r8 ees'16 d
+  ees4 ~ 16 d c bes a4 r8 ees'16 d
   c8 d16 ees d8 e16 fis g8 fis16 g a4 ~
-  a8 d, g f ees d c bes
+  8 d, g f ees d c bes
   a2 g\fermata \bar "|."
 }
 
@@ -1786,7 +1787,7 @@ partII = \relative c' {
   d4 r4 r8 d'16 c bes8 c16 d
   ees8 d c ees a, r r4
   r8 fis16 g a8 g16 fis g2 ~
-  g2 r8 d' ees g,
+  2 r8 d' ees g,
   fis4 g r8 a16 bes c8 bes16 a
   bes4. <g b>8 <a c> r <d, g> r
   <ees g>4 <d fis> d2
@@ -1794,7 +1795,7 @@ partII = \relative c' {
 partIII = \relative c' {
   \voiceOne
   r2 r8 d ees g, fis4 g r8 a16 bes c8 bes16 a
-  bes2 ~ bes8 b16 a g8 a16 b
+  bes2 ~ 8 b16 a g8 a16 b
   c4 r r2
   R1
   r8 d ees g, fis4 g
@@ -1805,7 +1806,7 @@ partIV = \relative c {
   d4 r r2
   r8 d ees g, fis4 a
   d,8 d'16 c bes8 c16 d ees2 ~
-  ees8 ees16 d c8 d16 ees fis,8 a16 g fis8 g16 a
+  8 ees16 d c8 d16 ees fis,8 a16 g fis8 g16 a
   d,8 d'16 c bes8 c16 d ees8 c a fis'
   g f ees d c bes a g
   c a d d, g2\fermata

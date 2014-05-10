@@ -15,7 +15,7 @@
 
 @c `Web' was imported 2009-08-05 with git commit b938d71...
 @c @macro copyrightDeclare
-@c Copyright @copyright{} 2009--2012 by the authors.
+@c Copyright @copyright{} 2009--2014 by the authors.
 @c @end macro
 
 @set FDL
@@ -34,7 +34,7 @@
 @end ignore
 
 @copying
-Copyright @copyright{} 2009--2012 by the authors.
+Copyright @copyright{} 2009--2014 by the authors.
 
 @c next line is necessary for broken pre-4.13 texinfo's
 @c install-info, so leave it there until we officially
@@ -306,8 +306,12 @@ Distributions will want to install lilypond.info in postinstall, doing:
 @divClass{heading-center}
 @divClass{contactBox}
 If you are aware of any other \topic\ which could be listed here,
-please let us know by following the instructions on
-@ref{Bug reports}.
+please let us know by writing a message to the bug-lilypond
+mailing list. If you're not subscribed yet you can do so on the list's
+@uref{https://lists.gnu.org/mailman/listinfo/bug-lilypond,info page}
+or post directly through the
+@uref{http://post.gmane.org/post.php?group=gmane.comp.gnu.lilypond.bugs,
+gmane lilypond.bugs web interface}.
 
 @divEnd
 @divEnd

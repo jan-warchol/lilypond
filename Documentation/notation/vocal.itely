@@ -7,7 +7,7 @@
     Guide, node Updating translation committishes..
 @end ignore
 
-@c \version "2.17.28"
+@c \version "2.19.2"
 
 @node Vocal music
 @section Vocal music
@@ -654,8 +654,8 @@ together:
   \new Voice = "melody" {
     \time 3/4
     f4 g2 ~ |
-    g4 e2 ~ |
-    e8
+    4 e2 ~ |
+    8
   }
   \new Lyrics \lyricsto "melody" {
     Ky -- ri -- e __
@@ -755,7 +755,7 @@ without their indicating melismata.  To do this, set
     \time 3/4
     \set melismaBusyProperties = #'()
     c4 d ( e )
-    g8 [ f ] f4 ~ f
+    g8 [ f ] f4 ~ 4
   }
   \new Lyrics \lyricsto "melody" {
     Ky -- ri -- e e -- le -- i -- son
@@ -783,7 +783,7 @@ should be included in the melisma:
     \time 3/4
     \set melismaBusyProperties = #'()
     c4 d ( e )
-    g8 [ f ] ~ f4 ~ f
+    g8 [ f ] ~ 4 ~ f
   }
   \new Lyrics \lyricsto "melody" {
     Ky -- ri -- _ e __ _ _ _
@@ -1156,7 +1156,7 @@ To make lyrics avoid bar lines as well, use
     \Lyrics
       \consists "Bar_engraver"
       \consists "Separating_line_group_engraver"
-      \override BarLine.transparent = ##t
+      \hide BarLine
   @}
 @}
 @end example
@@ -1694,9 +1694,8 @@ words = \lyricmode { la __ la __ }
 >>
 @end lilypond
 
-The @code{NullVoice} context must be inside a @code{Staff}
-context, and should only contain notes that are already being
-displayed in that staff, and in the same octave.  Otherwise the
+The @code{NullVoice} context must be placed within a @code{Staff}
+context and contain notes that are already being displayed in that staff and that are also in the same octave.  Otherwise the
 @code{NullVoice} may interact with the printed voices in
 unexpected ways.  For example, arbitrary notes in the
 @code{NullVoice} may cause accidentals to appear (or disappear) on
@@ -1717,6 +1716,10 @@ words = \lyricmode { la __ la __ }
   \new Lyrics \lyricsto "aligner" \words
 >>
 @end lilypond
+
+@knownissues
+The @code{\addLyrics} function only works with @code{Voice} lyrics
+and so cannot be used with @code{NullVoice}.
 
 @noindent
 The @code{\partcombine} function is described in
@@ -2279,6 +2282,8 @@ Several common topics in choral music are described fully elsewhere:
 @item
 An introduction to creating an SATB vocal score can be found in
 the Learning Manual, see @rlearning{Four-part SATB vocal score}.
+There is also a built-in template which simplifies the entry of
+SATB vocal music, see @rlearning{Built-in templates}.
 
 @item
 Several templates suitable for various styles of choral music can
@@ -2919,7 +2924,7 @@ Chants often use quarter notes without stems to indicate the pitch,
 with the rhythm being taken from the spoken rhythm of the words.
 
 @lilypond[verbatim,quote]
-stemOff = { \override Staff.Stem.transparent = ##t }
+stemOff = { \hide Staff.Stem }
 
 \relative c' {
   \stemOff

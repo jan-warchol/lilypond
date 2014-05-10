@@ -1,7 +1,7 @@
 /*
   This file is part of LilyPond, the GNU music typesetter.
 
-  Copyright (C) 1997--2012 Han-Wen Nienhuys <hanwen@xs4all.nl>
+  Copyright (C) 1997--2014 Han-Wen Nienhuys <hanwen@xs4all.nl>
 
   LilyPond is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -106,7 +106,7 @@ Key_engraver::create_key (bool is_default)
 
               cancellation_->set_property ("alteration-alist", restore);
               cancellation_->set_property ("c0-position",
-                                           get_property ("middleCPosition"));
+                                           get_property ("middleCClefPosition"));
             }
         }
 

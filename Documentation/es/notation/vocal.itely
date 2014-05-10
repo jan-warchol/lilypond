@@ -1,14 +1,14 @@
 @c -*- coding: utf-8; mode: texinfo; documentlanguage: es -*-
 
 @ignore
-    Translation of GIT committish: 2537ec6d3ad3c7f1308254d856ed762fb5d911b8
+    Translation of GIT committish: 0fd0f2751c2001f2ff49c98bb8534aef1db77c6d
 
     When revising a translation, copy the HEAD committish of the
     version that you are working on.  For details, see the Contributors'
     Guide, node Updating translation committishes..
 @end ignore
 
-@c \version "2.17.28"
+@c \version "2.19.2"
 
 @node Música vocal
 @section Música vocal
@@ -683,8 +683,8 @@ ligadura de unión:
   \new Voice = "melody" {
     \time 3/4
     f4 g2 ~ |
-    g4 e2 ~ |
-    e8
+    4 e2 ~ |
+    8
   }
   \new Lyrics \lyricsto "melody" {
     Ky -- ri -- e __
@@ -785,7 +785,7 @@ de @code{melismaBusyProperties}:
     \time 3/4
     \set melismaBusyProperties = #'()
     c4 d ( e )
-    g8 [ f ] f4 ~ f
+    g8 [ f ] f4 ~ 4
   }
   \new Lyrics \lyricsto "melody" {
     Ky -- ri -- e e -- le -- i -- son
@@ -814,7 +814,7 @@ dentro del melisma:
     \time 3/4
     \set melismaBusyProperties = #'()
     c4 d ( e )
-    g8 [ f ] ~ f4 ~ f
+    g8 [ f ] ~ 4 ~ f
   }
   \new Lyrics \lyricsto "melody" {
     Ky -- ri -- _ e __ _ _ _
@@ -1192,7 +1192,7 @@ Para hacer que el texto evite también las líneas divisorias, use
     \Lyrics
       \consists "Bar_engraver"
       \consists "Separating_line_group_engraver"
-      \override BarLine.transparent = ##t
+      \hide BarLine
   @}
 @}
 @end example
@@ -1749,13 +1749,13 @@ words = \lyricmode { la __ la __ }
 >>
 @end lilypond
 
-El contexto de voz nula @code{NullVoice} debe estar dentro de un
-contexto @code{Staff}, y solamente debe contener notas que ya se
-están mostrando en dicho pentagrama, y en la misma octava.  En
-caso contrario, la @code{NullVoice} podría interactuar con las
-voces impresas de forma inesperada.  Por ejemplo, notas
-arbitrarias en la @code{NullVoice} pueden hacer que aparezcan (o
-desaparezcan) alteraciones accidentales en el pentragrama.
+El contexto de voz nula @code{NullVoice} debe estar situado dentro
+de un contexto @code{Staff} y contener notas que ya se están
+mostrando en dicho pentagrama, y en la misma octava.  En caso
+contrario, la @code{NullVoice} podría interactuar con las voces
+impresas de forma inesperada.  Por ejemplo, notas arbitrarias en
+la @code{NullVoice} pueden hacer que aparezcan (o desaparezcan)
+alteraciones accidentales en el pentragrama.
 
 Este método se puede usar trambién con la función
 @code{\partcombine}, que en sí no permite incluir letra:
@@ -1773,9 +1773,13 @@ words = \lyricmode { la __ la __ }
 >>
 @end lilypond
 
+@knownissues
+La función @code{\addLyrics} solo funciona con letras de
+@code{Voice}, por lo que no puede utilizarse con @code{NullVoice}.
+
 @noindent
-La función @code{\partcombine} se describe en
-@ref{Combinación automática de las partes}.
+La función @code{\partcombine} se describe en @ref{Combinación
+automática de las partes}.
 
 Por último, este método se puede usar incluso si las voces están
 en distintos pentagramas, y no se limita a dos voces únicamente:
@@ -3028,7 +3032,7 @@ Los cánticos usan con frecuencia figuras negras sin plica para indicar
 la altura, tomando las duraciones del ritmo hablado del texto.
 
 @lilypond[verbatim,quote]
-stemOff = { \override Staff.Stem.transparent = ##t }
+stemOff = { \hide Staff.Stem }
 
 \relative c' {
   \stemOff

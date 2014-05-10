@@ -1,14 +1,14 @@
 @c -*- coding: utf-8; mode: texinfo; documentlanguage: it -*-
 
 @ignore
-    Translation of GIT committish: f3e8b5f9b68cab4579873749f4648ba63bc92ac7
+    Translation of GIT committish: 7fdce4f39834cc8c83f176480cc1d20900eb09f8
 
     When revising a translation, copy the HEAD committish of the
     version that you are working on.  For details, see the Contributors'
     Guide, node Updating translation committishes..
 @end ignore
 
-@c \version "2.17.20"
+@c \version "2.19.2"
 
 @node Modifica dell'output
 @chapter Modifica dell'output
@@ -178,16 +178,16 @@ di oggetti e proprietà dai loro nomi.
 @cindex modifica, metodi
 
 @menu
-* Il comando \override::
-* Il comando \revert::
-* Il prefisso \once::
-* Il comando \overrideProperty::
-* Il comando \tweak::
+* Il comando override::
+* Il comando revert::
+* Il prefisso once::
+* Il comando overrideProperty::
+* Il comando tweak::
 @end menu
 
-@node Il comando \override
-@unnumberedsubsubsec Il comando @code{\override}
-@translationof The \override command
+@node Il comando override
+@unnumberedsubsubsec Il comando @code{@bs{}override}
+@translationof The override command
 
 @cindex override, comando
 @cindex override, sintassi
@@ -220,7 +220,7 @@ Questo comando assegnerà alla proprietà chiamata @var{proprietà-formattazione
 dell'oggetto di formattazione chiamato @var{OggettoDiFormattazione}, che fa
 parte del contesto @var{Contesto}, il valore @var{valore}.
 
-Il @var{Contesto} può essere ommesso (e di solito lo è) quando il
+Il @var{Contesto} può essere omesso (e di solito lo è) quando il
 contesto richiesto è implicito e si trova a uno dei livelli più
 bassi dei contesti, come ad esempio @code{Voice}, @code{ChordNames} o
 @code{Lyrics}.  Lo ometteremo in molti degli esempi seguenti; vedremo
@@ -256,9 +256,9 @@ e4 f |
 g4 a b c |
 @end lilypond
 
-@node Il comando \revert
-@unnumberedsubsubsec Il comando @code{\revert}
-@translationof The \revert command
+@node Il comando revert
+@unnumberedsubsubsec Il comando @code{@bs{}revert}
+@translationof The revert command
 
 @cindex revert, comando
 @cindex ripristino, comando \revert
@@ -295,9 +295,9 @@ g4 a
 b4 c |
 @end lilypond
 
-@node Il prefisso \once
-@unnumberedsubsubsec Il prefisso @code{\once}
-@translationof The \once prefix
+@node Il prefisso once
+@unnumberedsubsubsec Il prefisso @code{@bs{}once}
+@translationof The once prefix
 
 @funindex \once
 @funindex once
@@ -335,15 +335,15 @@ g4 a
 b c |
 @end lilypond
 
-Tuttavia, i comandi prefediniti che hanno la forma @code{\@dots{}Neutral},
+Tuttavia, i comandi predefiniti che hanno la forma @code{\@dots{}Neutral},
 @code{\@dots{}Off} e @code{\un@dots{}} usano internamente @code{\revert} invece
 di @code{\override} dunque inserire @code{\once} prima di questi comandi
 non produce alcun effetto.
 
 
-@node Il comando \overrideProperty
-@unnumberedsubsubsec Il comando @code{\overrideProperty}
-@translationof The \overrideProperty command
+@node Il comando overrideProperty
+@unnumberedsubsubsec Il comando @code{@bs{}overrideProperty}
+@translationof The overrideProperty command
 
 @cindex overrideProperty, comando
 
@@ -356,9 +356,9 @@ Lo menzioniamo qui per completezza, ma per approfondire l'argomento
 si veda @rextend{Difficult tweaks}.
 @c Maybe explain in a later iteration  -td
 
-@node Il comando \tweak
-@unnumberedsubsubsec Il comando @code{\tweak}
-@translationof The \tweak command
+@node Il comando tweak
+@unnumberedsubsubsec Il comando @code{@bs{}tweak}
+@translationof The tweak command
 
 @cindex tweak, comando
 
@@ -1443,7 +1443,7 @@ inserire un nuovo rigo temporaneo, come in un @rglos{ossia}.
 
 Gli ossia di norma vengono scritti senza chiave e senza indicazione di
 tempo e hanno solitamente una dimensione leggermente inferiore a
-quella del rigo pricipale.  Sappiamo già come togliere la chiave e
+quella del rigo principale.  Sappiamo già come togliere la chiave e
 il segno di tempo, cioè impostando semplicemente la proprietà stencil di
 ciascun oggetto su @code{#f}, così:
 
@@ -2094,7 +2094,7 @@ se questa non è ottimale.
 
 @menu
 * La proprietà outside-staff-priority::
-* Il comando \textLengthOn::
+* Il comando textLengthOn::
 * Posizionamento delle dinamiche::
 * Dimensione dei grob::
 @end menu
@@ -2267,7 +2267,7 @@ giusto per sovrascriverli.
 
 Le legature di portamento sono classificate come oggetti interni al rigo, anche
 se spesso sono poste sopra il rigo, se le note alle quali sono collegate si
-trovano nella aprte superiore del pentagramma.  Questo può far sì che gli oggetti esterni al rigo,
+trovano nella parte superiore del pentagramma.  Questo può far sì che gli oggetti esterni al rigo,
 come le articolazioni, siano spinti troppo in alto, dato che la legatura viene
 posizionata prima.  La proprietà @code{avoid-slur} dell'articolazione
 può essere impostata su @code{'inside} per portare l'articolazione
@@ -2317,9 +2317,9 @@ naturalmente, dobbiamo creare più spazio orizzontale tra le note per
 far posto al testo.  Lo si può ottenere con il comando
 @code{textLengthOn}.
 
-@node Il comando \textLengthOn
-@unnumberedsubsubsec Il comando @code{\textLengthOn}
-@translationof The \textLengthOn command
+@node Il comando textLengthOn
+@unnumberedsubsubsec Il comando @code{@bs{}textLengthOn}
+@translationof The textLengthOn command
 
 @cindex note, distanziarle insieme al testo
 
@@ -2528,10 +2528,6 @@ per la spaziatura verticale dei righi e del testo vocale, ovvero maggior spazio
 tra testo e note, e tra l'accompagnamento del pianoforte e la linea vocale, e
 minor spazio tra i righi del pianoforte.  Iniziamo dal testo.
 
-the lyrics spaced away from any notes, they want the piano
-accompaniment spaced away from the vocal line and they want the two
-piano staves pushed together tightly.  Let's start with the lyrics.
-
 Il testo vocale si trova all'interno di un sistema, dunque i comandi per
 modificarne la spaziatura sono descritti in @ruser{Flexible vertical spacing within systems}.
 Quel paragrafo ci dice che il testo è costituito da linee che non appartengono
@@ -2678,7 +2674,7 @@ da ricordare è che la spaziatura degli oggetti in un contesto @code{StaffGroup}
 variabili spaziali di @code{StaffGrouper}.  La spaziatura relativa ai righi
 non raggruppati (come @code{Lyrics} e @code{Staff}) è regolata dalle variabili
 del @code{VerticalAxisGroup}.  Ulteriori dettagli in
-@ruser{Flexible vertical spacing \\paper variables} e
+@ruser{Flexible vertical spacing paper variables} e
 @ruser{Flexible vertical spacing within systems}.
 
 
@@ -2774,7 +2770,7 @@ La proprietà @code{staff-padding} è strettamente connessa alla proprietà
 qualsiasi oggetto che supporti l'interfaccia @code{side-position-interface} e
 quello più vicino (solitamente, la nota o le linee del rigo); @code{staff-padding}
 si applica solo a quegli oggetti che stanno sempre fuori dal rigo e regola
-la quantità minima di spazio da inserire tra l'oggetto e il rigo.  Nota che
+la distanza minima tra l'oggetto e il rigo.  Nota che
 @code{staff-padding} non ha alcun effetto sugli oggetti disposti relativamente
 alla nota invece che al rigo, anche se può essere sovrascritto senza generare
 degli errori per tali oggetti; quindi viene semplicemente ignorata.
@@ -2842,21 +2838,54 @@ tra oggetti come le pause di più misure, le legature di valore e le
 note in voci diverse.
 
 @item
+@code{horizontal-shift}
+
+@cindex horizontal-shift, proprietà
+@cindex proprietà horizontal-shift
+@cindex colonna di note
+@cindex collisioni di note
+@cindex note, collisioni
+@cindex shift, comandi
+@funindex \shiftOff
+@funindex shiftOff
+@funindex \shiftOn
+@funindex shiftOn
+@funindex \shiftOnn
+@funindex shiftOnn
+@funindex \shiftOnnn
+@funindex shiftOnnn
+
+All'interno di una voce, tutte le note che si trovano nello stesso momento
+musicale sono raggruppate in una colonna di note, e viene creato un oggetto
+@code{NoteColumn} per controllare il posizionamento orizzontale di quel
+gruppo di note (vedi @qq{Colonne di note} in @ref{Explicitly instantiating voices}).  Se
+@emph{e solo se} due o più colonne di note in un solo contesto Staff, entrambe
+con i gambi nella stessa direzione, si trovano sullo stesso momento musicale,
+i valori delle loro proprietà @code{horizontal-shift} sono usati per attribuire
+un punteggio e le colonne che hanno un punteggio più alto vengono progressivamente spostate
+per evitare le collisioni delle teste di nota.  Questa proprietà viene impostata
+dai comandi @code{\voiceXXX} e può essere scavalcata direttamente con un
+comando @code{\override} o, di solito, dai comandi @code{\shiftOn}.
+Attenzione: questa proprietà viene usata per dare un @emph{punteggio} alle
+colonne di note per spostarle orizzontalmente; non specifica la grandezza dello
+spostamento, che viene aumentata progressivamente per gradi in base alla larghezza della
+testa di nota  per ogni punteggio.  I gradi sono solitamente di metà della
+larghezza della testa di nota, ma possono essere della larghezza intera della
+testa quando c'è un gruppo di note molto ravvicinate.
+
+
+@item
 @code{force-hshift}
 
 @cindex proprietà force-hshift
 @cindex force-hshift, proprietà
 
-Le note ravvicinate di un accordo o quelle simultanee appartenenti
-a voci diverse sono disposte su due e talvolta più colonne per
-impedire la sovrapposizione delle teste.  Tali colonne si chiamano
-colonne di note (@emph{note columns}) e l'oggetto che provvede a crearle
-si chiama @code{NoteColumn}.
-
 La proprietà @code{force-hshift} appartiene a @code{NoteColumn}
 (più precisamente all'interfaccia @code{note-column-interface}).  Modificandola
-è possibile spostare la colonna di note proporzionalmente,
-assumendo come unità la larghezza della testa della nota nella voce superiore.  Si usa
+è possibile spostare la colonna di note in situazioni in cui le colonne di
+note sono sovrapposte.  Non ha effetto su colonne di note non sovrapposte.
+Viene specificata in unità appropriate per una colonna di note,  ovvero la
+larghezza della testa della nota nella prima voce.  Si usa
 in situazioni complesse in cui i normali comandi @code{\shiftOn} (vedi
 @ref{Explicitly instantiating voices}) non risolvono adeguatamente le collisioni tra le
 note.  Per questo scopo, è preferibile alla proprietà @code{extra-offset}
@@ -3064,9 +3093,9 @@ di @code{right-padding}.
 @cindex oggetti, allinearli a una base
 
 @code{staff-padding} serve ad allineare gli oggetti come i segni di
-dinamica lungo una linea di base a una certa altezza fissa sopra il
-rigo, invece che a un'altezza dipendente dalla posizione della nota al
-quale sono collegati.  Non è una proprietà di @code{DynamicText} bensì
+dinamica lungo una linea di base a una certa distanza dal rigo, quando
+nessun altro elemento della notazione li allontana dal rigo.
+Non è una proprietà di @code{DynamicText} bensì
 di @code{DynamicLineSpanner}, perché la base deve essere applicata
 ugualmente a @strong{tutti} i segni dinamica, compresi quelli creati
 come estensori.  Ecco come allineare i segni di dinamica nell'esempio
@@ -3080,12 +3109,8 @@ preso dalla sezione precedente:
 @cindex staff-padding, esempio
 
 @lilypond[quote,fragment,ragged-right,verbatim,relative=2]
-\dynamicUp
-% Aumenta la larghezza di 1 unità
-\override DynamicText.extra-spacing-width = #'(-0.5 . 0.5)
-% Allinea le dinamiche alla base posta 2 unità sopra il rigo
-\override DynamicLineSpanner.staff-padding = #2
-a4\f b\mf a\mp b\p
+\override DynamicLineSpanner.staff-padding = #3
+a4\f b\mf a\p b\mp
 @end lilypond
 
 
@@ -3229,12 +3254,12 @@ con le legature di valore:
 {
   \time 4/2
   <<
-    { c'1 ~ c'2. e'8 f' }
+    { c'1 ~ 2. e'8 f' }
     \\
     { e''8 e'' e'' e''  e'' e'' e'' e''  f''2 g'' }
   >>
   <<
-    { c'1 ~ c'2. e'8 f' }
+    { c'1 ~ 2. e'8 f' }
     \\
     { e''8 e'' e'' e''  e'' e'' e'' e''  f''2 g'' }
   >>
@@ -3254,7 +3279,7 @@ centrale a, per esempio, 1:
 {
   \time 4/2
   <<
-    { c'1 ~ c'2. e'8 f' }
+    { c'1 ~ 2. e'8 f' }
     \\
     {
       \override Beam.positions = #'(-1 . -1)
@@ -3262,7 +3287,7 @@ centrale a, per esempio, 1:
     }
   >>
   <<
-    { c'1 ~ c'2. e'8 f' }
+    { c'1 ~ 2. e'8 f' }
     \\
     { e''8 e'' e'' e''  e'' e'' e'' e''  f''2 g'' }
   >>
@@ -3299,14 +3324,19 @@ lasciato così:
 @noindent
 La nota interna del primo accordo (ovvero il La bemolle della quarta
 voce) non deve essere allontanata dalla colonna della nota più
-alta.  Per correggerlo impostiamo @code{force-hshift}, una proprietà
-di @code{NoteColumn}, su zero.
+alta.  Potremmo pensare di correggerlo con @code{\shiftOff}, ma ciò
+causerebbe degli avvertimenti relativi alla collisione di note.  Impostiamo
+invece @code{force-hshift}, una proprietà di @code{NoteColumn}, su zero.
 
 Nel secondo accordo preferiamo che il Fa sia allineato al La bemolle e che
 la nota più grave sia posizionata leggermente più a destra, in modo da
 evitare la collisione dei gambi.  Per farlo dobbiamo impostare
 @code{force-hshift} nella colonna (@code{NoteColumn}) del Re bemolle
-grave in modo che si sposti a destra di mezzo spazio di rigo.
+grave in modo che si sposti a destra di mezzo spazio di rigo e  @code{force-hshift}
+per il Fa su zero.  Si usa @code{\once} per evitare che tali impostazioni
+si propaghino oltre il momento musicale immediato, sebbene in questo
+piccolo esempio il @code{\once} e il secondo @code{\override} nella quarta
+voce potrebbero essere omessi.  Ma non sarebbe un esempio di buona pratica.
 
 Ecco il risultato finale:
 
@@ -3320,17 +3350,12 @@ Ecco il risultato finale:
   <<
     { c2 aes4. bes8 }
     \\
-    {
-      <ees, c>2
-      \once \override NoteColumn.force-hshift = #0.5
-      des2
-    }
+    { <ees, c>2 \once \override NoteColumn.force-hshift =
+      0.5 des }
     \\
     \\
-    {
-      \override NoteColumn.force-hshift = #0
-      aes'2 f4 fes
-    }
+    { \once \override NoteColumn.force-hshift = 0 aes'2
+      \once \override NoteColumn.force-hshift = 0 f4 fes }
   >> |
   <c ees aes c>1 |
 }
@@ -3453,7 +3478,7 @@ rhMusic = \relative c'' {
       { c,8 d fis bes a }  % continuazione della voce principale
       \new Voice {
         \voiceTwo
-        c,8~ c2
+        c,8~ 2
       }
       \new Voice {
         \voiceThree
@@ -3511,7 +3536,7 @@ rhMusic = \relative c'' {
       { c,8 d fis bes a }  % continuazione della voce principale
       \new Voice {
         \voiceTwo
-        c,8~ c2
+        c,8~ 2
       }
       \new Voice {
         \voiceThree
@@ -3583,7 +3608,7 @@ rhMusic = \relative c'' {
       { c,8 d fis bes a }  % continuazione della voce principale
       \new Voice {
         \voiceTwo
-        c,8~ c2
+        c,8~ 2
       }
       \new Voice {
         \voiceThree
@@ -3665,7 +3690,7 @@ rhMusic = \relative c'' {
       { c,8 d fis bes a }  % continuazione della voce principale
       \new Voice {
         \voiceTwo
-        c,8~ c2
+        c,8~ 2
       }
       \new Voice {
         \voiceThree
@@ -3904,7 +3929,7 @@ stessa voce possono essere unite da una legatura di valore.
 Se si usano due voci con le note legate in una voce
 
 @lilypond[quote,fragment,relative=2]
-<< { b8~ b\noBeam } \\ { b8[ g] } >>
+<< { b8~ 8\noBeam } \\ { b8[ g] } >>
 @end lilypond
 
 @noindent
@@ -3919,7 +3944,7 @@ attraversare le voci:
 <<
   {
     \tweak Stem.transparent ##t
-    b8~ b\noBeam
+    b8~ 8\noBeam
   }
 \\
   { b8[ g] }
@@ -3935,7 +3960,7 @@ possiamo allungarlo impostando la proprietà
   {
     \tweak Stem.transparent ##t
     \tweak Stem.length #8
-    b8~ b\noBeam
+    b8~ 8\noBeam
   }
 \\
   { b8[ g] }
@@ -3959,7 +3984,7 @@ in questo modo
     \single \hide Stem
     \single \hide Flag
     \tweak Stem.length #8
-    b8~ b\noBeam
+    b8~ 8\noBeam
   }
 \\
   { b8[ g] }
@@ -3985,7 +4010,7 @@ Per gli oggetti esterni al rigo è di solito preferibile sovrascrivere
 la proprietà @code{stencil} piuttosto che la proprietà @code{transparent}
 dell'oggetto se si desidera toglierlo dall'output.  Se si imposta la
 proprietà @code{stencil} su @code{#f} l'oggetto verrà completamente
-rimosso dall'output e quindi non potrà influenzare la disposizone
+rimosso dall'output e quindi non potrà influenzare la disposizione
 di altri oggetti posizionati rispetto a esso.
 
 Ad esempio, se volessimo modificare il segno di metronomo solo per
@@ -4167,10 +4192,10 @@ parti che hanno @code{#()}; verranno spiegate nel capitolo
 @ref{Advanced tweaks with Scheme}.
 
 @lilypond[quote,verbatim,ragged-right]
-mpdolce = -\tweak #'self-alignment-X #-0.6 #
-  (make-dynamic-script
-   (markup #:dynamic "mp"
-           #:normal-text #:italic "dolce" ))
+mpdolce =
+  \tweak self-alignment-X #-0.6
+  #(make-dynamic-script
+    #{ \markup { \dynamic mp \normal-text \italic \bold dolce } #})
 
 inst =
 #(define-music-function
@@ -4197,10 +4222,11 @@ piuttosto brutti, dunque nascondiamoli in un altro file:
 
 @example
 %%% salva queste righe in un file chiamato "definitions.ily"
-mpdolce = -\tweak #'self-alignment-X #-0.6 #
-  (make-dynamic-script
-   (markup #:dynamic "mp"
-           #:normal-text #:italic "dolce" ))
+mpdolce =
+  \tweak self-alignment-X #-0.6
+  #(make-dynamic-script
+    #@{ \markup @{ \dynamic mp \normal-text \italic \bold dolce @} #@})
+
 
 inst =
 #(define-music-function
@@ -4231,10 +4257,10 @@ Ora modifichiamo la musica (e salviamo questo file come @file{music.ly}).
 @end example
 
 @lilypond[quote,ragged-right]
-mpdolce = -\tweak #'self-alignment-X #-0.6 #
-  (make-dynamic-script
-   (markup #:dynamic "mp"
-           #:normal-text #:italic "dolce" ))
+mpdolce =
+  \tweak self-alignment-X #-0.6
+  #(make-dynamic-script
+    #{ \markup { \dynamic mp \normal-text \italic \bold dolce } #})
 
 inst =
 #(define-music-function
@@ -4263,10 +4289,10 @@ questo modo:
 
 @example
 %%%  definitions.ily
-mpdolce = -\tweak #'self-alignment-X #-0.6 #
-  (make-dynamic-script
-   (markup #:dynamic "mp"
-           #:normal-text #:italic "dolce" ))
+mpdolce =
+  \tweak self-alignment-X #-0.6
+  #(make-dynamic-script
+    #@{ \markup @{ \dynamic mp \normal-text \italic \bold dolce @} #@})
 
 inst =
 #(define-music-function
@@ -4293,10 +4319,10 @@ inst =
 @end example
 
 @lilypond[quote,ragged-right]
-mpdolce = -\tweak #'self-alignment-X #-0.6 #
-  (make-dynamic-script
-   (markup #:dynamic "mp"
-           #:normal-text #:italic "dolce" ))
+mpdolce =
+  \tweak self-alignment-X #-0.6
+  #(make-dynamic-script
+    #{ \markup { \dynamic mp \normal-text \italic \bold dolce } #})
 
 inst =
 #(define-music-function
@@ -4340,10 +4366,10 @@ la dimensione complessiva dell'output.
 
 @example
 %%%  web-publish.ily
-mpdolce = -\tweak #'self-alignment-X #-0.6 #
-  (make-dynamic-script
-   (markup #:dynamic "mp"
-           #:normal-text #:italic "dolce" ))
+mpdolce =
+  \tweak self-alignment-X #-0.6
+  #(make-dynamic-script
+    #@{ \markup @{ \dynamic mp \normal-text \italic \bold dolce @} #@})
 
 inst =
 #(define-music-function
@@ -4371,10 +4397,10 @@ inst =
 @end example
 
 @lilypond[quote,ragged-right]
-mpdolce = -\tweak #'self-alignment-X #-0.6 #
-  (make-dynamic-script
-   (markup #:dynamic "mp"
-           #:normal-text #:italic "dolce" ))
+mpdolce =
+  \tweak self-alignment-X #-0.6
+  #(make-dynamic-script
+    #{ \markup { \dynamic mp \normal-text \italic \bold dolce } #})
 
 inst =
 #(define-music-function

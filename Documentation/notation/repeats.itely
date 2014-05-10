@@ -94,6 +94,16 @@ c2 d
 \repeat volta 2 { d4 e f g }
 @end lilypond
 
+An @q{opening} repeat mark is not, by default, printed in the first full
+measure.  However it is possible to add one by using @code{\bar ".|:"}
+before the first note.
+
+@lilypond[verbatim,fragment,quote,relative=2]
+\repeat volta 2 { \bar ".|:" c4 d e f }
+c2 d
+\repeat volta 2 { d4 e f g }
+@end lilypond
+
 Alternative endings can be produced using @code{\alternative}.  Each
 group of alternatives must be themselves, enclosed in a set of braces.
 
@@ -204,59 +214,6 @@ a2 a |
 g1 |
 @end lilypond
 
-When alternate endings are added to a repeat that begins with an
-incomplete measure, it becomes necessary to set the
-@code{Timing.measureLength} context property manually, in the
-following specific places:
-
-@itemize
-@item
-at the start of any incomplete measures in the @code{\alternative}
-block, which normally occur at the end of each alternative, except
-(in most cases) the last.
-
-@item
-at the start of each alternative, except the first.
-@end itemize
-
-@lilypond[verbatim,quote,relative=1]
-\partial 4
-\repeat volta 2 { e4 | c2 e | }
-\alternative {
-  {
-    f2 d |
-    \set Timing.measureLength = #(ly:make-moment 3/4)
-    g4 g g  % optional bar check is allowed here
-  }
-  {
-    \set Timing.measureLength = #(ly:make-moment 4/4)
-    a2 a |
-  }
-}
-g1 |
-@end lilypond
-
-The @code{measureLength} property is described in @ref{Time
-administration}.
-
-@funindex \inStaffSegno
-
-The @code{\inStaffSegno} command can be used to place the segno
-symbol in cooperation with the @code{\repeat volta} command.
-Alternative bar line symbols can be set in a Score context by
-overriding the properties @code{segnoType},
-@code{startRepeatSegnoType}, @code{endRepeatSegnoType} or
-@code{doubleRepeatSegnoType} as required.
-
-@lilypond[verbatim,quote,relative=1]
-e1
-\repeat volta 2 {
-  \inStaffSegno
-  f2 g a b
-}
-c1_"D.S." \bar "|."
-@end lilypond
-
 @cindex repeats, with ties
 @cindex alternative endings, with ties
 @cindex ties, in repeats
@@ -272,6 +229,83 @@ c1
   { f2 d }
   { f2\repeatTie f, }
 }
+@end lilypond
+
+@funindex \inStaffSegno
+@cindex repeats, with segno
+@cindex segno, with repeats
+
+The @code{\inStaffSegno} command can be used to generate a composite
+bar line incorporating the segno symbol with the appropriate repeat
+bar line when used with the @code{\repeat volta} command.  The
+correct type of repeat bar line, viz. start repeat, end repeat or
+double repeat, is selected automatically.  Note that the
+corresponding @qq{D.S.} mark must be added manually.
+
+Away from a repeat:
+
+@lilypond[verbatim,quote,relative=1]
+e1
+\inStaffSegno
+f2 g a b
+c1_"D.S." \bar "|."
+@end lilypond
+
+At the start of a repeat:
+
+@lilypond[verbatim,quote,relative=1]
+e1
+\repeat volta 2 {
+  \inStaffSegno  % start repeat
+  f2 g a b
+}
+c1_"D.S." \bar "|."
+@end lilypond
+
+At the end of a repeat:
+
+@lilypond[verbatim,quote,relative=1]
+e1
+\repeat volta 2 {
+  f2 g a b
+  \inStaffSegno  % end repeat
+}
+f2 g a b
+c1_"D.S." \bar "|."
+@end lilypond
+
+Between two repeats:
+
+@lilypond[verbatim,quote,relative=1]
+e1
+\repeat volta 2 {
+  f2 g a b
+}
+\inStaffSegno  % double repeat
+\repeat volta 2 {
+  f2 g a b
+}
+c1_"D.S." \bar "|."
+@end lilypond
+
+Alternative bar line symbols can be obtained by setting (in the Score
+context) the properties @code{segnoType}, @code{startRepeatSegnoType},
+@code{endRepeatSegnoType} or @code{doubleRepeatSegnoType} to the
+required bar line type.  The alternative bar line types must be
+selected from the pre-defined types or types previously defined
+with the @code{\defineBarLine} command (see @ref{Bar lines}).
+
+@lilypond[verbatim,quote,relative=1]
+\defineBarLine ":|.S[" #'(":|." "S[" "")
+\defineBarLine "]" #'("]" "" "")
+e1
+\repeat volta 2 {
+  f2 g a b
+  \once \set Score.endRepeatSegnoType = ":|.S["
+  \inStaffSegno
+}
+f2 g \bar "]" a b
+c1_"D.S." \bar "|."
 @end lilypond
 
 @snippets
@@ -300,6 +334,9 @@ Notation Reference:
 @ref{Modifying context plug-ins},
 @ref{Modifying ties and slurs},
 @ref{Time administration}.
+
+Installed Files:
+@file{ly/engraver-init.ly}.
 
 Snippets:
 @rlsr{Repeats}.
@@ -459,12 +496,6 @@ voltaAdLib = \markup { 1. 2. 3... \text \italic { ad lib. } }
   \set Score.repeatCommands = #'((volta #f))
 }
 @end lilypond
-
-
-@snippets
-
-@lilypondfile[verbatim,quote,texidoc,doctitle]
-{printing-a-repeat-sign-at-the-beginning-of-a-piece.ly}
 
 @seealso
 Notation Reference:
@@ -742,14 +773,13 @@ the note should not be surrounded by braces:
 @end lilypond
 
 @cindex tremolo marks
-@funindex tremoloFlags
 @funindex :
 
 The same output can be obtained by adding @code{:@var{N}} after
 the note, where @code{@var{N}} indicates the duration of the
 subdivision (it must be at least 8).  If @code{@var{N}} is 8, one
 beam is added to the note's stem.  If @code{@var{N}} is omitted,
-the last value (stored in @code{tremoloFlags}) is used:
+the last value is used:
 
 @lilypond[quote,verbatim,relative=2]
 c2:8 c:32

@@ -1,7 +1,7 @@
 @c -*- coding: utf-8; mode: texinfo; documentlanguage: fr -*-
 
 @ignore
-    Translation of GIT committish: bd751630011a6fbfcf069ec1fc41a8eaed8a6b87
+    Translation of GIT committish: d46572826e777ed3e9fa4656535a6e9000f2ed9e
 
     When revising a translation, copy the HEAD committish of the
     version that you are working on.  For details, see the Contributors'
@@ -361,7 +361,7 @@ est livré @strong{SANS GARANTIE} !
 
 @table @code
 
-@item -d@var{[nom-option]}=@var{[valeur]},--define-default=@var{[nom-option]}=@var{[valeur]}
+@item -d@var{[nom-option]}=@var{[valeur]}, --define-default=@var{[nom-option]}=@var{[valeur]}
 Affecte la valeur Scheme @var{valeur} à l'option interne
 @var{nom-option} du programme.
 
@@ -715,6 +715,17 @@ flottante @code{Inf} ou @code{NaN} -- infini ou non-nombre.
 @tab Supprime, lors du nommage des fichiers résultant, la partie
 correspondant au répertoire des fichiers sources.
 
+@item @code{strokeadjust}
+@tab @code{#f}
+@tab Force l'ajustement des traits PostScript.  Cette option trouve
+toute son utilité pour générer du PDF à partir de PostScript --
+l'ajustement des traits est en principe automatiquement activé pour les
+périphériques bitmap à faible résolution.  Sans cette option, les
+visionneurs de PDF ont tendance à ne pas rendre de manière constante
+l'épaisseur des hampes dans les résolutions habituelles des écrans.
+Bien que n'affectant pas notoirement la qualité d'impression, cette
+option accroit notablement la taille des fichiers PDF.
+
 @item @code{svg-woff}
 @tab @code{#f}
 @tab Utilise, avec le moteur SVG, les fontes @code{woff}.
@@ -1003,7 +1014,7 @@ facilement.
 * Message d'erreur Unbound variable %::
 * Message d'erreur FT_Get_Glyph_Name::
 * staff-affinities devraient aller en ordre décroissant::
-* Message d'erreur unexpected \new::
+* Message d'erreur unexpected new::
 @end menu
 
 
@@ -1139,9 +1150,9 @@ reportez-vous à la rubrique
 @ruser{Espacement des lignes rattachées à des portées}.
 
 
-@node Message d'erreur unexpected \new
-@unnumberedsubsec Message d'erreur unexpected @code{\new}
-@translationof Error message unexpected \new
+@node Message d'erreur unexpected new
+@unnumberedsubsec Message d'erreur unexpected @code{@bs{}new}
+@translationof Error message unexpected new
 
 Un bloc @code{\score} ne peut contenir qu'@strong{une seule} expression
 musicale. Si, par contre, il comporte plusieurs @code{\new Staff},

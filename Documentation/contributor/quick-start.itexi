@@ -35,12 +35,6 @@ it is available for all major operating systems and is easy to install
 If you are not familiar with GNU/Linux, it may be beneficial to read a
 couple of @qq{introduction to Ubuntu} web pages.
 
-Some contributors have recommended a free PDF:
-
-@example
-@uref{http://www.ubuntupocketguide.com/}
-@end example
-
 For those interested, the LilyDev remix is currently based on a 32bit
 version of 10.04 LTS Ubuntu (Lucid Lynx).
 
@@ -73,6 +67,12 @@ Some advanced users might want this file too:
 @uref{http://www.philholmes.net/lilypond/LilyDev/ubuntu-LilyDev-remix-2.6.iso.md5}
 @end smallexample
 (If you don't recognize what this file is, then you don't need it.)
+
+An alternate site for obtaining these files is available:
+@smallexample
+@uref{http://www.et.byu.edu/~sorensen/ubuntu-LilyDev-remix-2.6.iso}
+@uref{http://www.et.byu.edu/~sorensen/ubuntu-LilyDev-remix-2.6.iso.md5}
+@end smallexample
 
 
 @node Installing LilyDev in VirtualBox
@@ -166,6 +166,16 @@ click inside the virtual machine window and hit the return key to
 reboot the virtual machine.  It will not try to restart the installer
 but start the virtual machine proper. LilyDev is now installed and
 running!
+
+@item
+The current version of LilyPond requires the texlive-lang-cyrillic
+package.  This package is not part of LilyDev 2.6.  Add the package
+to LilyDev with:
+
+@example
+sudo apt-get install texlive-lang-cyrillic
+@end example
+
 
 @end enumerate
 
@@ -422,11 +432,6 @@ Send patch files to the appropriate place:
 If you have a mentor, send it to them via email.
 
 @item
-New contributors should send the patch attached to an email to
-@email{frogs@@lilynet.net}.  Please add @qq{[PATCH]} to the
-subject line.
-
-@item
 Translators should send patches to
 @email{translations@@lilynet.net}.
 
@@ -434,6 +439,10 @@ Translators should send patches to
 More experienced contributors should upload the patch for
 web-based review.  This requires additional software and use of
 the command-line; see @ref{Uploading a patch for review}.
+
+@item
+If you have trouble uploading the patch for review,
+ask for help on @email{lilypond-devel@@gnu.org}.
 
 @end itemize
 

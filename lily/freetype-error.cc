@@ -1,7 +1,7 @@
 /*
   This file is part of LilyPond, the GNU music typesetter.
 
-  Copyright (C) 2007--2012 Han-Wen Nienhuys <hanwen@lilypond.org>
+  Copyright (C) 2007--2014 Han-Wen Nienhuys <hanwen@lilypond.org>
 
 
   LilyPond is free software: you can redistribute it and/or modify
@@ -31,7 +31,7 @@ const struct Freetype_error_message
   const char *err_msg;
 } ft_errors[] =
 
-#include <freetype/fterrors.h>
+#include FT_ERRORS_H
 
   ;
 

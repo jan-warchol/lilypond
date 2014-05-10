@@ -1,13 +1,13 @@
 @c -*- coding: utf-8; mode: texinfo; -*-
 @ignore
-    Translation of GIT committish: 48a57a1c8feb426029e059d9fbf8aaf1b14f0ff8
+    Translation of GIT committish: 873151f815f8b8e27eb5231c74e28392561e4668
 
     When revising a translation, copy the HEAD committish of the
     version that you are working on.  For details, see the Contributors'
     Guide, node Updating translation committishes..
 @end ignore
 
-@c \version "2.17.28"
+@c \version "2.19.2"
 
 @c Translators: Federico Bruni
 @c Translation checkers: Luca Rossetto Casel
@@ -433,7 +433,7 @@ alla prima di ogni coppia di note legate.  Esso indica che la nota deve
 essere legata alla nota successiva, che deve essere della stessa altezza.
 
 @lilypond[quote,verbatim,relative=2]
-a2~ a4~ a16 r r8
+a2~ 4~ 16 r r8
 @end lilypond
 
 Le legature di valore si usano per unire due note a cavallo di una
@@ -443,8 +443,8 @@ unire note dalle durate superiori all'unità di suddivisione della misura:
 
 @lilypond[verbatim,quote]
 \relative c' {
-  r8 c~ c2 r4 |
-  r8^"non" c2~ c8 r4
+  r8 c~ 2 r4 |
+  r8^"non" c2~ 8 r4
 }
 @end lilypond
 
@@ -529,26 +529,26 @@ successione di tratti continui e tratti interrotti.
 
 @lilypond[quote, verbatim, relative=1]
 \tieDotted
-c2~ c
+c2~ 2
 \tieDashed
-c2~ c
+c2~ 2
 \tieHalfDashed
-c2~ c
+c2~ 2
 \tieHalfSolid
-c2~ c
+c2~ 2
 \tieSolid
-c2~ c
+c2~ 2
 @end lilypond
 
 Si possono specificare modelli di tratteggiatura personalizzati:
 
 @lilypond[quote, verbatim, relative=1]
 \tieDashPattern #0.3 #0.75
-c2~ c
+c2~ 2
 \tieDashPattern #0.7 #1.5
-c2~ c
+c2~ 2
 \tieSolid
-c2~ c
+c2~ 2
 @end lilypond
 
 Le definizioni dei modelli di tratteggiatura delle legature di valore hanno la
@@ -659,7 +659,7 @@ Le durate più lunghe di un intero usano i seguenti comandi predefiniti:
 \new Staff {
   % Queste due linee servono solo ad abbellire questo esempio
   \time 16/1
-  \override Staff.TimeSignature.stencil = ##f
+  \omit Staff.TimeSignature
   % Mostra una pausa di maxima, equivalente a quattro brevi
   r\maxima
   % Mostra una pausa di longa, equivalente a due brevi
@@ -682,7 +682,7 @@ su più misure, come è spiegato in @ref{Full measure rests}.
 Per indicare esplicitamente la posizione verticale di una pausa, si scrive
 la nota corrispondente seguita da @code{\rest}.  Una pausa della durata della
 nota verrà collocata nella posizione della nota sul rigo.  Questo
-permette una precisa formattazione mauale della musica polifonica, dato che
+permette una precisa formattazione manuale della musica polifonica, dato che
 il formattatore automatico che gestisce le collisioni tra pause non interviene su
 questo tipo di pause.
 
@@ -857,7 +857,7 @@ R1*2 |
 @end lilypond
 
 @cindex pausa multipla, espansione
-@cindex pausa mutlipla, contrazione
+@cindex pausa multipla, contrazione
 
 @funindex \expandFullBarRests
 @funindex expandFullBarRests
@@ -916,10 +916,10 @@ l'esempio seguente:}
 @lilypond[quote,verbatim,relative=2]
 % Questo non funziona, perché è specificato il nome dell'oggetto sbagliato
 \override TextScript.padding = #5
-R1^"wrong"
+R1^"sbagliato"
 % Questo è il nome dell'oggetto corretto da specificare
 \override MultiMeasureRestText.padding = #5
-R1^"right"
+R1^"corretto"
 @end lilypond
 
 Quando una pausa multipla segue immediatamente un comando @code{\partial}, potrebbero
@@ -1149,36 +1149,6 @@ battiti nella misura, nell'unità di @code{@var{baseMomentFraction}}.
 regole di disposizione delle travature che vanno oltre la fine ad ogni
 battito, come descritto in @ref{Setting automatic beam behavior}.
 @end enumerate
-
-Il contesto che contiene @code{\overrideTimeSignatureSettings} deve essere
-istanziato prima dell'esecuzione di @code{\overrideTimeSignatureSettings}.
-Ciò significa che deve essere istanziato esplicitamente oppure ci deve essere
-della musica nel contesto prima che venga chiamato @code{\overrideTimeSignatureSettings}:
-
-@lilypond[quote,verbatim]
-\score {
-  \relative c' {
-    % Questa chiamata non funzionerà perché il contesto non è ancora istanziato
-    \overrideTimeSignatureSettings
-      4/4        % timeSignatureFraction
-      1/4        % baseMomentFraction
-      #'(3 1)    % beatStructure
-      #'()       % beamExceptions
-    \time 4/4
-    c8^\markup {"Beamed (2 2)"}
-    \repeat unfold 7 { c8 } |
-    % Questa chiamata funzionerà
-    \overrideTimeSignatureSettings
-      4/4        % timeSignatureFraction
-      1/4        % baseMomentFraction
-      #'(3 1)    % beatStructure
-      #'()       % beamExceptions
-    \time 4/4
-    c8^\markup {"Beamed (3 1)"}
-    \repeat unfold 7 { c8 } |
-  }
-}
-@end lilypond
 
 
 @cindex ripristinare le proprietà predefinite delle indicazioni di tempo
@@ -1617,20 +1587,6 @@ di musica in tempo libero è necessario inserire manualmente delle stanghette
 
 @example
 \bar ""
-@end example
-
-Bisogna creare esplicitamente un contesto @code{Voice} quando si inizia un
-brano con @code{\cadenzaOn}, altrimenti potrebbero verificarsi errori inattesi.
-
-@example
-\new Voice @{
-  \relative c' @{
-    \cadenzaOn
-    c16[^"Solo Free Time" d e f] g2.
-    \bar "||"
-    \cadenzaOff
-  @}
-@}
 @end example
 
 
@@ -2374,7 +2330,7 @@ Le regole predefinite per le travature si trovano in
 {subdividing-beams.ly}
 
 @cindex tratti di suddivisione della travatura, direzione
-@cindex travatura, direzione dei tratt idi suddivisione della
+@cindex travatura, direzione dei tratti di suddivisione della
 
 @lilypondfile[verbatim,quote,ragged-right,texidoc,doctitle]
 {strict-beat-beaming.ly}
@@ -2840,7 +2796,8 @@ c1
 @end lilypond
 
 Esiste inoltre un comando @code{\inStaffSegno} che crea una stanghetta
-con segno, combinabile col comando@code{\repeat volta}.
+con segno in congiunzione con un'appropriata stanghetta di ripetizione se
+usata con un comando @code{\repeat volta}, vedi @ref{Normal repeats}..
 
 @funindex \defineBarLine
 @funindex defineBarLine
@@ -3499,6 +3456,7 @@ Frammenti di codice:
 Guida al funzionamento interno:
 @rinternals{GraceMusic},
 @rinternals{Grace_beam_engraver},
+@rinternals{Grace_auto_beam_engraver},
 @rinternals{Grace_engraver},
 @rinternals{Grace_spacing_engraver}.
 
@@ -3725,3 +3683,5 @@ Frammenti di codice:
 Guida al funzionamento interno:
 @rinternals{Timing_translator},
 @rinternals{Score}.
+
+@c  LocalWords:  accMusic MyCadenza

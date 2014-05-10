@@ -1,7 +1,7 @@
 @c -*- coding: utf-8; mode: texinfo; documentlanguage: es -*-
 
 @ignore
-    Translation of GIT committish: 45d0e015edc53abebada17a0fdb1d665f7edf900
+    Translation of GIT committish: 93d725094ee629b2d5200ab5a75b609579a62973
 
     When revising a translation, copy the HEAD committish of the
     version that you are working on.  For details, see the Contributors'
@@ -361,7 +361,7 @@ Mostrar la garantía con que viene GNU LilyPond (¡no viene con
 
 @table @code
 
-@item -d@var{[option-name]}=@var{[value]},--define-default=@var{[option-name]}=@var{[value]}
+@item -d@var{[option-name]}=@var{[value]}, --define-default=@var{[option-name]}=@var{[value]}
 Establece la función de Scheme interna equivalente a @var{valor}.
 
 @example
@@ -708,6 +708,19 @@ punto flotante @code{Inf} y @code{NaN}.
 @tab No usar los directorios de los archivos de entrada al construir los
 nombres de los archivos de salida.
 
+@item @code{strokeadjust}
+@tab @code{#f}
+@tab Forzar el ajuste de los trazos de PostScript.  Esta opción es
+relevante principalmente cuando se genera un @code{PDF} a partir
+de la salida de PostScript (el ajuste del trazo está por lo
+general activado automáticamente para dispositivos de mapa de
+puntos de baja resolución).  Sin esta opción, los visores
+de@code{PDF} tienden a producir anchuras de plica muy poco
+consistentes a las resoluciones típicas de las pantallas de
+ordenador.  La opción no afecta de forma muy significativa a la
+calidad de la impresión y causa grandes incrementos en el tamaño
+del archivo @code{PDF}.
+
 @item @code{svg-woff}
 @tab @code{#f}
 @tab Usar archivos de fuente tipográfica de woff en el backend SVG.
@@ -986,7 +999,7 @@ se han visto y comprendido, se manejan sin problema.
 * Mensaje de error Unbound variable %::
 * Mensaje de error FT_Get_Glyph_Name::
 * Advertencia sobre que las afinidades del pentagrama sólo deben decrecer::
-* Mensaje de error Unexpected \new::
+* Mensaje de error Unexpected new::
 @end menu
 
 @node La música se sale de la página
@@ -1126,9 +1139,9 @@ líneas que no son pautas} en @ruser{Espaciado vertical flexible dentro
 de los sistemas}.
 
 
-@node Mensaje de error Unexpected \new
-@unnumberedsubsec Mensaje de error Unexpected @code{\new}
-@translationof Error message unexpected \new
+@node Mensaje de error Unexpected new
+@unnumberedsubsec Mensaje de error Unexpected @code{@bs{}new}
+@translationof Error message unexpected new
 
 Un bloque @code{\score} debe contener una @emph{única} expresión
 musical.  Si en vez de ello contiene varias instrucciones

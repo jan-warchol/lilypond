@@ -7,7 +7,7 @@
     Guide, node Updating translation committishes..
 @end ignore
 
-@c \version "2.17.6"
+@c \version "2.19.2"
 
 @node Staff notation
 @section Staff notation
@@ -480,10 +480,8 @@ default, are also affected.
 { f4 d g, e }
 @end lilypond
 
-However, it is possible to set ledger line thickness independently of
-staff lines.  The two values required multiply the staff line thickness
-with the staff line spacing and are then added together to give the
-ledger line thickness.
+It is also possible to set ledger line thickness independently of staff
+lines.
 
 @lilypond[verbatim,quote,relative=2]
 \new Staff \with {
@@ -492,6 +490,11 @@ ledger line thickness.
 }
 { f'4 a, a,, f }
 @end lilypond
+
+@noindent
+The first value is multiplied by the staff line thickness, the second by
+the staff space and then the two values are added together to give the
+new thickness of the ledger line.
 
 The vertical positions of ledger lines can be altered,
 
@@ -631,7 +634,7 @@ example.
 <<
   \new Staff = "ossia" \with {
     \remove "Time_signature_engraver"
-    \override Clef.transparent = ##t
+    \hide Clef
     fontSize = #-3
     \override StaffSymbol.staff-space = #(magstep -3)
     \override StaffSymbol.thickness = #(magstep -3)
@@ -670,7 +673,7 @@ break.  For more information about
 <<
   \new Staff = "ossia" \with {
     \remove "Time_signature_engraver"
-    \override Clef.transparent = ##t
+    \hide Clef
     fontSize = #-3
     \override StaffSymbol.staff-space = #(magstep -3)
     \override StaffSymbol.thickness = #(magstep -3)
@@ -844,7 +847,7 @@ this case, use the following overrides instead of removing the
 engraver:
 
 @example
-\override StaffSymbol.stencil = ##f
+\omit StaffSymbol
 \override NoteHead.no-ledgers = ##t
 @end example
 
@@ -1026,7 +1029,7 @@ expression to declare the instrument switch:
   R1*16
   \instrumentSwitch "contrabassoon"
   c,,2 g \break
-  c,1 ~ | c1
+  c,1 ~ | 1
 }
 @end lilypond
 
@@ -1352,7 +1355,7 @@ oboeNotes = \relative c'' {
 The name of the instrument playing the cue can be printed by setting
 the @code{instrumentCueName} property in a temporary @code{CueVoice}
 context.  The placement and style of the @code{instrumentCueName} is
-controlled by the @code{\instrumentSwitch} object, see
+controlled by the @code{InstrumentSwitch} object, see
 @ref{Instrument names}.  If the cue notes require a change in clef,
 this can be done manually but the original clef should also be
 restored manually at the end of the cue notes.

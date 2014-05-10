@@ -4,8 +4,8 @@
 % and then run scripts/auxiliar/makelsr.py
 %
 % This file is in the public domain.
-%% Note: this file works from version 2.17.10
-\version "2.17.10"
+%% Note: this file works from version 2.17.30
+\version "2.17.30"
 
 \header {
   lsrtags = "staff-notation, ancient-notation, really-cool"
@@ -21,10 +21,7 @@ incipit =
 #(define-music-function (parser location incipit-music) (ly:music?)
   #{
     \once \override Staff.InstrumentName.self-alignment-X = #RIGHT
-    \once \override Staff.InstrumentName.self-alignment-Y = #UP
-    \once \override Staff.InstrumentName.Y-offset =
-      #(lambda (grob)
-         (+ 4 (system-start-text::calc-y-offset grob)))
+    \once \override Staff.InstrumentName.self-alignment-Y = ##f
     \once \override Staff.InstrumentName.padding = #0.3
     \once \override Staff.InstrumentName.stencil =
       #(lambda (grob)
@@ -35,7 +32,6 @@ incipit =
 		         {
 			   { \context MensuralStaff \with {
 	                        instrumentName = #instrument-name
-			        \override VerticalAxisGroup.Y-extent = #'(-4 . 4)
 	                     } $incipit-music
 			   }
 	                   \layout { $(ly:grob-layout grob)
@@ -93,7 +89,7 @@ discantusNotes = {
     c'4 e'4.( d'8 c' b |
     a4) b a2 |
     b4.( c'8 d'4) c'4 |
-    \once \override NoteHead.transparent = ##t
+    \once \hide NoteHead
     c'1 |
     b\breve |
   }
@@ -130,7 +126,7 @@ altusNotes = {
     a2 g4 e |
     fis g4.( fis16 e fis4) |
     g1 |
-    \once \override NoteHead.transparent = ##t
+    \once \hide NoteHead
     g1 |
     g\breve |
   }
@@ -168,7 +164,7 @@ tenorNotes = {
     R1 |
     % two measures
     r2 d'2. d'4 b e' |
-    \once \override NoteHead.transparent = ##t
+    \once \hide NoteHead
     e'1 |
     d'\breve |
   }
@@ -204,7 +200,7 @@ bassusNotes = {
     R1 |
     R1 |
     g2. e4 |
-    \once \override NoteHead.transparent = ##t
+    \once \hide NoteHead
     e1 |
     g\breve |
   }
@@ -253,7 +249,7 @@ bassusLyrics = \lyricmode {
     \context {
       \Score
       %% no bar lines in staves or lyrics
-      \override BarLine.transparent = ##t
+      \hide BarLine
     }
     %% the next two instructions keep the lyrics between the bar lines
     \context {
@@ -264,7 +260,7 @@ bassusLyrics = \lyricmode {
     \context {
       \Voice
       %% no slurs
-      \override Slur.transparent = ##t
+      \hide Slur
       %% Comment in the below "\remove" command to allow line
       %% breaking also at those bar lines where a note overlaps
       %% into the next measure.  The command is commented out in this

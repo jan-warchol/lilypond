@@ -1,6 +1,6 @@
 %%%% This file is part of LilyPond, the GNU music typesetter.
 %%%%
-%%%% Copyright (C) 1996--2012 Han-Wen Nienhuys <hanwen@xs4all.nl>
+%%%% Copyright (C) 1996--2014 Han-Wen Nienhuys <hanwen@xs4all.nl>
 %%%%                          Jan Nieuwenhuizen <janneke@gnu.org>
 %%%%
 %%%% LilyPond is free software: you can redistribute it and/or modify
@@ -169,7 +169,6 @@ contained staves are not connected vertically."
   \name RhythmicStaff
   \alias "Staff"
 
-  \override BarLine.bar-extent = #'(-2 . 2)
   \override VoltaBracket.staff-padding = #3
   \override StaffSymbol.line-count = #1
 
@@ -314,6 +313,9 @@ contained staves are connected vertically."
 
   \consists "Instrument_name_engraver"
   \consists "Span_bar_engraver"
+% The default for DynamicText.extra-spacing-width causes dynamics to
+% be placed across span bars, so switch it off:
+  \override DynamicText.extra-spacing-width = ##f
   \consists "Span_bar_stub_engraver"
   \consists "Span_arpeggio_engraver"
   \consists "System_start_delimiter_engraver"
@@ -360,6 +362,9 @@ together, never separately."
 
   \consists "Instrument_name_engraver"
   \consists "Span_bar_engraver"
+% The default for DynamicText.extra-spacing-width causes dynamics to
+% be placed across span bars, so switch it off:
+  \override DynamicText.extra-spacing-width = ##f
   \consists "Span_bar_stub_engraver"
   \consists "Span_arpeggio_engraver"
   \consists "Output_property_engraver"
@@ -609,6 +614,7 @@ automatically when an output definition (a @code{\\score} or
   doubleRepeatType = #":..:"
   startRepeatType = #".|:"
   endRepeatType = #":|."
+  alternativeRestores = #'(measurePosition measureLength lastChord)
   barNumberVisibility = #first-bar-number-invisible-and-no-parenthesized-bar-numbers
   barNumberFormatter = #robust-bar-number-function
   clefTranspositionFormatter = #clef-transposition-markup
@@ -633,6 +639,8 @@ automatically when an output definition (a @code{\\score} or
 
   autoBeaming = ##t
   autoBeamCheck = #default-auto-beam-check
+
+  completionFactor = #unity-if-multimeasure
 
   scriptDefinitions = #default-script-alist
 

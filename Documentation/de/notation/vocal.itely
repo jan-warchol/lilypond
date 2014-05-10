@@ -7,7 +7,7 @@
     Guide, node Updating translation committishes.
 @end ignore
 
-@c \version "2.17.28"
+@c \version "2.19.2"
 
 @c Translators: Till Paala
 
@@ -677,8 +677,8 @@ Melismen werden automatisch zu Noten erstellt, die übergebunden sind:
   \new Voice = "melody" {
     \time 3/4
     f4 g2 ~ |
-    g4 e2 ~ |
-    e8
+    4 e2 ~ |
+    8
   }
   \new Lyrics \lyricsto "melody" {
     Ky -- ri -- e __
@@ -780,7 +780,7 @@ benutzen, ohne dass sie Melismen bezeichnen, wenn
     \time 3/4
     \set melismaBusyProperties = #'()
     c4 d ( e )
-    g8 [ f ] f4 ~ f
+    g8 [ f ] f4 ~ 4
   }
   \new Lyrics \lyricsto "melody" {
     Ky -- ri -- e e -- le -- i -- son
@@ -808,7 +808,7 @@ angegeben werden:
     \time 3/4
     \set melismaBusyProperties = #'()
     c4 d ( e )
-    g8 [ f ] ~ f4 ~ f
+    g8 [ f ] ~ 4 ~ f
   }
   \new Lyrics \lyricsto "melody" {
     Ky -- ri -- _ e __ _ _ _
@@ -1191,7 +1191,7 @@ zusammenstößt, kann folgende Einstellung gesetzt werden:
     \Lyrics
       \consists "Bar_engraver"
       \consists "Separating_line_group_engraver"
-      \override BarLine.transparent = ##t
+      \hide BarLine
   @}
 @}
 @end example
@@ -2883,7 +2883,7 @@ die Tonhöhen darzustellen, während der Rhythmus sich am Rhythmus
 der gesprochenen Worte orientiert.
 
 @lilypond[verbatim,quote]
-stemOff = { \override Staff.Stem.transparent = ##t }
+stemOff = { \hide Staff.Stem }
 
 \relative c' {
   \stemOff

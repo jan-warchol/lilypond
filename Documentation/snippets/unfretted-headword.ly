@@ -4,8 +4,8 @@
 % and then run scripts/auxiliar/makelsr.py
 %
 % This file is in the public domain.
-%% Note: this file works from version 2.17.24
-\version "2.17.24"
+%% Note: this file works from version 2.19.2
+\version "2.19.2"
 
 \header {
   lsrtags = "headword"
@@ -154,7 +154,7 @@ ViolinSolo = \relative c' {
   \time 15/4
   <<
     { \shift d2 \glissando ^\markup \colmark { \quatre \dubetc \pvib \norm } \shifta e1 \glissando d2 } \\
-    { d2 \open \mf \< ~ d1 ~ d2 \ff  ~ d1 \> ~ d2 ^\markup \colmark { " " " " \svib } ~ d4 \pp}
+    { d2 \open \mf \< ~ d1 ~ 2 \ff  ~ d1 \> ~ d2 ^\markup \colmark { " " " " \svib } ~ d4 \pp}
   >>
   \break
 
@@ -219,7 +219,7 @@ ViolinSolo = \relative c' {
       \new Staff \ViolinSolo
     >>
 
-    \override Score.Rest.transparent = ##t
+    \hide Score.Rest
     \set Score.defaultBarType          = "-"
   >>
 

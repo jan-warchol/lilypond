@@ -1,6 +1,6 @@
 ;;;; This file is part of LilyPond, the GNU music typesetter.
 ;;;;
-;;;; Copyright (C) 1998--2012 Jan Nieuwenhuizen <janneke@gnu.org>
+;;;; Copyright (C) 1998--2014 Jan Nieuwenhuizen <janneke@gnu.org>
 ;;;; Han-Wen Nienhuys <hanwen@xs4all.nl>
 ;;;;
 ;;;; LilyPond is free software: you can redistribute it and/or modify
@@ -277,7 +277,7 @@ file to given string.")
 to a music font.")
     (point-and-click
      #t
-     "Add point & click links to PDF output.")
+     "Add point & click links to PDF and SVG output.")
     (paper-size
      "a4"
      "Set default paper size.")
@@ -330,6 +330,12 @@ floating point exceptions.")
      #t
      "Don't use directories from input files while
 constructing output file names.")
+    (strokeadjust
+     #f
+     "Set the PostScript strokeadjust operator explicitly.
+This employs different drawing primitives, resulting in
+large PDF file size increases but often markedly better
+PDF previews.")
     (svg-woff
      #f
      "Use woff font files in SVG backend.")
@@ -405,8 +411,8 @@ messages into errors.")
 (define-public (ergonomic-simple-format dest . rest)
   "Like ice-9's @code{format}, but without the memory consumption."
   (if (string? dest)
-      (apply simple-format (cons #f (cons dest rest)))
-      (apply simple-format (cons dest rest))))
+      (apply simple-format #f dest rest)
+      (apply simple-format dest rest)))
 
 (define format
   ergonomic-simple-format)
@@ -420,7 +426,7 @@ messages into errors.")
   v)
 
 (define-public (print . args)
-  (apply format (cons (current-output-port) args)))
+  (apply format (current-output-port) args))
 
 
 ;;; General settings.
@@ -662,6 +668,8 @@ messages into errors.")
     (,number-or-pair? . "number or pair")
     (,number-or-string? . "number or string")
     (,number-pair? . "pair of numbers")
+    (,number-pair-list? . "list of number pairs")
+    (,rational-or-procedure? . "an exact rational or procedure")
     (,rhythmic-location? . "rhythmic location")
     (,scheme? . "any type")
     (,string-or-pair? . "string or pair")
@@ -742,7 +750,7 @@ messages into errors.")
 
 (define (dump-profile base last this)
   (let* ((outname (format #f "~a.profile" (dir-basename base ".ly")))
-         (diff (map (lambda (y) (apply - y)) (zip this last))))
+         (diff (map - this last)))
     (ly:progress "\nWriting timing to ~a..." outname)
     (format (open-file outname "w")
             "time: ~a\ncells: ~a\n"

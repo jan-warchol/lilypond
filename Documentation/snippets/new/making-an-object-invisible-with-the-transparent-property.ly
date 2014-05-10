@@ -1,4 +1,4 @@
-\version "2.17.6"
+\version "2.19.2"
 
 \header {
   lsrtags = "rhythms, simultaneous-notes, tweaks-and-overrides"
@@ -23,12 +23,12 @@ in that voice, the tie appears to cross voices.
   \time 2/4
   <<
     {
-      \once \override Stem.transparent = ##t
+      \once \hide Stem
       \once \override Stem.length = #8
-      b8 ~ b\noBeam
-      \once \override Stem.transparent = ##t
+      b8 ~ 8\noBeam
+      \once \hide Stem
       \once \override Stem.length = #8
-      g8 ~ g\noBeam
+      g8 ~ 8\noBeam
     }
     \\
     {

@@ -1,6 +1,6 @@
 ;;;; This file is part of LilyPond, the GNU music typesetter.
 ;;;;
-;;;; Copyright (C) 1998--2012 Jan Nieuwenhuizen <janneke@gnu.org>
+;;;; Copyright (C) 1998--2014 Jan Nieuwenhuizen <janneke@gnu.org>
 ;;;;                 Han-Wen Nienhuys <hanwen@xs4all.nl>
 ;;;;
 ;;;; LilyPond is free software: you can redistribute it and/or modify
@@ -25,9 +25,18 @@
   (and (pair? x)
        (number? (car x)) (number? (cdr x))))
 
+(define-public (number-pair-list? x)
+  (and (list? x)
+       (every number-pair? x)))
+
 (define-public (fraction? x)
   (and (pair? x)
        (index? (car x)) (index? (cdr x))))
+
+(define-public (rational-or-procedure? x)
+  (or
+   (and (rational? x) (exact? x))
+   (procedure? x)))
 
 (define-public (number-or-grob? x)
   (or (ly:grob? x) (number? x)))

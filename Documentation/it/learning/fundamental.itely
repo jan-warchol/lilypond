@@ -1,14 +1,14 @@
 @c -*- coding: utf-8; mode: texinfo; documentlanguage: it -*-
 
 @ignore
-    Translation of GIT committish: 94dc452301cc0d1e9983f5aeb784884f7fe8c964
+    Translation of GIT committish: 7fdce4f39834cc8c83f176480cc1d20900eb09f8
 
     When revising a translation, copy the HEAD committish of the
     version that you are working on.  For details, see the Contributors'
     Guide, node Updating translation committishes..
 @end ignore
 
-@c \version "2.17.29"
+@c \version "2.19.2"
 
 @node Concetti fondamentali
 @chapter Concetti fondamentali
@@ -216,7 +216,7 @@ Ogni blocco @code{\layout} influenza il blocco @code{\score} o
 che si trova dentro un blocco @code{\score} riguarda solo quel blocco
 @code{\score}, mentre un blocco @code{\layout} che si trova fuori da un
 blocco @code{\score} (e quindi in un blocco @code{\book}, esplicitamente
-o implicitamente) riguraderà ogni @code{\score} in quel @code{\book}.
+o implicitamente) riguarderà ogni @code{\score} in quel @code{\book}.
 
 Per maggiori dettagli si veda @ruser{Multiple scores in a book}.
 
@@ -281,7 +281,7 @@ Per capire cosa si intende per espressione musicale e per espressione
 musicale composta, potrebbe esserti utile ripassare il tutorial,
 @ref{Espressioni musicali}.  In quella sezione, abbiamo visto
 come costruire grandi espressioni musicali a partire da piccoli brani -- abbiamo
-iniziato con le note, poi gli accordi, etc.  Adesso inzieremo da una grande
+iniziato con le note, poi gli accordi, etc.  Adesso inizieremo da una grande
 espressione musicale e proseguiremo poi a spiegarne i dettagli. Per semplicità,
 nel nostro esempio useremo soltanto un canto e un pianoforte.  Per questa formazione
 non abbiamo bisogno di @code{StaffGroup}, che non fa altro che raggruppare un insieme
@@ -685,7 +685,7 @@ legature di valore, dinamica, etc., è impostata correttamente.
   c16 d e f
   %    Voice "1"     Voice "2"                Voice "3"
   << { g4 f e } \\ { r8 e4 d c8~ } >> |
-  << { d2 e }   \\ { c8 b16 a b8 g~ g2 } \\ { s4 b c2 } >> |
+  << { d2 e }   \\ { c8 b16 a b8 g~ 2 } \\ { s4 b c2 } >> |
 }
 @end lilypond
 
@@ -723,7 +723,7 @@ voce con i triangoli blu.
     { d2 e }
   \\
      % Voice 2 continues
-    { c8 b16 a b8 g~ g2 }
+    { c8 b16 a b8 g~ 2 }
   \\
     {
       \voiceThreeStyle
@@ -1001,25 +1001,25 @@ markup, legature di valore, legature di portamento, e dinamica:
 @lilypond[quote,ragged-right,verbatim]
 \relative c'{
   % Default behavior or behavior after \oneVoice
-  c4 d8~ d e4( f | g4 a) b-> c |
+  c4 d8~ 8 e4( f | g4 a) b-> c |
 }
 @end lilypond
 
 @lilypond[quote,ragged-right,verbatim]
 \relative c' {
   \voiceOne
-  c4 d8~ d e4( f | g4 a) b-> c |
+  c4 d8~ 8 e4( f | g4 a) b-> c |
   \oneVoice
-  c,4 d8~ d e4( f | g4 a) b-> c |
+  c,4 d8~ 8 e4( f | g4 a) b-> c |
 }
 @end lilypond
 
 @lilypond[quote,ragged-right,verbatim]
 \relative c' {
   \voiceTwo
-  c4 d8~ d e4( f | g4 a) b-> c |
+  c4 d8~ 8 e4( f | g4 a) b-> c |
   \oneVoice
-  c,4 d8~ d e4( f | g4 a) b-> c |
+  c,4 d8~ 8 e4( f | g4 a) b-> c |
 }
 @end lilypond
 
@@ -1048,7 +1048,7 @@ sì che sia possibile disegnare una legatura di frase sopra di esse.
     \new Voice {
       % Set stems, etc., down
       \voiceTwo
-      r8 e4 d c8~ | c8 b16 a b8 g~ g2 |
+      r8 e4 d c8~ | 8 b16 a b8 g~ 2 |
     }
     % Initiate third voice
     \new Voice {
@@ -1079,7 +1079,7 @@ di scrivere lo spartito:
       \voiceTwo
       r8 e4 d c8~ |
       <<
-        { c8 b16 a b8 g~ g2 | }
+        { c8 b16 a b8 g~ 2 | }
         \new Voice {
           \voiceThree
           s4 b c2 |
@@ -1109,7 +1109,7 @@ come nel seguente esempio:
   \new Voice {
     % Set stems, etc, down
     \voiceTwo
-    s4 r8 e4 d c8~ | c8 b16 a b8 g~ g2 |
+    s4 r8 e4 d c8~ | 8 b16 a b8 g~ 2 |
   }
   % Initiate third voice
   \new Voice {
@@ -1167,6 +1167,9 @@ produrrà il messaggio di errore @qq{Too many clashing note columns}.
 
 
 @seealso
+Manuale di apprendimento:
+@ref{Moving objects}.
+
 Guida alla notazione: @ruser{Più voci}.
 
 
@@ -1241,7 +1244,7 @@ invece che come musica.
 global = { \key f \major \time 6/8 \partial 8 }
 
 SopOneMusic = \relative c'' {
-  c8 | c8([ bes)] a a([ g)] f | f'4. b, | c4.~ c4
+  c8 | c8([ bes)] a a([ g)] f | f'4. b, | c4.~ 4
 }
 SopOneLyrics = \lyricmode {
   Let | flee -- cy flocks the | hills a -- dorn, __
@@ -1382,7 +1385,7 @@ una stanghetta deve essere sincronizzata lungo l'intera partitura.
 All'interno di LilyPond, queste regole e pezzi di informazione sono raggruppati
 nei @emph{Contesti}.  Abbiamo già presentato il contesto @code{Voice}.
 Altri contesti sono @code{Staff} e @code{Score}.  I contesti sono strutturati
-gerarchicicamente per riflettere la natura gerarchica di una partitura musicale.
+gerarchicamente per riflettere la natura gerarchica di una partitura musicale.
 Ad esempio: un contesto @code{Staff} può contenere molti contesti @code{Voice},
 e un contesto @code{Score} può contenere molti contesti @code{Staff}.
 
@@ -2293,7 +2296,7 @@ simultanei.  Lo @code{\score} ora appare così:
 
 @noindent
 L'aspetto è un po' confuso; l'indentazione non è pulita.  Ma si
-può correggere facilmente.  Ecco il template completo per soprano
+può correggere facilmente.  Ecco il modello completo per soprano
 e violoncello.
 
 @lilypond[quote,verbatim,ragged-right,addversion]
@@ -2919,15 +2922,15 @@ ManualOneVoiceOneMusic = \relative g' {
   d2 c |
 }
 ManualOneVoiceTwoMusic = \relative c' {
-  ees16 d ees8~ ees16 f ees d c8 d~ d c~ |
-  c8 c4 b8 c8. g16 c b c d |
+  ees16 d ees8~ 16 f ees d c8 d~ d c~ |
+  8 c4 b8 c8. g16 c b c d |
 }
 ManualTwoMusic = \relative c' {
-  c16 b c8~ c16 b c g a8 g~ g16 g aes ees |
-  f16 ees f d g aes g f ees d ees8~ ees16 f ees d |
+  c16 b c8~ 16 b c g a8 g~ 16 g aes ees |
+  f16 ees f d g aes g f ees d ees8~ 16 f ees d |
 }
 PedalOrganMusic = \relative c {
-  r8 c16 d ees d ees8~ ees16 a, b g c b c8 |
+  r8 c16 d ees d ees8~ 16 a, b g c b c8 |
   r16 g ees f g f g8 c,2 |
 }
 

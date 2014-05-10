@@ -124,17 +124,9 @@ bassFigureStaffAlignmentNeutral =
 
 %% cadenzas
 
-cadenzaOn  = {
-  \set Timing.timing = ##f
-  \set Timing.autoBeaming = ##f
-}
+cadenzaOn  = \set Timing.timing = ##f
 
-cadenzaOff = {
-  \set Timing.timing = ##t
-  \set Timing.measurePosition = #ZERO-MOMENT
-  \set Timing.autoBeaming = ##t
-}
-
+cadenzaOff = \set Timing.timing = ##t
 
 %% chord names
 
@@ -281,12 +273,14 @@ unHideNotes = {
 improvisationOn = {
   \set squashedPosition = #0
   \override NoteHead.style = #'slash
+  \override TabNoteHead.style = #'slash
   \override Accidental.stencil = ##f
   \override AccidentalCautionary.stencil = ##f
 }
 improvisationOff = {
   \unset squashedPosition
   \revert NoteHead.style
+  \revert TabNoteHead.style
   \revert Accidental.stencil
   \revert AccidentalCautionary.stencil
 }

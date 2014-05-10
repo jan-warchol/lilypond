@@ -1,7 +1,7 @@
 @c -*- coding: utf-8; mode: texinfo; documentlanguage: it -*-
 
 @ignore
-    Translation of GIT committish: b2863abe6a9b5a03662562ea017548d8d3221d9a
+    Translation of GIT committish: 07c022f5e65a806e27c3f5f4f4bdae4020c1af8e
 
     When revising a translation, copy the HEAD committish of the
     version that you are working on.  For details, see the Contributors'
@@ -376,6 +376,7 @@ evidenziazione della sintassi.  Per abilitarle, crea (o modifica) il file
 filetype off
 set runtimepath+=/usr/local/share/lilypond/current/vim/
 filetype on
+syntax on
 @end example
 
 @noindent
@@ -488,7 +489,7 @@ minore si indica con @code{:1}.
 Scrive l'output in @var{file}.
 
 @item -s, --start-quant=@var{DUR}
-Quantize note starts on @var{DUR}.
+La quantizzazione delle note inizia su @var{DUR}.
 
 @item -t, --allow-tuplet=@var{DUR}*@var{NUM}/@var{DEN}
 Consente l'inserimento di gruppi irregolari @var{DUR}*@var{NUM}/@var{DEN}.
@@ -564,7 +565,7 @@ memoria e tempo del processore.
 @item -m, --midi
 attiva il blocco midi.
 
-@item --nd --no-articulation-directions
+@item -nd, --no-articulation-directions
 non converte le direzioni (@code{^}, @code{_} o @code{-}) per
 articolazioni, dinamiche, etc.
 
@@ -725,7 +726,7 @@ dal metodo automatizzato di @command{lilypond-book}.
 
 @menu
 * Tante citazioni da una grande partitura::
-* Inserire l'output di LilyPond in OpenOffice.org::
+* Inserire l'output di LilyPond in OpenOffice e LibreOffice::
 * Inserire l'output di LilyPond in altri programmi::
 @end menu
 
@@ -737,13 +738,13 @@ Per inserire molti frammenti di una grande partitura, si può usare anche
 la funzione di ritaglio dei sistemi; si veda @ruser{Extracting fragments of music}.
 
 
-@node Inserire l'output di LilyPond in OpenOffice.org
-@unnumberedsubsec Inserire l'output di LilyPond in OpenOffice.org
-@translationof Inserting LilyPond output into OpenOffice.org
+@node Inserire l'output di LilyPond in OpenOffice e LibreOffice
+@unnumberedsubsec Inserire l'output di LilyPond in OpenOffice e LibreOffice
+@translationof Inserting LilyPond output into OpenOffice and LibreOffice
 
-@cindex OpenOffice.org
+@cindex LibreOffice.org
 
-La notazione di LilyPond può essere aggiunta a OpenOffice.org con
+La notazione di LilyPond può essere aggiunta a OpenOffice e LibreOffice con
 @uref{http://@/ooolilypond@/.sourceforge@/.net@/,OOoLilyPond}.
 
 
@@ -753,7 +754,7 @@ La notazione di LilyPond può essere aggiunta a OpenOffice.org con
 
 Per inserire l'output di LilyPond in altri programmi, si usa @code{lilypond}
 invece di @code{lilypond-book}.  Bisogna creare ogni esempio singolarmente
-e aggiungerlo al documento; consulta la documentazione del realtivo
+e aggiungerlo al documento; consulta la documentazione del relativo
 programma.  La maggior parte dei programmi può inserire l'output di LilyPond
 in formato @file{PNG}, @file{EPS} o @file{PDF}.
 
@@ -784,7 +785,7 @@ PNG
 
 lilypond -dbackend=eps -dno-gs-load-fonts -dinclude-eps-fonts --png miofile.ly
 
-Un file PNG transparente
+Un file PNG trasparente
 
 lilypond -dbackend=eps -dno-gs-load-fonts -dinclude-eps-fonts \
   -dpixmap-format=pngalpha --png miofile.ly

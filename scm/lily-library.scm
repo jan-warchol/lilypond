@@ -1,6 +1,6 @@
 ;;;; This file is part of LilyPond, the GNU music typesetter.
 ;;;;
-;;;; Copyright (C) 1998--2012 Jan Nieuwenhuizen <janneke@gnu.org>
+;;;; Copyright (C) 1998--2014 Jan Nieuwenhuizen <janneke@gnu.org>
 ;;;; Han-Wen Nienhuys <hanwen@xs4all.nl>
 ;;;;
 ;;;; LilyPond is free software: you can redistribute it and/or modify
@@ -80,6 +80,11 @@
   (cons (ly:moment-main-numerator moment)
         (ly:moment-main-denominator moment)))
 
+(define-public (seconds->moment s context)
+  "Return a moment equivalent to s seconds at the current tempo."
+  (ly:moment-mul (ly:context-property context 'tempoWholesPerMinute)
+                 (ly:make-moment (/ s 60))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; durations
 
@@ -115,6 +120,16 @@ non-visual scale factor 1."
   "Given a duration object, return the length of the visual part of the
 duration (base note length and dot count), as a number of whole notes."
   (duration-length (duration-visual dur)))
+
+(define-public (unity-if-multimeasure context dur)
+  "Given a context and a duration, return @code{1} if the duration is
+longer than the @code{measureLength} in that context, and @code{#f} otherwise.
+This supports historic use of @code{Completion_heads_engraver} to split
+@code{c1*3} into three whole notes."
+  (if (ly:moment<? (ly:context-property context 'measureLength)
+                   (ly:duration-length dur))
+    1
+    #f))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; arithmetic
@@ -825,12 +840,12 @@ Handy for debugging, possibly turned off."
 ;;  x)
 
 (define-public (stderr string . rest)
-  (apply format (cons (current-error-port) (cons string rest)))
+  (apply format (current-error-port) string rest)
   (force-output (current-error-port)))
 
 (define-public (debugf string . rest)
   (if #f
-      (apply stderr (cons string rest))))
+      (apply stderr string rest)))
 
 (define (index-cell cell dir)
   (if (equal? dir 1)
