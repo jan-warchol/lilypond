@@ -840,7 +840,6 @@
         (font-series . bold)
         (font-shape . italic)
         (parent-alignment-X . ,CENTER)
-        (positioning-done . ,ly:script-interface::calc-positioning-done)
         (right-padding . 0.5)
         (self-alignment-X . ,CENTER)
         (stencil . ,ly:text-interface::print)
@@ -954,7 +953,7 @@
         (padding . 0.5)
         (parent-alignment-X . ,CENTER)
         (parent-alignment-Y . ,CENTER)
-        (positioning-done . ,ly:script-interface::calc-positioning-done)
+        (positioning-done . ,ly:script-interface::set-parent-to-first-head)
         (script-priority . 100)
         (self-alignment-X . ,CENTER)
         (self-alignment-Y . ,CENTER)
@@ -1900,15 +1899,16 @@
         (direction . ,ly:script-interface::calc-direction)
         (font-encoding . fetaMusic)
         (horizon-padding . 0.1) ; to avoid interleaving with accidentals
-        (positioning-done . ,ly:script-interface::calc-positioning-done)
         (side-axis . ,Y)
 
         ;; padding set in script definitions.
         (slur-padding . 0.2)
         (staff-padding . 0.25)
 
+        (self-alignment-X . ,CENTER)
         (stencil . ,ly:script-interface::print)
         (vertical-skylines . ,grob::always-vertical-skylines-from-stencil)
+        (X-align-on-main-noteheads . #t)
         (Y-extent . ,grob::always-Y-extent-from-stencil)
         (X-offset . ,script-interface::calc-x-offset)
         (Y-offset . ,side-position-interface::y-aligned-side)

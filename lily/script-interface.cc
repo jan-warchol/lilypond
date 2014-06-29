@@ -50,9 +50,12 @@ Script_interface::get_stencil (Grob *me, Direction d)
   return Stencil ();
 }
 
-MAKE_SCHEME_CALLBACK (Script_interface, calc_positioning_done, 1);
+/*
+  This should be deprecated.
+  */
+MAKE_SCHEME_CALLBACK (Script_interface, set_parent_to_first_head, 1);
 SCM
-Script_interface::calc_positioning_done (SCM smob)
+Script_interface::set_parent_to_first_head (SCM smob)
 {
   Grob *me = Grob::unsmob (smob);
   if (Grob *par = me->get_parent (X_AXIS))

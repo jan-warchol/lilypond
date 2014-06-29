@@ -37,7 +37,7 @@ public:
   DECLARE_GROB_INTERFACE ();
   DECLARE_SCHEME_CALLBACK (print, (SCM));
   DECLARE_SCHEME_CALLBACK (calc_direction, (SCM));
-  DECLARE_SCHEME_CALLBACK (calc_positioning_done, (SCM));
+  DECLARE_SCHEME_CALLBACK (set_parent_to_first_head, (SCM));
   DECLARE_SCHEME_CALLBACK (calc_cross_staff, (SCM));
 };
 

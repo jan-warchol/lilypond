@@ -253,12 +253,8 @@ Script_engraver::acknowledge_rhythmic_head (Grob_info info)
 void
 Script_engraver::acknowledge_note_column (Grob_info info)
 {
-  /* Make note column the parent of the script.  That is not
-     correct, but due to seconds in a chord, noteheads may be
-     swapped around horizontally.
-
-     As the note head to put it on is not known now, postpone this
-     decision to Script_interface::calc_direction ().  */
+  // Make note column the parent of the script (instead of note head)
+  // to avoid problems when there are suspended noteheads.
   for (vsize i = 0; i < scripts_.size (); i++)
     {
       Grob *e = scripts_[i].script_;
