@@ -290,6 +290,8 @@ set_ape_skylines (Accidental_placement_entry *ape,
           Skyline_pair copy (*sky);
           copy.raise (a->relative_coordinate (common[X_AXIS], X_AXIS));
           copy.shift (a->relative_coordinate (common[Y_AXIS], Y_AXIS));
+          Real adjustment = robust_scm2double(a->internal_get_property(ly_symbol2scm("padding")), 0);
+          copy.widen(adjustment);
           ape->horizontal_skylines_.merge (copy);
         }
 

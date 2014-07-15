@@ -69,6 +69,13 @@ Skyline_pair::shift (Real r)
 }
 
 void
+Skyline_pair::widen (Real r)
+{
+  skylines_[UP].raise (r);
+  skylines_[DOWN].raise (-r);
+}
+
+void
 Skyline_pair::insert (Box const &b, Axis a)
 {
   skylines_[UP].insert (b, a);

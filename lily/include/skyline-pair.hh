@@ -40,6 +40,7 @@ public:
   Real left () const;
   Real right () const;
   void raise (Real);
+  void widen (Real);
   void shift (Real);
   void deholify ();
   void insert (Box const &, Axis);
