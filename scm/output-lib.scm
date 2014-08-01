@@ -1113,9 +1113,11 @@ and draws the stencil based on its coordinates.
                                     (make-tied-lyric-markup text)
                                     text))))
 
-(define ((grob::calc-property-by-copy prop) grob)
+(define ((grob::copy-property-from-event prop) grob)
   (ly:event-property (event-cause grob) prop))
-(export grob::calc-property-by-copy)
+(export grob::copy-property-from-event)
+;; for backward compatibility
+(define-public grob::calc-property-by-copy grob::copy-property-from-event)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; general inheritance
