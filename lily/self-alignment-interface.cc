@@ -133,14 +133,19 @@ Self_alignment_interface::aligned_on_parent (Grob *me, Axis a)
       par_align = self_align;
 
   Real x = 0.0;
-  Interval ext (me->extent (me, a));
+
+  SCM maybe_ext = (a == X_AXIS)
+          ? me->internal_get_property (ly_symbol2scm ("X-alignment-extent"))
+          : me->internal_get_property (ly_symbol2scm ("Y-alignment-extent"));
+
+  Interval my_ext = robust_scm2interval (maybe_ext, me->extent (me, a));
 
   if (scm_is_number (self_align))
     {
       // Empty extent doesn't mean an error - we simply don't align such grobs.
       // However, empty extent and non-empty stencil would be suspicious.
-      if (!ext.is_empty ())
-        x -= ext.linear_combination (scm_to_double (self_align));
+      if (!my_ext.is_empty ())
+        x -= my_ext.linear_combination (scm_to_double (self_align));
       else if (me->get_stencil ())
         warning (me->name () + " has empty extent and non-empty stencil.");
     }

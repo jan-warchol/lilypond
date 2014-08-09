@@ -848,6 +848,7 @@
         (vertical-skylines . ,grob::always-vertical-skylines-from-stencil)
         (Y-extent . ,grob::always-Y-extent-from-stencil)
         (X-align-on-main-noteheads . #t)
+        (X-alignment-extent . ,(grob::calc-property-by-copy 'X-alignment-extent))
         (X-offset . ,ly:self-alignment-interface::aligned-on-x-parent)
         (Y-offset . ,(scale-by-font-size -0.6)) ; center on an 'm'
         (meta . ((class . Item)

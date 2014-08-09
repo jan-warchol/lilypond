@@ -1129,6 +1129,7 @@ texts.")
 ;;;
      (X-align-on-main-noteheads ,boolean? "If true, this grob will
 ignore suspended noteheads when aligning itself on NoteColumn.")
+     (X-alignment-extent ,number-pair? "Used for alignment.")
      (X-extent ,number-pair? "Extent (size) in the X@tie{}direction,
 measured in staff-space units, relative to object's reference point.")
      (X-offset ,number? "The horizontal amount that this object is
@@ -1141,6 +1142,7 @@ in the form @code{(@var{left} . @var{right})}, where both @var{left} and
 ;;;
 ;;; y
 ;;;
+     (Y-alignment-extent ,number-pair? "Used for alignment.")
      (Y-extent ,number-pair? "Extent (size) in the Y@tie{}direction,
 measured in staff-space units, relative to object's reference point.")
      (Y-offset ,number? "The vertical amount that this object is moved
