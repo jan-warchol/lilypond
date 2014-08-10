@@ -142,12 +142,16 @@
         (gap . ,ambitus-line::calc-gap)
         (length-fraction . 0.7)
         (maximum-gap . 0.45)
+        (self-alignment-X . ,CENTER)
         (stencil . ,ambitus::print)
         (thickness . 2)
-        (X-offset . ,ly:self-alignment-interface::centered-on-x-parent)
+        ;; why i can't use ly:grob::stencil-width ?
+        (X-extent . ,ambitus-line::width)
+        (X-offset . ,ly:self-alignment-interface::aligned-on-x-parent)
         (meta . ((class . Item)
                  (interfaces . (ambitus-interface
-                                font-interface))))))
+                                font-interface
+                                self-alignment-interface))))))
 
     (AmbitusNoteHead
      . (
@@ -984,19 +988,22 @@
     (Flag
      . (
         (glyph-name . ,ly:flag::glyph-name)
+        (parent-alignment-X . ,RIGHT)
+        (self-alignment-X . #f)
         (stencil . ,ly:flag::print)
         (transparent . ,(grob::inherit-parent-property
                          X 'transparent))
         (color . ,(grob::inherit-parent-property
                    X 'color))
         (X-extent . ,ly:flag::width)
-        (X-offset . ,ly:flag::calc-x-offset)
+        (X-offset . ,ly:self-alignment-interface::aligned-on-x-parent)
         (Y-offset . ,(ly:make-unpure-pure-container ly:flag::calc-y-offset ly:flag::pure-calc-y-offset))
         (Y-extent . ,grob::always-Y-extent-from-stencil)
         (vertical-skylines . ,grob::always-vertical-skylines-from-stencil)
         (meta . ((class . Item)
                  (interfaces . (flag-interface
-                                font-interface))))))
+                                font-interface
+                                self-alignment-interface))))))
 
     (FootnoteItem
      . (
@@ -1124,6 +1131,7 @@
         (grow-direction . ,hairpin::calc-grow-direction)
         (height . 0.6666)
         (minimum-length . 2.0)
+        (parent-alignment-Y . #f)
         (self-alignment-Y . ,CENTER)
         (springs-and-rods . ,ly:spanner::set-spacing-rods)
         (stencil . ,ly:hairpin::print)
@@ -1131,7 +1139,7 @@
         (to-barline . #t)
         (vertical-skylines . ,grob::unpure-vertical-skylines-from-stencil)
         (Y-extent . ,(grob::unpure-Y-extent-from-stencil ly:hairpin::pure-height))
-        (Y-offset . ,self-alignment-interface::y-aligned-on-self)
+        (Y-offset . ,ly:self-alignment-interface::aligned-on-y-parent)
         (meta . ((class . Spanner)
                  (interfaces . (dynamic-interface
                                 hairpin-interface

@@ -1299,6 +1299,14 @@ parent or the parent has no setting."
          (min gap max-gap))
       0)))
 
+;; Return AmbitusLine X-extent.
+
+(define-public (ambitus-line::width grob)
+  (let* ((layout (ly:grob-layout grob))
+         (line-thick (ly:output-def-lookup layout 'line-thickness))
+         (thickness (ly:grob-property grob 'thickness 2)))
+    (symmetric-interval (/ (* thickness line-thick) 2))))
+
 ;; Print a line connecting ambitus heads:
 
 (define-public (ambitus::print grob)
