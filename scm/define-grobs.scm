@@ -1402,6 +1402,8 @@
         (extra-spacing-height . (0.2 . -0.2))
         (font-series . medium)
         (font-size . 1.0)
+        (long-syllables-offset . -2.1)
+        (minimum-X-offset . -2.8)
         (parent-alignment-X . ())
         (self-alignment-X . ,CENTER)
         (stencil . ,lyric-text::print)
@@ -1410,7 +1412,7 @@
         (skyline-horizontal-padding . 0.1)
         (vertical-skylines . ,grob::always-vertical-skylines-from-stencil)
         (X-align-on-main-noteheads . #t)
-        (X-offset . ,ly:self-alignment-interface::aligned-on-x-parent)
+        (X-offset . ,lyric-text::calc-x-offset)
         (Y-extent . ,grob::always-Y-extent-from-stencil)
         (meta . ((class . Item)
                  (interfaces . (font-interface

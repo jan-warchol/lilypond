@@ -599,6 +599,9 @@ curve's outline, which intersect at the endpoints.  This property is
 expressed as a multiple of the current staff-line thickness (i.e. the
 visual output is influenced by changes to
 @code{@var{Staff}.StaffSymbol.thickness}).")
+     (long-syllables-offset ,number? "Long lyric syllables will
+have @code{X-offset} set to this value. This property should be
+set to a value at least 0.5 bigger than")
      (long-text ,markup? "Text markup.  See @ruser{Formatting text}.")
 
 
@@ -643,8 +646,12 @@ as fraction of note head size.")
 should move (after padding).")
      (minimum-X-extent ,number-pair? "Minimum size of an object in
 X@tie{}dimension, measured in @code{staff-space} units.")
+     (minimum-X-offset ,number? "Minimum value for @code{X-offset}
+property.")
      (minimum-Y-extent ,number-pair? "Minimum size of an object in
 Y@tie{}dimension, measured in @code{staff-space} units.")
+     (minimum-Y-offset ,number? "Minimum value for @code{Y-offset}
+property.")
 
 
 ;;;

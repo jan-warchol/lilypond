@@ -1104,6 +1104,19 @@ and draws the stencil based on its coordinates.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lyrics
 
+(define-public (lyric-text::calc-x-offset grob)
+  "Normally, lyric syllables are placed according to @code{self-alignment-X}
+(centered by default).  However, very long syllables shouldn't stick too
+much to the left of the note (see Gould p. 439), so if the offset calculated
+from @code{self-alignment-X} is smaller than @code{minimum-X-offset}, we use
+@code{long-syllables-offset} instead."
+  (let ((offset (ly:self-alignment-interface::aligned-on-x-parent grob))
+        (long-offset (ly:grob-property grob 'long-syllables-offset -2.1))
+        (min-offset (ly:grob-property grob 'minimum-X-offset -2.8)))
+    (if (< offset min-offset)
+        long-offset
+        offset)))
+
 (define-public (lyric-text::print grob)
   "Allow interpretation of tildes as lyric tieing marks."
 
