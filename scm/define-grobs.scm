@@ -2345,10 +2345,11 @@
         (duration-log . ,note-head::calc-duration-log)
         (font-series . bold)
         (font-size . -2)
+        (parent-alignment-X . #f)
         (stem-attachment . (0.0 . 1.35))
         (stencil . ,tab-note-head::print)
         (whiteout . #t)
-        (X-offset . ,ly:self-alignment-interface::x-aligned-on-self)
+        (X-offset . ,ly:self-alignment-interface::aligned-on-x-parent)
         (Y-offset . ,staff-symbol-referencer::callback)
         (Y-extent . ,grob::always-Y-extent-from-stencil)
         (meta . ((class . Item)
@@ -2356,6 +2357,7 @@
                                  note-head-interface
                                  rhythmic-grob-interface
                                  rhythmic-head-interface
+                                 self-alignment-interface
                                  staff-symbol-referencer-interface
                                  tab-note-head-interface
                                  text-interface))))))

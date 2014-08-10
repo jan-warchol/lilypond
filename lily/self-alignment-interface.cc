@@ -52,6 +52,8 @@ Self_alignment_interface::aligned_on_self (Grob *me, Axis a, bool pure, int star
   SCM sym = (a == X_AXIS) ? ly_symbol2scm ("self-alignment-X")
             : ly_symbol2scm ("self-alignment-Y");
 
+  message(me->name());
+  message(me->get_parent(X_AXIS)->name());
   SCM align (me->internal_get_property (sym));
   if (scm_is_number (align))
     {
@@ -103,6 +105,7 @@ Self_alignment_interface::aligned_on_y_parent (SCM smob)
 SCM
 Self_alignment_interface::aligned_on_parent (Grob *me, Axis a)
 {
+    message(me->name()+ " => " + me->get_parent(X_AXIS)->name());
   Grob *him = me->get_parent (a);
   Interval he;
   if (Paper_column::has_interface (him))
@@ -121,6 +124,20 @@ Self_alignment_interface::aligned_on_parent (Grob *me, Axis a)
       else
         he = him->extent (him, a);
     }
+
+  if (me->name() == "TabNoteHead")
+          {
+            Interval extent = Interval (0, 0);
+            extract_grob_set (him->get_parent(X_AXIS), "elements", elts);
+
+            for (vsize i = 0; i < elts.size (); i++)
+                if (elts[i]->internal_has_interface (ly_symbol2scm("note-head-interface"))
+                        && !elts[i]->internal_has_interface (ly_symbol2scm("tab-note-head-interface")))
+                extent.unite (robust_relative_extent (elts[i], elts[i], X_AXIS));
+
+            he = extent;
+          }
+  message(to_string(he[LEFT])+ " , "  +to_string(he[RIGHT]));
 
   SCM self_align = (a == X_AXIS)
           ? me->internal_get_property (ly_symbol2scm ("self-alignment-X"))
