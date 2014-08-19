@@ -140,6 +140,11 @@ Prob::print_smob (SCM smob, SCM port, scm_print_state *)
 }
 
 SCM
+Prob::get_property (string sym) const
+{
+    return this->internal_get_property (ly_symbol2scm (sym));
+}
+SCM
 Prob::internal_get_property (SCM sym) const
 {
 #ifndef NDEBUG

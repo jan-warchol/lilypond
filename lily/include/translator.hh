@@ -132,6 +132,7 @@ public:
 
   Translator (Translator const &);
 
+  SCM get_property (string symbol) const;
   SCM internal_get_property (SCM symbol) const;
 
   virtual Output_def *get_output_def () const;

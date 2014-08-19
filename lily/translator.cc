@@ -85,6 +85,12 @@ Translator::protect_event (SCM ev)
 }
 
 SCM
+Translator::get_property (string sym) const
+{
+  return daddy_context_->internal_get_property (ly_symbol2scm (sym));
+}
+
+SCM
 Translator::internal_get_property (SCM sym) const
 {
   return daddy_context_->internal_get_property (sym);

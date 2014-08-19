@@ -134,7 +134,7 @@ nested_property_alist (SCM alist, SCM prop_path, SCM value)
 void
 set_nested_property (Grob *me, SCM big_to_small, SCM value)
 {
-  SCM alist = me->get_property (scm_car (big_to_small));
+  SCM alist = me->internal_get_property (scm_car (big_to_small));
 
   alist = nested_property_alist (alist, scm_cdr (big_to_small), value);
 

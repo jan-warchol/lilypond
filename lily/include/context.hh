@@ -99,6 +99,7 @@ public:
   Context ();
 
   /* properties:  */
+  SCM get_property (string name_sym) const;
   SCM internal_get_property (SCM name_sym) const;
   SCM properties_as_alist () const;
   Context *where_defined (SCM name_sym, SCM *value) const;

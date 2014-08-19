@@ -58,6 +58,7 @@ public:
   virtual string name () const;
   SCM type () const { return type_; }
   SCM get_property_alist (bool _mutable) const;
+  SCM get_property (string) const;
   SCM internal_get_property (SCM sym) const;
   void instrumented_set_property (SCM, SCM, const char *, int, const char *);
   void internal_set_property (SCM sym, SCM val);

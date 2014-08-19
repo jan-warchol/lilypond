@@ -471,6 +471,11 @@ Context::here_defined (SCM sym, SCM *value) const
   return properties_dict ()->try_retrieve (sym, value);
 }
 
+SCM
+Context::get_property (string sym)
+{
+    return this->internal_get_property(ly_symbol2scm (sym));
+}
 /*
   return SCM_EOL when not found.
 */

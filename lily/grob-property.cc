@@ -160,6 +160,11 @@ Grob::internal_get_property_data (SCM sym) const
 
   return (handle == SCM_BOOL_F) ? SCM_EOL : scm_cdr (handle);
 }
+SCM
+Grob::get_property (string sym) const
+{
+    return this->internal_get_property (ly_symbol2scm (sym));
+}
 
 SCM
 Grob::internal_get_property (SCM sym) const

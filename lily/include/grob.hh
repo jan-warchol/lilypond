@@ -106,6 +106,7 @@ public:
 
   /* Properties */
   SCM get_property_alist_chain (SCM) const;
+  SCM get_property (string) const;
   SCM internal_get_property (SCM symbol) const;
   SCM internal_get_property_data (SCM symbol) const;
   SCM internal_get_pure_property (SCM symbol, int start, int end) const;

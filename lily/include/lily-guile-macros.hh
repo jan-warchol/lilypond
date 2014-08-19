@@ -51,6 +51,9 @@ inline SCM
 scm_or_str2symbol (char const *c) { return scm_from_locale_symbol (c); }
 
 inline SCM
+scm_or_str2symbol (string s) { return scm_from_locale_string (s); }
+
+inline SCM
 scm_or_str2symbol (SCM s)
 {
   assert (scm_is_symbol (s));
@@ -186,7 +189,6 @@ void ly_check_name (const string &cxx, const string &fname);
   LY_DEFINE_WITHOUT_DECL (CLASS ## FNAME, CLASS::FNAME, PRIMNAME, REQ, OPT, \
                           VAR, ARGLIST, DOCSTRING)
 
-#define get_property(x) internal_get_property (ly_symbol2scm (x))
 #define get_pure_property(x,y,z) \
   internal_get_pure_property (ly_symbol2scm (x), y, z)
 #define get_maybe_pure_property(w,x,y,z) \
