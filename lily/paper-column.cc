@@ -236,6 +236,24 @@ Paper_column::get_interface_extent (Grob *column, SCM iface, Axis a)
 }
 
 /*
+  Loop through elements of a PaperColumn, find all NoteHeads
+  that aren't TabNoteHeads, and return their combined extent.
+*/
+Interval
+Paper_column::get_nontab_heads_extent (Grob *column, Axis a)
+{
+  Interval extent = Interval (infinity_f, -infinity_f);
+  extract_grob_set (column, "elements", elts);
+
+  for (vsize i = 0; i < elts.size (); i++)
+    if (elts[i]->internal_has_interface (ly_symbol2scm ("note-head-interface"))
+        && !elts[i]->internal_has_interface (ly_symbol2scm ("tab-note-head-interface")))
+      extent.unite (robust_relative_extent (elts[i], elts[i], a));
+
+  return extent;
+}
+
+/*
   Print a:
   - vertical line,
   - the rank number,

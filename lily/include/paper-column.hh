@@ -60,6 +60,7 @@ public:
   static Real minimum_distance (Grob *l, Grob *r);
   static Interval break_align_width (Grob *me, SCM align_sym);
   static Interval get_interface_extent (Grob *column, SCM iface, Axis a);
+  static Interval get_nontab_heads_extent (Grob *column, Axis a);
 };
 
 #endif // PAPER_COLUMN_HH
