@@ -20,6 +20,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; general
 
+(define-public placeholder-notehead-extent '(0 . 1.35))
+
 (define-public (grob::has-interface grob iface)
   (memq iface (ly:grob-interfaces grob)))
 

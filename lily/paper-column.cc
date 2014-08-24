@@ -225,7 +225,9 @@ Paper_column::break_align_width (Grob *me, SCM align_sym)
 Interval
 Paper_column::get_interface_extent (Grob *column, SCM iface, Axis a)
 {
-  Interval extent = Interval (0, 0);
+  Interval extent;
+  extent.set_empty();
+
   extract_grob_set (column, "elements", elts);
 
   for (vsize i = 0; i < elts.size (); i++)

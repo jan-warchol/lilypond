@@ -105,13 +105,32 @@ Self_alignment_interface::aligned_on_parent (Grob *me, Axis a)
   Grob *him = me->get_parent (a);
   Interval he;
   if (Paper_column::has_interface (him))
+    {
       /*
         PaperColumn extents aren't reliable (they depend on size and alignment
-        of PaperColumn's children), so we align on NoteColumn instead.
-        This happens e.g. for lyrics without associatedVoice.
+        of PaperColumn's children), so we align on combined note heads instead.
+        If there are no note heads, we use a placeholder extent - see regtest
+        alignment-of-grobs-attached-to-paper-column.ly for more details.
+        This situation happens e.g. for lyrics without associatedVoice.
+
+        TODO:
+        instead of using a placeholder extent (which produces slightly wrong
+        results e.g. for whole notes), we should get the extent of noteheads
+        from the *previous* column.  Unfortunately I don't know how to do this...
+        --jw
       */
-    he = Paper_column::get_interface_extent
-              (him, ly_symbol2scm ("note-column-interface"), a);
+      he = Paper_column::get_interface_extent
+                (him, ly_symbol2scm ("note-column-interface"), a);
+      if (he.is_empty () && a == X_AXIS)
+        {
+          Real fsize = robust_scm2double (me->get_property ("font-size"), 0.0);
+          Real magstep = pow (2, fsize / 6);
+          Interval fake_notehead_width = robust_scm2interval (
+                      ly_lily_module_constant ("placeholder-notehead-extent"),
+                      Interval (0, 1.35));
+          he = fake_notehead_width * magstep;
+        }
+    }
   else
     {
       if (to_boolean (me->get_property ("X-align-on-main-noteheads"))

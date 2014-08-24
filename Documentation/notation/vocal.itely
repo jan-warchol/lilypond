@@ -513,6 +513,7 @@ Here are two examples:
 @lilypond[relative=1,verbatim,quote]
 <<
   \new Voice = "melody" {
+    \cadenzaOn
     c'2 a f f e e
   }
   \new Lyrics \lyricmode {
