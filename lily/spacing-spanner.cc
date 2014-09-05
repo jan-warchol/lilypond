@@ -96,6 +96,8 @@ Spacing_spanner::calc_common_shortest_duration (SCM grob)
   /*
     ascending in duration
   */
+  Rational length = Rational (0);
+  int count = 0;
   vector<Rational> durations;
   vector<int> counts;
 
@@ -117,57 +119,20 @@ Spacing_spanner::calc_common_shortest_duration (SCM grob)
           SCM st = cols[i]->get_property ("shortest-starter-duration");
           Moment this_shortest = *Moment::unsmob (st);
           assert (this_shortest.to_bool ());
-          shortest_in_measure = min (shortest_in_measure, this_shortest.main_part_);
-        }
-      else if (!shortest_in_measure.is_infinity ()
-               && Paper_column::is_breakable (cols[i]))
-        {
-          vsize j = 0;
-          for (; j < durations.size (); j++)
-            {
-              if (durations[j] > shortest_in_measure)
-                {
-                  counts.insert (counts.begin () + j, 1);
-                  durations.insert (durations.begin () + j, shortest_in_measure);
-                  break;
-                }
-              else if (durations[j] == shortest_in_measure)
-                {
-                  counts[j]++;
-                  break;
-                }
-            }
-
-          if (durations.size () == j)
-            {
-              durations.push_back (shortest_in_measure);
-              counts.push_back (1);
-            }
-
-          shortest_in_measure.set_infinite (1);
+          if (!this_shortest.main_part_.is_infinity())
+              length += this_shortest.main_part_;
+          count++;
         }
     }
 
-  vsize max_idx = VPOS;
-  int max_count = 0;
-  for (vsize i = durations.size (); i--;)
-    {
-      if (counts[i] >= max_count)
-        {
-          max_idx = i;
-          max_count = counts[i];
-        }
-    }
-
+  Rational result = length / Rational (count*2);
+  message("found " + to_string(count) + " notes, totalling " + length.to_string() + ", result: " + result.to_string());
   SCM bsd = me->get_property ("base-shortest-duration");
   Rational d = Rational (1, 8);
   if (Moment *m = Moment::unsmob (bsd))
     d = m->main_part_;
 
-  if (max_idx != VPOS)
-    d = min (d, durations[max_idx]);
-
-  return Moment (d).smobbed_copy ();
+  return Moment (result).smobbed_copy ();
 }
 
 void
