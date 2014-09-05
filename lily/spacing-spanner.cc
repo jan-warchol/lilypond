@@ -108,6 +108,18 @@ Spacing_spanner::calc_common_shortest_duration (SCM grob)
     {
       if (Paper_column::is_musical (cols[i]))
         {
+          Interval extent = Interval (0, 0);
+          extract_grob_set (cols[i], "elements", elts);
+
+          for (vsize j = 0; j < elts.size (); j++)
+            {
+              Interval ext = robust_relative_extent (elts[j], cols[i], X_AXIS);
+              extent.unite(ext);
+          }
+
+          int col_rank = dynamic_cast<Paper_column *> (cols[i])->get_rank();
+          message ("max extent in column " + to_string(col_rank) + " is " + extent.to_string());
+
           Moment *when = Moment::unsmob (cols[i]->get_property ("when"));
 
           /*
