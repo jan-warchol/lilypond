@@ -23,6 +23,7 @@
 #include "note-column.hh"
 #include "paper-column.hh"
 #include "pointer-group-interface.hh"
+#include "system.hh"
 #include "warn.hh"
 
 MAKE_SCHEME_CALLBACK (Self_alignment_interface, y_aligned_on_self, 1);
@@ -123,12 +124,12 @@ Self_alignment_interface::aligned_on_parent (Grob *me, Axis a)
                 (him, ly_symbol2scm ("note-column-interface"), a);
       if (he.is_empty () && a == X_AXIS)
         {
-          Real fsize = robust_scm2double (me->get_property ("font-size"), 0.0);
-          Real magstep = pow (2, fsize / 6);
-          Interval fake_notehead_width = robust_scm2interval (
-                      ly_lily_module_constant ("placeholder-notehead-extent"),
-                      Interval (0, 1.35));
-          he = fake_notehead_width * magstep;
+          message("ping");
+          System *sys = get_root_system (me);
+          Item *prev = sys->column (dynamic_cast <Item *> (me)->get_column ()->get_rank () - 2);
+
+          he = Paper_column::get_interface_extent
+                    (prev, ly_symbol2scm ("note-column-interface"), a);
         }
     }
   else
@@ -140,6 +141,7 @@ Self_alignment_interface::aligned_on_parent (Grob *me, Axis a)
         he = him->extent (him, a);
     }
 
+  message (he.to_string());
   SCM self_align = (a == X_AXIS)
           ? me->get_property ("self-alignment-X")
           : me->get_property ("self-alignment-Y");
